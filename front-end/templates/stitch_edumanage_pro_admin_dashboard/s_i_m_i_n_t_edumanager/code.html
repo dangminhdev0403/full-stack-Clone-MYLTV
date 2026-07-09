@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduManager - Sổ điểm điện tử</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#faf8ff",
+                        "background": "#faf8ff",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-variant": "#e1e2ed",
+                        "secondary": "#505f76",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary-container": "#ffede6",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#d3e4fe",
+                        "tertiary-container": "#bc4800",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-background": "#191b23",
+                        "on-primary-container": "#eeefff",
+                        "tertiary": "#943700",
+                        "surface-dim": "#d9d9e5",
+                        "surface-tint": "#0053db",
+                        "on-surface": "#191b23",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-low": "#f3f3fe",
+                        "surface-container": "#ededf9",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffdbcd",
+                        "primary-container": "#2563eb",
+                        "on-secondary-container": "#54647a",
+                        "on-surface-variant": "#434655",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e7e7f3",
+                        "inverse-surface": "#2e3039",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#737686",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "primary": "#004ac6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#faf8ff",
+                        "secondary-fixed-dim": "#b7c8e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "element-gap": "16px",
+                        "container-padding": "24px",
+                        "section-margin": "32px",
+                        "compact-padding": "8px 12px",
+                        "grid-gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Be Vietnam Pro"],
+                        "body-lg": ["Be Vietnam Pro"],
+                        "title-md": ["Be Vietnam Pro"],
+                        "headline-sm": ["Be Vietnam Pro"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "display-md": ["Be Vietnam Pro"],
+                        "label-md": ["Be Vietnam Pro"],
+                        "display-lg": ["Be Vietnam Pro"],
+                        "caption": ["Be Vietnam Pro"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "caption": ["11px", {"lineHeight": "14px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Be Vietnam Pro', sans-serif; }
+        .grade-input:focus {
+            outline: none;
+            background-color: #f3f3fe;
+            box-shadow: inset 0 0 0 2px #2563eb;
+        }
+        .grade-failing { color: #ba1a1a; font-weight: 700; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-surface">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full p-4 z-50">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<h1 class="font-display-md text-display-md font-bold text-primary leading-tight">EduManager</h1>
+<p class="text-label-sm text-outline">Hệ thống Quản lý</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Tổng quan</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">school</span>
+<span>Nhà trường</span>
+</a>
+<!-- Active State: Học tập (closest to Sổ điểm) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-title-md text-title-md active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span>Học tập</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">category</span>
+<span>Dịch vụ</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span>Truyền thông</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span>Phản hồi</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Báo cáo</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors duration-200 rounded-lg font-title-md text-title-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Hệ thống</span>
+</a>
+</nav>
+<div class="pt-4 border-t border-outline-variant mt-auto">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a professional female Vietnamese teacher in a modern school setting, wearing a formal outfit, looking approachable and confident. The background is a brightly lit, clean hallway with soft natural light, reflecting an organized educational environment with high-end modern design aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDszuKN2XPKOYPk7ntTzeMKYpOGFdqRVrv7guEygSr6zxH8zsB8Xb_oti4GHRt5giAk9l-ZIZNM4Q0PD8YHkjZu6dsW9-CCfH4te_x0TblvKpd121vQMljAD_wHr0D6qfHu-sSNQRZa6wriCV1dOg3aIoAGj2p2lFCO4hjiToBGGFdLQDBerl7x_MIuvD-zJTyKozUK54XzIcjGyY3PxYIvrg6ifF7oea068Erk6F2Rh9zwvHWEQPdBqM8bgw8b6P2X5BxN4MMI3QR9"/>
+</div>
+<div class="flex-1">
+<p class="text-label-md font-bold text-on-surface">Nguyễn Minh Anh</p>
+<p class="text-caption text-outline">Giáo viên Toán</p>
+</div>
+<button class="text-secondary hover:text-error transition-colors">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Shell -->
+<div class="ml-64 min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-40 w-full bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center h-16 px-6">
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-outline">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 w-64 text-body-md focus:ring-2 focus:ring-primary" placeholder="Tìm kiếm học sinh..." type="text"/>
+</div>
+<nav class="flex gap-4 items-center h-full">
+<a class="text-primary font-bold border-b-2 border-primary h-16 flex items-center px-2" href="#">Năm học 2023-2024</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors h-16 flex items-center px-2" href="#">Học kỳ I</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="Close up of a professional user profile avatar in a clean minimalist style, featuring a friendly middle-aged male teacher with glasses, soft studio lighting, professional attire, high quality photograph, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBysMNJPpjk-xhsQ_dInp-1Z8dHwVB9deJXuzi3cVvns1ygOKVZMI1S95zerUcfnq8yKxCZMK3EpmTEdJXR-9Vw4xqxXUe5xf8pzqoGe71TCABBtsGV3YRT3lhmLsnS2S_3kGtqLXwsvWdBl6E1OxnTOXIyeTNW3AuuJF31q0UxVTm3mR4YKGPdqnvXGJNZD66tkwCV6jhNXokLnSWRPmFfcb_3tqhXx8HTZuwA1p6RxTBjS4bG0hKFv7lFyQ5r1G18BFnKpyBhlvkl"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="p-6 space-y-6">
+<!-- Header & Breadcrumbs -->
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<nav class="flex gap-2 text-caption text-outline">
+<a class="hover:text-primary" href="#">Trang chủ</a>
+<span>/</span>
+<a class="hover:text-primary" href="#">Học tập</a>
+<span>/</span>
+<span class="text-on-surface">Sổ điểm</span>
+</nav>
+<h2 class="text-display-md font-display-md text-on-surface">Sổ điểm điện tử</h2>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-label-md font-bold hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export to Excel
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-lg text-label-md font-bold hover:shadow-lg active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">save</span>
+                        Lưu thay đổi
+                    </button>
+</div>
+</div>
+<!-- Filters Area -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-wrap items-center gap-4 shadow-sm">
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-caption font-bold text-outline uppercase tracking-wider">Năm học</label>
+<select class="bg-surface-container-low border-none rounded-lg text-body-md py-2 focus:ring-2 focus:ring-primary cursor-pointer">
+<option>2023 - 2024</option>
+<option>2022 - 2023</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-caption font-bold text-outline uppercase tracking-wider">Học kỳ</label>
+<select class="bg-surface-container-low border-none rounded-lg text-body-md py-2 focus:ring-2 focus:ring-primary cursor-pointer">
+<option>Học kỳ I</option>
+<option>Học kỳ II</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-caption font-bold text-outline uppercase tracking-wider">Khối</label>
+<select class="bg-surface-container-low border-none rounded-lg text-body-md py-2 focus:ring-2 focus:ring-primary cursor-pointer">
+<option>Khối 10</option>
+<option>Khối 11</option>
+<option>Khối 12</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-caption font-bold text-outline uppercase tracking-wider">Lớp</label>
+<select class="bg-surface-container-low border-none rounded-lg text-body-md py-2 focus:ring-2 focus:ring-primary cursor-pointer">
+<option>10A1</option>
+<option>10A2</option>
+<option>10A3</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-caption font-bold text-outline uppercase tracking-wider">Môn học</label>
+<select class="bg-surface-container-low border-none rounded-lg text-body-md py-2 focus:ring-2 focus:ring-primary cursor-pointer font-bold text-primary">
+<option>Toán</option>
+<option>Vật lý</option>
+<option>Hóa học</option>
+</select>
+</div>
+<div class="ml-auto">
+<button class="flex items-center gap-2 p-2 text-primary hover:bg-primary/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="text-label-md font-bold">Lọc nâng cao</span>
+</button>
+</div>
+</div>
+<!-- Grade Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-surface-container text-left border-b border-outline-variant">
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center w-12">No.</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase min-w-[200px]">Học sinh</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center border-l border-outline-variant/30" colspan="3">Điểm Thường xuyên (15')</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center border-l border-outline-variant/30">Giữa kỳ</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center border-l border-outline-variant/30">Cuối kỳ</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center border-l border-outline-variant/30 bg-primary/5 text-primary">Trung bình</th>
+<th class="px-4 py-3 text-label-sm font-bold text-outline uppercase text-center border-l border-outline-variant/30">Ghi chú</th>
+</tr>
+<tr class="bg-surface-container-low text-center border-b border-outline-variant">
+<th></th>
+<th></th>
+<th class="py-2 text-caption text-outline font-bold border-l border-outline-variant/30">#1</th>
+<th class="py-2 text-caption text-outline font-bold">#2</th>
+<th class="py-2 text-caption text-outline font-bold">#3</th>
+<th class="py-2 text-caption text-outline font-bold border-l border-outline-variant/30">Hệ số 2</th>
+<th class="py-2 text-caption text-outline font-bold border-l border-outline-variant/30">Hệ số 3</th>
+<th class="py-2 text-caption font-bold border-l border-outline-variant/30 bg-primary/5 text-primary">Môn Toán</th>
+<th class="border-l border-outline-variant/30"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30" id="grade-table-body">
+<!-- Rows generated by JS -->
+</tbody>
+</table>
+</div>
+<!-- Table Footer -->
+<div class="px-6 py-4 flex justify-between items-center bg-surface-container-lowest">
+<p class="text-caption text-outline italic">* Nhập điểm trực tiếp vào ô để cập nhật. Điểm dưới 5.0 sẽ được đánh dấu đỏ.</p>
+<div class="flex items-center gap-4">
+<span class="text-label-md text-on-surface">Hiển thị 1 - 10 trên 42 học sinh</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-surface-variant text-outline"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="px-3 py-1 bg-primary text-on-primary rounded text-label-md">1</button>
+<button class="px-3 py-1 hover:bg-surface-variant text-on-surface rounded text-label-md">2</button>
+<button class="px-3 py-1 hover:bg-surface-variant text-on-surface rounded text-label-md">3</button>
+<button class="p-1 rounded hover:bg-surface-variant text-outline"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        const students = [
+            { id: 1, name: "Nguyễn Văn An", grades: [8, 7.5, 9], midterm: 8.5, final: 9.0, note: "" },
+            { id: 2, name: "Trần Thị Bình", grades: [4, 5.5, 3.5], midterm: 4.5, final: 5.0, note: "Vắng thi số 1" },
+            { id: 3, name: "Lê Văn Cường", grades: [7, 6.0, 7.5], midterm: 7.0, final: 8.0, note: "" },
+            { id: 4, name: "Phạm Minh Đức", grades: [9.5, 10, 9], midterm: 9.0, final: 10, note: "Xuất sắc" },
+            { id: 5, name: "Hoàng Mai Anh", grades: [6.5, 7.0, 6.5], midterm: 7.5, final: 7.0, note: "" },
+            { id: 6, name: "Ngô Quốc Việt", grades: [5, 4.5, 5], midterm: 5.5, final: 4.0, note: "" },
+            { id: 7, name: "Đỗ Bảo Long", grades: [8, 8.5, 8], midterm: 9.0, final: 8.5, note: "" },
+            { id: 8, name: "Vũ Phương Thảo", grades: [7.5, 8.0, 7.5], midterm: 8.0, final: 7.5, note: "" },
+            { id: 9, name: "Bùi Tiến Dũng", grades: [3.5, 4.0, 4.5], midterm: 3.5, final: 4.0, note: "Cần kèm thêm" },
+            { id: 10, name: "Lý Gia Hân", grades: [8.5, 9.0, 8.5], midterm: 8.5, final: 9.0, note: "" }
+        ];
+
+        function calculateAverage(student) {
+            const regularSum = student.grades.reduce((a, b) => a + b, 0);
+            const regularCount = student.grades.length;
+            const avg = (regularSum + (student.midterm * 2) + (student.final * 3)) / (regularCount + 2 + 3);
+            return avg.toFixed(1);
+        }
+
+        const tableBody = document.getElementById('grade-table-body');
+        
+        students.forEach((student, index) => {
+            const avg = calculateAverage(student);
+            const isFailing = (val) => val < 5;
+            
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-surface-variant/20 transition-colors group';
+            
+            row.innerHTML = `
+                <td class="px-4 py-3 text-body-md text-center text-outline group-hover:text-on-surface">${index + 1}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-caption">
+                            ${student.name.split(' ').pop()[0]}
+                        </div>
+                        <span class="text-body-md font-semibold text-on-surface">${student.name}</span>
+                    </div>
+                </td>
+                ${student.grades.map(g => `
+                    <td class="px-2 py-3 text-center border-l border-outline-variant/30">
+                        <input type="text" value="${g}" class="grade-input w-12 text-center py-1 bg-transparent border-none rounded text-body-md ${isFailing(g) ? 'grade-failing' : ''}">
+                    </td>
+                `).join('')}
+                <td class="px-2 py-3 text-center border-l border-outline-variant/30">
+                    <input type="text" value="${student.midterm}" class="grade-input w-16 text-center py-1 bg-transparent border-none rounded text-body-md font-bold ${isFailing(student.midterm) ? 'grade-failing' : ''}">
+                </td>
+                <td class="px-2 py-3 text-center border-l border-outline-variant/30">
+                    <input type="text" value="${student.final}" class="grade-input w-16 text-center py-1 bg-transparent border-none rounded text-body-md font-bold ${isFailing(student.final) ? 'grade-failing' : ''}">
+                </td>
+                <td class="px-4 py-3 text-center border-l border-outline-variant/30 bg-primary/5">
+                    <span class="text-body-md font-extrabold ${isFailing(avg) ? 'text-error' : 'text-primary'}">${avg}</span>
+                </td>
+                <td class="px-4 py-3 border-l border-outline-variant/30">
+                    <input type="text" value="${student.note}" placeholder="..." class="w-full bg-transparent border-none focus:ring-0 text-body-md text-outline italic">
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Simple scale micro-interaction for Save button
+        const saveBtn = document.querySelector('button.bg-primary');
+        saveBtn.addEventListener('click', () => {
+            const originalContent = saveBtn.innerHTML;
+            saveBtn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Đang lưu...`;
+            saveBtn.classList.add('opacity-80');
+            setTimeout(() => {
+                saveBtn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Đã lưu thành công`;
+                saveBtn.classList.remove('bg-primary');
+                saveBtn.classList.add('bg-success', 'bg-emerald-600');
+                setTimeout(() => {
+                    saveBtn.innerHTML = originalContent;
+                    saveBtn.classList.remove('bg-emerald-600');
+                    saveBtn.classList.add('bg-primary');
+                    saveBtn.classList.remove('opacity-80');
+                }, 2000);
+            }, 1000);
+        });
+    </script>
+</body></html>

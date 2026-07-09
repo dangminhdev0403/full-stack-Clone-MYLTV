@@ -1,0 +1,890 @@
+{
+  "version": "1.0.0",
+  "project": "So lien lac dien tu Luong The Vinh",
+  "base_url": "{{BASE_URL}}/api/v1",
+  "updated_at": "2026-07-07",
+  "note": "File thong nhat API cho backend dong bo voi mobile app. Tat ca endpoint tru login va refresh-token can Authorization: Bearer <access_token>.",
+  "common_headers": {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Authorization": "Bearer <access_token>"
+  },
+  "common_response": {
+    "success": true,
+    "message": "OK",
+    "data": {}
+  },
+  "errors": [
+    {
+      "http_status": 400,
+      "code": "BAD_REQUEST",
+      "message": "Du lieu gui len khong hop le"
+    },
+    {
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "message": "Phien dang nhap het han hoac token khong hop le"
+    },
+    {
+      "http_status": 403,
+      "code": "FORBIDDEN",
+      "message": "Khong co quyen truy cap du lieu nay"
+    },
+    {
+      "http_status": 404,
+      "code": "NOT_FOUND",
+      "message": "Khong tim thay du lieu"
+    },
+    {
+      "http_status": 500,
+      "code": "SERVER_ERROR",
+      "message": "Loi he thong"
+    }
+  ],
+  "endpoints": [
+    {
+      "group": "auth",
+      "name": "Dang nhap",
+      "method": "POST",
+      "path": "/auth/login",
+      "auth_required": false,
+      "request_body": {
+        "username": "string",
+        "password": "string",
+        "device_id": "string|null",
+        "fcm_token": "string|null"
+      },
+      "response_data": {
+        "access_token": "string",
+        "refresh_token": "string",
+        "expires_in": 3600,
+        "account": {
+          "id": "string",
+          "username": "string",
+          "role": "parent|student|teacher|admin"
+        },
+        "student": {
+          "id": "string",
+          "code": "HS001",
+          "full_name": "Nguyen Van A",
+          "avatar_url": "string|null",
+          "grade": "10",
+          "class_name": "10A1",
+          "school_name": "Truong THPT & THCS Luong The Vinh"
+        }
+      }
+    },
+    {
+      "group": "auth",
+      "name": "Lam moi token",
+      "method": "POST",
+      "path": "/auth/refresh-token",
+      "auth_required": false,
+      "request_body": {
+        "refresh_token": "string"
+      },
+      "response_data": {
+        "access_token": "string",
+        "refresh_token": "string",
+        "expires_in": 3600
+      }
+    },
+    {
+      "group": "auth",
+      "name": "Dang xuat",
+      "method": "POST",
+      "path": "/auth/logout",
+      "request_body": {
+        "device_id": "string|null"
+      },
+      "response_data": {
+        "logged_out": true
+      }
+    },
+    {
+      "group": "account",
+      "name": "Thong tin hoc sinh dang chon",
+      "method": "GET",
+      "path": "/me/student",
+      "response_data": {
+        "id": "string",
+        "code": "HS001",
+        "full_name": "Nguyen Van A",
+        "avatar_url": "string|null",
+        "grade": "10",
+        "class_name": "10A1",
+        "school_name": "Truong THPT & THCS Luong The Vinh"
+      }
+    },
+    {
+      "group": "account",
+      "name": "Danh sach tai khoan/hoc sinh co the chuyen doi",
+      "method": "GET",
+      "path": "/me/accounts",
+      "response_data": [
+        {
+          "account_id": "string",
+          "student_id": "string",
+          "student_name": "Nguyen Van A",
+          "student_code": "HS001",
+          "class_name": "10A1",
+          "grade": "10",
+          "avatar_url": "string|null",
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "group": "account",
+      "name": "Chuyen tai khoan/hoc sinh",
+      "method": "POST",
+      "path": "/me/accounts/switch",
+      "request_body": {
+        "account_id": "string",
+        "student_id": "string"
+      },
+      "response_data": {
+        "access_token": "string",
+        "student": {
+          "id": "string",
+          "full_name": "Nguyen Van A",
+          "class_name": "10A1"
+        }
+      }
+    },
+    {
+      "group": "account",
+      "name": "Doi mat khau",
+      "method": "PUT",
+      "path": "/me/password",
+      "request_body": {
+        "old_password": "string",
+        "new_password": "string",
+        "confirm_password": "string"
+      },
+      "response_data": {
+        "changed": true
+      }
+    },
+    {
+      "group": "home",
+      "name": "Trang tin/tin tuc nha truong",
+      "method": "GET",
+      "path": "/home/news",
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "keyword": "string|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "string",
+            "summary": "string",
+            "content": "string",
+            "image_url": "string|null",
+            "published_at": "2026-06-20T08:30:00Z",
+            "category": "Thong bao|Tin tuc|Su kien",
+            "is_pinned": false
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "home",
+      "name": "Chuyen can hom nay",
+      "method": "GET",
+      "path": "/home/attendance/today",
+      "query": {
+        "student_id": "string|null",
+        "date": "YYYY-MM-DD|null"
+      },
+      "response_data": {
+        "date": "YYYY-MM-DD",
+        "arrived_at": "07:05",
+        "left_at": "16:30|null",
+        "status": "present|absent|late|leave_early|unknown",
+        "note": "string|null"
+      }
+    },
+    {
+      "group": "home",
+      "name": "Tong quan hoc phi",
+      "method": "GET",
+      "path": "/home/tuition/summary",
+      "query": {
+        "student_id": "string|null",
+        "school_year": "2026-2027|null",
+        "semester": "1|2|null"
+      },
+      "response_data": {
+        "total_amount": 0,
+        "paid_amount": 0,
+        "remaining_amount": 0,
+        "currency": "VND",
+        "status": "paid|unpaid|partial"
+      }
+    },
+    {
+      "group": "search",
+      "name": "Danh sach thong bao",
+      "method": "GET",
+      "path": "/notifications",
+      "query": {
+        "student_id": "string|null",
+        "page": 1,
+        "limit": 20,
+        "keyword": "string|null",
+        "tag": "string|null",
+        "is_read": "boolean|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "Lich hop phu huynh cuoi hoc ky",
+            "sender": "Ban giam hieu",
+            "sent_at": "2026-06-20T08:30:00Z",
+            "content": "string",
+            "tag": "Quan trong|Hoc tap|Dich vu|Su kien|Hanh chinh|He thong",
+            "is_read": false
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "search",
+      "name": "Chi tiet thong bao",
+      "method": "GET",
+      "path": "/notifications/{notification_id}",
+      "response_data": {
+        "id": "string",
+        "title": "string",
+        "sender": "string",
+        "sent_at": "2026-06-20T08:30:00Z",
+        "content": "string",
+        "attachments": [
+          {
+            "name": "string",
+            "url": "string"
+          }
+        ],
+        "is_read": true
+      }
+    },
+    {
+      "group": "search",
+      "name": "Danh dau da doc thong bao",
+      "method": "PATCH",
+      "path": "/notifications/{notification_id}/read",
+      "response_data": {
+        "is_read": true
+      }
+    },
+    {
+      "group": "search",
+      "name": "So diem",
+      "method": "GET",
+      "path": "/students/{student_id}/scores",
+      "query": {
+        "school_year": "2026-2027|null",
+        "semester": "1|2|null"
+      },
+      "response_data": {
+        "student_id": "string",
+        "school_year": "2026-2027",
+        "semester": "1",
+        "subjects": [
+          {
+            "subject_id": "string",
+            "subject_name": "Toan hoc",
+            "oral_scores": [
+              8,
+              9
+            ],
+            "fifteen_minute_scores": [
+              8.5
+            ],
+            "midterm_score": 8,
+            "final_score": 9,
+            "average_score": 8.6,
+            "teacher_comment": "string|null"
+          }
+        ]
+      }
+    },
+    {
+      "group": "search",
+      "name": "Khen thuong - Ky luat",
+      "method": "GET",
+      "path": "/students/{student_id}/reward-discipline",
+      "query": {
+        "school_year": "2026-2027|null",
+        "semester": "1|2|null",
+        "type": "reward|discipline|null"
+      },
+      "response_data": [
+        {
+          "id": "string",
+          "type": "reward|discipline",
+          "title": "string",
+          "content": "string",
+          "date": "YYYY-MM-DD",
+          "issuer": "string|null"
+        }
+      ]
+    },
+    {
+      "group": "search",
+      "name": "Thoi khoa bieu",
+      "method": "GET",
+      "path": "/students/{student_id}/timetable",
+      "query": {
+        "week_start": "YYYY-MM-DD|null",
+        "day": "T2|T3|T4|T5|T6|T7|null"
+      },
+      "response_data": {
+        "week_start": "YYYY-MM-DD",
+        "days": [
+          {
+            "day_code": "T2",
+            "date": "YYYY-MM-DD",
+            "lessons": [
+              {
+                "period": "Tiet 1",
+                "subject": "Toan hoc",
+                "time": "07:00 - 07:45",
+                "room": "Phong 10A1",
+                "teacher": "Nguyen Van Minh",
+                "status": "Sap hoc|Hom nay|Ngay mai|Da hoc"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "group": "search",
+      "name": "Hoc tap online",
+      "method": "GET",
+      "path": "/students/{student_id}/online-study",
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "subject_id": "string|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "string",
+            "subject": "string",
+            "teacher": "string",
+            "start_at": "2026-06-20T08:00:00Z",
+            "end_at": "2026-06-20T09:00:00Z",
+            "meeting_url": "string",
+            "status": "upcoming|live|ended"
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "search",
+      "name": "Xe tuyen cua hoc sinh",
+      "method": "GET",
+      "path": "/students/{student_id}/bus-route",
+      "response_data": {
+        "route_id": "string|null",
+        "route_name": "string|null",
+        "pickup_point": "string|null",
+        "dropoff_point": "string|null",
+        "pickup_time": "HH:mm|null",
+        "dropoff_time": "HH:mm|null",
+        "driver_name": "string|null",
+        "driver_phone": "string|null",
+        "bus_plate": "string|null"
+      }
+    },
+    {
+      "group": "search",
+      "name": "Danh sach chuyen can",
+      "method": "GET",
+      "path": "/students/{student_id}/attendance",
+      "query": {
+        "from_date": "YYYY-MM-DD|null",
+        "to_date": "YYYY-MM-DD|null",
+        "month": "YYYY-MM|null",
+        "status": "present|absent|late|leave_early|excused|null"
+      },
+      "response_data": {
+        "summary": {
+          "present_days": 0,
+          "late_days": 0,
+          "excused_absent_days": 0,
+          "unexcused_absent_days": 0
+        },
+        "items": [
+          {
+            "date": "YYYY-MM-DD",
+            "day_name": "Thu 2",
+            "status": "present|absent|late|leave_early|excused",
+            "morning_check_in": "HH:mm|null",
+            "afternoon_check_in": "HH:mm|null",
+            "leave_time": "HH:mm|null",
+            "note": "string|null",
+            "confirmed_by_parent": false
+          }
+        ]
+      }
+    },
+    {
+      "group": "search",
+      "name": "Bai tap ve nha",
+      "method": "GET",
+      "path": "/students/{student_id}/homeworks",
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "subject_id": "string|null",
+        "status": "pending|doing|submitted|overdue|null",
+        "from_date": "YYYY-MM-DD|null",
+        "to_date": "YYYY-MM-DD|null"
+      },
+      "response_data": {
+        "progress": {
+          "completed": 0,
+          "total": 0
+        },
+        "items": [
+          {
+            "id": "string",
+            "subject": "Toan hoc",
+            "title": "string",
+            "content": "string",
+            "teacher": "string",
+            "assigned_at": "2026-06-20T08:30:00Z",
+            "deadline": "2026-06-27T20:00:00Z",
+            "status": "pending|doing|submitted|overdue",
+            "submission_url": "string|null",
+            "submitted_at": "2026-06-26T20:00:00Z|null"
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "search",
+      "name": "Nop bai tap ve nha",
+      "method": "POST",
+      "path": "/students/{student_id}/homeworks/{homework_id}/submit",
+      "request_body": {
+        "content": "string|null",
+        "attachments": [
+          "file_url"
+        ]
+      },
+      "response_data": {
+        "submitted": true,
+        "submitted_at": "2026-06-26T20:00:00Z",
+        "status": "submitted"
+      }
+    },
+    {
+      "group": "feedback",
+      "name": "Gui phan hoi",
+      "method": "POST",
+      "path": "/feedback",
+      "request_body": {
+        "student_id": "string|null",
+        "title": "string",
+        "content": "string",
+        "category": "hoc_tap|dich_vu|tai_khoan|khac",
+        "attachments": [
+          "file_url"
+        ]
+      },
+      "response_data": {
+        "id": "string",
+        "status": "new",
+        "created_at": "2026-06-20T08:30:00Z"
+      }
+    },
+    {
+      "group": "service",
+      "name": "Suat an/ban tru",
+      "method": "GET",
+      "path": "/services/meals",
+      "query": {
+        "student_id": "string|null",
+        "from_date": "YYYY-MM-DD|null",
+        "to_date": "YYYY-MM-DD|null"
+      },
+      "response_data": {
+        "registered": true,
+        "items": [
+          {
+            "date": "YYYY-MM-DD",
+            "breakfast": "string|null",
+            "lunch": "string|null",
+            "snack": "string|null",
+            "status": "registered|cancelled|served"
+          }
+        ]
+      }
+    },
+    {
+      "group": "service",
+      "name": "Dang ky/huy suat an",
+      "method": "POST",
+      "path": "/services/meals/register",
+      "request_body": {
+        "student_id": "string",
+        "dates": [
+          "YYYY-MM-DD"
+        ],
+        "action": "register|cancel"
+      },
+      "response_data": {
+        "updated": true
+      }
+    },
+    {
+      "group": "service",
+      "name": "Quy xu",
+      "method": "GET",
+      "path": "/services/coin-fund",
+      "query": {
+        "student_id": "string|null",
+        "page": 1,
+        "limit": 20
+      },
+      "response_data": {
+        "balance": 0,
+        "currency": "coin",
+        "transactions": [
+          {
+            "id": "string",
+            "type": "deposit|withdraw|payment|refund",
+            "amount": 0,
+            "description": "string",
+            "created_at": "2026-06-20T08:30:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "group": "service",
+      "name": "Su kien",
+      "method": "GET",
+      "path": "/services/events",
+      "query": {
+        "student_id": "string|null",
+        "page": 1,
+        "limit": 20,
+        "status": "open|closed|joined|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "string",
+            "description": "string",
+            "start_at": "2026-06-20T08:30:00Z",
+            "end_at": "2026-06-20T10:30:00Z",
+            "location": "string|null",
+            "registration_deadline": "2026-06-18T17:00:00Z",
+            "status": "open|closed|joined"
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "service",
+      "name": "Dang ky su kien",
+      "method": "POST",
+      "path": "/services/events/{event_id}/register",
+      "request_body": {
+        "student_id": "string",
+        "note": "string|null"
+      },
+      "response_data": {
+        "registered": true
+      }
+    },
+    {
+      "group": "service",
+      "name": "Phieu khao sat",
+      "method": "GET",
+      "path": "/services/surveys",
+      "query": {
+        "student_id": "string|null",
+        "page": 1,
+        "limit": 20,
+        "status": "pending|submitted|expired|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "string",
+            "description": "string",
+            "deadline": "2026-06-20T23:59:59Z",
+            "status": "pending|submitted|expired",
+            "questions": [
+              {
+                "id": "string",
+                "type": "text|single_choice|multiple_choice|rating",
+                "content": "string",
+                "options": [
+                  "string"
+                ],
+                "required": true
+              }
+            ]
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "service",
+      "name": "Gui cau tra loi khao sat",
+      "method": "POST",
+      "path": "/services/surveys/{survey_id}/submit",
+      "request_body": {
+        "student_id": "string",
+        "answers": [
+          {
+            "question_id": "string",
+            "value": "string|number|array"
+          }
+        ]
+      },
+      "response_data": {
+        "submitted": true
+      }
+    },
+    {
+      "group": "service",
+      "name": "Cau lac bo",
+      "method": "GET",
+      "path": "/services/clubs",
+      "query": {
+        "student_id": "string|null",
+        "page": 1,
+        "limit": 20,
+        "status": "open|joined|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "name": "string",
+            "description": "string",
+            "teacher": "string|null",
+            "schedule": "string|null",
+            "location": "string|null",
+            "fee": 0,
+            "status": "open|joined|closed"
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "service",
+      "name": "Dang ky cau lac bo",
+      "method": "POST",
+      "path": "/services/clubs/{club_id}/register",
+      "request_body": {
+        "student_id": "string",
+        "note": "string|null"
+      },
+      "response_data": {
+        "registered": true
+      }
+    },
+    {
+      "group": "service",
+      "name": "Theo doi xe tuyen thoi gian thuc",
+      "method": "GET",
+      "path": "/services/bus-tracking",
+      "query": {
+        "student_id": "string|null",
+        "route_id": "string|null"
+      },
+      "response_data": {
+        "route_id": "string",
+        "route_name": "string",
+        "bus_plate": "string",
+        "driver_name": "string",
+        "driver_phone": "string",
+        "current_location": {
+          "lat": 21.0,
+          "lng": 105.0,
+          "updated_at": "2026-06-20T08:30:00Z"
+        },
+        "next_stop": "string|null",
+        "estimated_arrival_time": "HH:mm|null"
+      }
+    },
+    {
+      "group": "service",
+      "name": "Dong phuc/san pham",
+      "method": "GET",
+      "path": "/services/uniforms",
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "keyword": "string|null",
+        "category": "string|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "name": "Ao dong phuc",
+            "category": "ao|quan|phu_kien",
+            "price": 0,
+            "currency": "VND",
+            "sizes": [
+              "S",
+              "M",
+              "L"
+            ],
+            "image_url": "string|null",
+            "stock": 0
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "limit": 20,
+          "total": 0
+        }
+      }
+    },
+    {
+      "group": "service",
+      "name": "Dat mua dong phuc",
+      "method": "POST",
+      "path": "/services/uniforms/orders",
+      "request_body": {
+        "student_id": "string",
+        "items": [
+          {
+            "product_id": "string",
+            "size": "string",
+            "quantity": 1
+          }
+        ],
+        "note": "string|null"
+      },
+      "response_data": {
+        "order_id": "string",
+        "total_amount": 0,
+        "status": "pending"
+      }
+    },
+    {
+      "group": "service",
+      "name": "Chi tiet hoc phi",
+      "method": "GET",
+      "path": "/services/tuition",
+      "query": {
+        "student_id": "string|null",
+        "school_year": "2026-2027|null",
+        "semester": "1|2|null"
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "title": "Hoc phi thang 6",
+            "amount": 0,
+            "paid_amount": 0,
+            "remaining_amount": 0,
+            "due_date": "YYYY-MM-DD",
+            "status": "paid|unpaid|partial|overdue"
+          }
+        ],
+        "summary": {
+          "total_amount": 0,
+          "paid_amount": 0,
+          "remaining_amount": 0,
+          "currency": "VND"
+        }
+      }
+    },
+    {
+      "group": "service",
+      "name": "Tao yeu cau thanh toan hoc phi",
+      "method": "POST",
+      "path": "/services/tuition/payment-request",
+      "request_body": {
+        "student_id": "string",
+        "tuition_ids": [
+          "string"
+        ],
+        "payment_method": "bank_transfer|online|cash"
+      },
+      "response_data": {
+        "payment_id": "string",
+        "amount": 0,
+        "payment_url": "string|null",
+        "qr_code_url": "string|null",
+        "status": "pending"
+      }
+    },
+    {
+      "group": "upload",
+      "name": "Upload tep dinh kem",
+      "method": "POST",
+      "path": "/uploads",
+      "content_type": "multipart/form-data",
+      "request_body": {
+        "file": "binary",
+        "folder": "feedback|avatar|attachment"
+      },
+      "response_data": {
+        "file_id": "string",
+        "file_name": "string",
+        "file_url": "string",
+        "mime_type": "string",
+        "size": 0
+      }
+    }
+  ]
+}

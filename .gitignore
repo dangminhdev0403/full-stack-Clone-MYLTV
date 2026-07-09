@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# environment / secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# build outputs
+.next/
+dist/
+build/
+coverage/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local tooling / scan reports
+.sonarqube-*.json
+**/.sonarqube-*.json
+.scannerwork/
+
+# local backups / snapshots
+backup/
+backups/
+*_backup/
+*_backups/
+snapshots/
+*.bak
+*.backup
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
