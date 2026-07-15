@@ -1,5 +1,5 @@
 import { gradebookMock } from "../data/admin-pages.mock";
-import { AdminShell, Icon } from "./admin-shell";
+import { AdminShell, Icon } from "../../admin-shell";
 
 export function AdminGradesPage() {
   return (

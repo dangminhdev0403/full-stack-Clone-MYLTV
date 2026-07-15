@@ -11,447 +11,106 @@ enum AccountRole {
   student
   teacher
   admin
+  super_admin
 }
 
-enum NewsCategory {
-  Thong_bao
-  Tin_tuc
-  Su_kien
+enum PermissionRisk {
+  low
+  medium
+  high
+  critical
 }
 
-enum AttendanceStatus {
-  present
-  absent
-  late
-  leave_early
-  excused
-  unknown
-}
-
-enum TuitionStatus {
-  paid
-  unpaid
-  partial
-  overdue
-}
-
-enum HomeworkStatus {
-  pending
-  doing
-  submitted
-  overdue
-}
-
-enum RegistrationStatus {
-  open
-  closed
-  joined
-}
-
-enum SurveyQuestionType {
-  text
-  single_choice
-  multiple_choice
-  rating
-}
-
-enum MealStatus {
-  registered
-  cancelled
-  served
+enum StudentAccountRelationship {
+  guardian
+  student
+  teacher
 }
 
 model Account {
-  id              String           @id @default(cuid())
-  username        String           @unique
-  role            AccountRole      @default(parent)
-  activeStudentId String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  students        StudentAccount[]
+  id                 String              @id @default(uuid())
+  username           String              @unique
+  passwordHash       String              @map("password_hash")
+  displayName        String              @map("display_name")
+  role               AccountRole         @default(admin)
+  isActive           Boolean             @default(true) @map("is_active")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  permissions        AccountPermission[]
+  refreshSessions    RefreshSession[]
+  studentLinks       StudentAccountLink[]
+
+  @@map("accounts")
+}
+
+model Permission {
+  id             String              @id @default(uuid())
+  key            String              @unique
+  label          String
+  description    String
+  boundedContext String              @map("bounded_context")
+  risk           PermissionRisk      @default(low)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  accounts       AccountPermission[]
+
+  @@map("permissions")
+}
+
+model AccountPermission {
+  accountId     String     @map("account_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  account       Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([accountId, permissionKey])
+  @@map("account_permissions")
+}
+
+model RefreshSession {
+  id          String    @id @default(uuid())
+  accountId   String    @map("account_id")
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at")
+  revokedAt   DateTime? @map("revoked_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@map("refresh_sessions")
 }
 
 model Student {
-  id                String              @id @default(cuid())
-  code              String              @unique
-  fullName          String
-  avatarUrl         String?
-  grade             String
-  className         String
-  schoolName        String              @default("Truong THPT & THCS Luong The Vinh")
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  accounts          StudentAccount[]
-  notifications     NotificationRead[]
-  attendanceRecords AttendanceRecord[]
-  tuitionItems      TuitionItem[]
-  scores            ScoreRecord[]
-  rewards           RewardDiscipline[]
-  homeworks         Homework[]
-  homeworkSubmits   HomeworkSubmission[]
-  mealRecords       MealRecord[]
-  eventRegs         EventRegistration[]
-  surveySubmits     SurveySubmission[]
-  clubRegs          ClubRegistration[]
-  coinTransactions  CoinTransaction[]
-  feedback          Feedback[]
-  busAssignment     BusAssignment?
-  uniformOrders     UniformOrder[]
+  id           String               @id @default(uuid())
+  code         String               @unique
+  fullName     String               @map("full_name")
+  avatarUrl    String?              @map("avatar_url")
+  grade        String?
+  className    String               @map("class_name")
+  schoolName   String               @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
+  isActive     Boolean              @default(true) @map("is_active")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  accountLinks StudentAccountLink[]
+
+  @@index([className])
+  @@index([grade])
+  @@index([isActive])
+  @@map("students")
 }
 
-model StudentAccount {
-  accountId String
-  studentId String
-  isActive  Boolean @default(false)
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+model StudentAccountLink {
+  studentId    String                     @map("student_id")
+  accountId    String                     @map("account_id")
+  relationship StudentAccountRelationship @default(guardian)
+  isActive     Boolean                    @default(true) @map("is_active")
+  createdAt    DateTime                   @default(now()) @map("created_at")
+  student      Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  account      Account                    @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  @@id([accountId, studentId])
-}
-
-model NewsArticle {
-  id          String       @id @default(cuid())
-  title       String
-  summary     String
-  content     String
-  imageUrl    String?
-  category    NewsCategory @default(Tin_tuc)
-  isPinned    Boolean      @default(false)
-  publishedAt DateTime     @default(now())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model Notification {
-  id          String             @id @default(cuid())
-  title       String
-  sender      String
-  content     String
-  tag         String
-  sentAt      DateTime           @default(now())
-  attachments Json?
-  reads       NotificationRead[]
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-}
-
-model NotificationRead {
-  notificationId String
-  studentId      String
-  isRead         Boolean      @default(false)
-  readAt         DateTime?
-  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@id([notificationId, studentId])
-}
-
-model AttendanceRecord {
-  id                  String           @id @default(cuid())
-  studentId           String
-  date                DateTime
-  dayName             String?
-  status              AttendanceStatus @default(unknown)
-  arrivedAt           String?
-  leftAt              String?
-  morningCheckIn      String?
-  afternoonCheckIn    String?
-  leaveTime           String?
-  note                String?
-  confirmedByParent   Boolean          @default(false)
-  excused             Boolean          @default(false)
-  student             Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, date])
-}
-
-model TuitionItem {
-  id              String        @id @default(cuid())
-  studentId       String
-  title           String
-  amount          Int
-  paidAmount      Int           @default(0)
-  dueDate         DateTime
-  schoolYear      String
-  semester        String
-  status          TuitionStatus @default(unpaid)
-  student         Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-}
-
-model PaymentRequest {
-  id            String   @id @default(cuid())
-  studentId     String
-  tuitionIds    String[]
-  amount        Int
-  paymentMethod String
-  paymentUrl    String?
-  qrCodeUrl     String?
-  status        String   @default("pending")
-  createdAt     DateTime @default(now())
-}
-
-model Subject {
-  id        String        @id @default(cuid())
-  name      String        @unique
-  scores    ScoreRecord[]
-  timetable TimetableLesson[]
-  homeworks Homework[]
-  online    OnlineStudy[]
-}
-
-model ScoreRecord {
-  id                  String  @id @default(cuid())
-  studentId           String
-  subjectId           String
-  schoolYear          String
-  semester            String
-  oralScores          Float[]
-  fifteenMinuteScores Float[]
-  midtermScore        Float?
-  finalScore          Float?
-  averageScore        Float?
-  teacherComment      String?
-  student             Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subject             Subject @relation(fields: [subjectId], references: [id])
-
-  @@unique([studentId, subjectId, schoolYear, semester])
-}
-
-model RewardDiscipline {
-  id         String   @id @default(cuid())
-  studentId  String
-  type       String
-  title      String
-  content    String
-  date       DateTime
-  schoolYear String
-  semester   String?
-  issuer     String?
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-}
-
-model TimetableLesson {
-  id        String   @id @default(cuid())
-  className String
-  weekStart DateTime
-  dayCode   String
-  date      DateTime
-  period    String
-  subjectId String
-  time      String
-  room      String?
-  teacher   String?
-  status    String
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-}
-
-model OnlineStudy {
-  id        String   @id @default(cuid())
-  subjectId String
-  title     String
-  teacher   String
-  startAt   DateTime
-  endAt     DateTime
-  meetingUrl String
-  status    String
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-}
-
-model Homework {
-  id          String           @id @default(cuid())
-  studentId   String
-  subjectId   String
-  title       String
-  content     String
-  teacher     String
-  assignedAt  DateTime         @default(now())
-  deadline    DateTime
-  status      HomeworkStatus   @default(pending)
-  student     Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subject     Subject          @relation(fields: [subjectId], references: [id])
-  submissions HomeworkSubmission[]
-}
-
-model HomeworkSubmission {
-  id            String   @id @default(cuid())
-  homeworkId    String
-  studentId     String
-  content       String?
-  attachments   String[]
-  submissionUrl String?
-  submittedAt   DateTime @default(now())
-  homework      Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
-  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-}
-
-model Feedback {
-  id          String   @id @default(cuid())
-  studentId   String?
-  title       String
-  content     String
-  category    String
-  attachments String[]
-  status      String   @default("new")
-  createdAt   DateTime @default(now())
-  student     Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
-}
-
-model MealRecord {
-  id        String     @id @default(cuid())
-  studentId String
-  date      DateTime
-  breakfast String?
-  lunch     String?
-  snack     String?
-  status    MealStatus @default(registered)
-  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, date])
-}
-
-model CoinTransaction {
-  id          String   @id @default(cuid())
-  studentId   String
-  type        String
-  amount      Int
-  description String
-  createdAt   DateTime @default(now())
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-}
-
-model Event {
-  id                   String              @id @default(cuid())
-  title                String
-  description          String
-  startAt              DateTime
-  endAt                DateTime
-  location             String?
-  registrationDeadline DateTime
-  status               RegistrationStatus  @default(open)
-  registrations        EventRegistration[]
-}
-
-model EventRegistration {
-  eventId   String
-  studentId String
-  note      String?
-  createdAt DateTime @default(now())
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@id([eventId, studentId])
-}
-
-model Survey {
-  id          String           @id @default(cuid())
-  title       String
-  description String
-  deadline    DateTime
-  questions   SurveyQuestion[]
-  submissions SurveySubmission[]
-}
-
-model SurveyQuestion {
-  id       String             @id @default(cuid())
-  surveyId String
-  type     SurveyQuestionType
-  content  String
-  options  String[]
-  required Boolean            @default(true)
-  survey   Survey             @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-}
-
-model SurveySubmission {
-  id        String   @id @default(cuid())
-  surveyId  String
-  studentId String
-  answers   Json
-  createdAt DateTime @default(now())
-  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([surveyId, studentId])
-}
-
-model Club {
-  id            String             @id @default(cuid())
-  name          String
-  description   String
-  teacher       String?
-  schedule      String?
-  location      String?
-  fee           Int                @default(0)
-  status        RegistrationStatus @default(open)
-  registrations ClubRegistration[]
-}
-
-model ClubRegistration {
-  clubId    String
-  studentId String
-  note      String?
-  createdAt DateTime @default(now())
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@id([clubId, studentId])
-}
-
-model BusRoute {
-  id          String          @id @default(cuid())
-  name        String
-  driverName  String?
-  driverPhone String?
-  busPlate    String?
-  currentLat  Float?
-  currentLng  Float?
-  locationUpdatedAt DateTime?
-  nextStop    String?
-  estimatedArrivalTime String?
-  assignments BusAssignment[]
-}
-
-model BusAssignment {
-  id           String   @id @default(cuid())
-  studentId    String   @unique
-  routeId      String
-  pickupPoint  String?
-  dropoffPoint String?
-  pickupTime   String?
-  dropoffTime  String?
-  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  route        BusRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
-}
-
-model UniformProduct {
-  id       String @id @default(cuid())
-  name     String
-  category String
-  price    Int
-  currency String @default("VND")
-  sizes    String[]
-  imageUrl String?
-  stock    Int    @default(0)
-  items    UniformOrderItem[]
-}
-
-model UniformOrder {
-  id          String             @id @default(cuid())
-  studentId   String
-  totalAmount Int
-  status      String             @default("pending")
-  note        String?
-  createdAt   DateTime           @default(now())
-  student     Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  items       UniformOrderItem[]
-}
-
-model UniformOrderItem {
-  id        String         @id @default(cuid())
-  orderId   String
-  productId String
-  size      String
-  quantity  Int
-  unitPrice Int
-  order     UniformOrder   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   UniformProduct @relation(fields: [productId], references: [id])
+  @@id([studentId, accountId, relationship])
+  @@index([accountId])
+  @@index([studentId])
+  @@map("student_account_links")
 }

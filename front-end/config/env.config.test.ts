@@ -3,7 +3,9 @@ import { createFrontendEnvConfig } from "./env.config";
 
 describe("frontend env config", () => {
   it("requires NEXT_PUBLIC_API_BASE_URL instead of silently defaulting", () => {
-    expect(() => createFrontendEnvConfig({})).toThrow(/NEXT_PUBLIC_API_BASE_URL/);
+    expect(() => createFrontendEnvConfig({})).toThrow(
+      "Invalid frontend environment variables:\n- NEXT_PUBLIC_API_BASE_URL is missing.",
+    );
   });
 
   it("accepts a configured http(s) backend origin and strips path segments", () => {

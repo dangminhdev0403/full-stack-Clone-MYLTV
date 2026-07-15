@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "project": "So lien lac dien tu Luong The Vinh",
   "base_url": "{{BASE_URL}}/api/v1",
-  "updated_at": "2026-07-07",
-  "note": "File thong nhat API cho backend dong bo voi mobile app. Tat ca endpoint tru login va refresh-token can Authorization: Bearer <access_token>.",
+  "updated_at": "2026-07-15",
+  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json. OpenAPI JSON is authoritative. implementation_status=implemented means a backend controller exists in the approved Identity & Access, Current Account, User Management, Student Administration, or Global Exception scope; planned means no backend route is promised.",
   "common_headers": {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -11,8 +11,8 @@
   },
   "common_response": {
     "success": true,
-    "message": "OK",
-    "data": {}
+    "data": {},
+    "meta": {}
   },
   "errors": [
     {
@@ -43,10 +43,11 @@
   ],
   "endpoints": [
     {
-      "group": "auth",
+      "group": "identity_access",
       "name": "Dang nhap",
       "method": "POST",
       "path": "/auth/login",
+      "bounded_context": "Identity & Access",
       "auth_required": false,
       "request_body": {
         "username": "string",
@@ -61,24 +62,21 @@
         "account": {
           "id": "string",
           "username": "string",
-          "role": "parent|student|teacher|admin"
-        },
-        "student": {
-          "id": "string",
-          "code": "HS001",
-          "full_name": "Nguyen Van A",
-          "avatar_url": "string|null",
-          "grade": "10",
-          "class_name": "10A1",
-          "school_name": "Truong THPT & THCS Luong The Vinh"
+          "display_name": "string",
+          "role": "parent|student|teacher|admin|super_admin",
+          "permissions": [
+            "identity.me.read"
+          ]
         }
-      }
+      },
+      "implementation_status": "implemented"
     },
     {
-      "group": "auth",
+      "group": "identity_access",
       "name": "Lam moi token",
       "method": "POST",
       "path": "/auth/refresh-token",
+      "bounded_context": "Identity & Access",
       "auth_required": false,
       "request_body": {
         "refresh_token": "string"
@@ -87,19 +85,248 @@
         "access_token": "string",
         "refresh_token": "string",
         "expires_in": 3600
-      }
+      },
+      "implementation_status": "implemented"
     },
     {
-      "group": "auth",
+      "group": "identity_access",
       "name": "Dang xuat",
       "method": "POST",
       "path": "/auth/logout",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
       "request_body": {
         "device_id": "string|null"
       },
       "response_data": {
         "logged_out": true
-      }
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity_access",
+      "name": "Actor hien tai",
+      "method": "GET",
+      "path": "/me",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "response_data": {
+        "account": {
+          "id": "string",
+          "username": "string",
+          "display_name": "string",
+          "role": "parent|student|teacher|admin|super_admin",
+          "permissions": [
+            "identity.me.read"
+          ]
+        },
+        "active_student_id": "string|null"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity_access",
+      "name": "Danh sach tai khoan/hoc sinh co the chuyen doi",
+      "method": "GET",
+      "path": "/me/accounts",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "response_data": [
+        {
+          "account_id": "string",
+          "student_id": "string|null",
+          "student_name": "Nguyen Van A",
+          "student_code": "HS001",
+          "class_name": "10A1",
+          "grade": "10",
+          "avatar_url": "string|null",
+          "is_active": true
+        }
+      ],
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity_access",
+      "name": "Chuyen tai khoan/hoc sinh",
+      "method": "POST",
+      "path": "/me/accounts/switch",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "request_body": {
+        "account_id": "string",
+        "student_id": "string|null"
+      },
+      "response_data": {
+        "access_token": "string",
+        "student": {
+          "id": "string",
+          "full_name": "Nguyen Van A",
+          "class_name": "10A1"
+        }
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity_access",
+      "name": "Doi mat khau",
+      "method": "PUT",
+      "path": "/me/password",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "request_body": {
+        "old_password": "string",
+        "new_password": "string",
+        "confirm_password": "string"
+      },
+      "response_data": {
+        "changed": true
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Danh sach nguoi dung",
+      "method": "GET",
+      "path": "/users",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "query": {
+        "q": "string|null",
+        "role": "parent|student|teacher|admin|super_admin|null",
+        "is_active": "boolean|null",
+        "page": 1,
+        "page_size": 20
+      },
+      "response_data": {
+        "items": [
+          {
+            "id": "string",
+            "username": "string",
+            "display_name": "string",
+            "role": "admin",
+            "is_active": true,
+            "created_at": "2026-07-11T00:00:00Z",
+            "updated_at": "2026-07-11T00:00:00Z"
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "total": 0
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Chi tiet nguoi dung",
+      "method": "GET",
+      "path": "/users/{id}",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "response_data": {
+        "id": "string",
+        "username": "string",
+        "display_name": "string",
+        "role": "admin",
+        "is_active": true,
+        "created_at": "2026-07-11T00:00:00Z",
+        "updated_at": "2026-07-11T00:00:00Z",
+        "permission_keys": [
+          "users.manage"
+        ]
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Tao nguoi dung",
+      "method": "POST",
+      "path": "/users",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "request_body": {
+        "username": "string",
+        "display_name": "string",
+        "role": "parent|student|teacher|admin|super_admin",
+        "password": "string",
+        "permission_keys": [
+          "users.manage"
+        ]
+      },
+      "response_data": {
+        "id": "string",
+        "username": "string",
+        "display_name": "string",
+        "role": "admin",
+        "is_active": true,
+        "created_at": "2026-07-11T00:00:00Z",
+        "updated_at": "2026-07-11T00:00:00Z",
+        "permission_keys": [
+          "users.manage"
+        ]
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Cap nhat nguoi dung",
+      "method": "PATCH",
+      "path": "/users/{id}",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "request_body": {
+        "display_name": "string|null",
+        "role": "parent|student|teacher|admin|super_admin|null",
+        "is_active": "boolean|null",
+        "permission_keys": [
+          "users.manage"
+        ]
+      },
+      "response_data": {
+        "id": "string",
+        "username": "string",
+        "display_name": "string",
+        "role": "admin",
+        "is_active": true,
+        "created_at": "2026-07-11T00:00:00Z",
+        "updated_at": "2026-07-11T00:00:00Z",
+        "permission_keys": [
+          "users.manage"
+        ]
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Vo hieu hoa nguoi dung",
+      "method": "POST",
+      "path": "/users/{id}/disable",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "response_data": {
+        "disabled": true
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "Dat lai mat khau nguoi dung",
+      "method": "POST",
+      "path": "/users/{id}/reset-password",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "required_permission": "users.manage",
+      "request_body": {
+        "password": "string"
+      },
+      "response_data": {
+        "reset": true
+      },
+      "implementation_status": "implemented"
     },
     {
       "group": "account",
@@ -114,57 +341,8 @@
         "grade": "10",
         "class_name": "10A1",
         "school_name": "Truong THPT & THCS Luong The Vinh"
-      }
-    },
-    {
-      "group": "account",
-      "name": "Danh sach tai khoan/hoc sinh co the chuyen doi",
-      "method": "GET",
-      "path": "/me/accounts",
-      "response_data": [
-        {
-          "account_id": "string",
-          "student_id": "string",
-          "student_name": "Nguyen Van A",
-          "student_code": "HS001",
-          "class_name": "10A1",
-          "grade": "10",
-          "avatar_url": "string|null",
-          "is_active": true
-        }
-      ]
-    },
-    {
-      "group": "account",
-      "name": "Chuyen tai khoan/hoc sinh",
-      "method": "POST",
-      "path": "/me/accounts/switch",
-      "request_body": {
-        "account_id": "string",
-        "student_id": "string"
       },
-      "response_data": {
-        "access_token": "string",
-        "student": {
-          "id": "string",
-          "full_name": "Nguyen Van A",
-          "class_name": "10A1"
-        }
-      }
-    },
-    {
-      "group": "account",
-      "name": "Doi mat khau",
-      "method": "PUT",
-      "path": "/me/password",
-      "request_body": {
-        "old_password": "string",
-        "new_password": "string",
-        "confirm_password": "string"
-      },
-      "response_data": {
-        "changed": true
-      }
+      "implementation_status": "implemented"
     },
     {
       "group": "home",
@@ -194,7 +372,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "home",
@@ -211,7 +390,8 @@
         "left_at": "16:30|null",
         "status": "present|absent|late|leave_early|unknown",
         "note": "string|null"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "home",
@@ -229,7 +409,8 @@
         "remaining_amount": 0,
         "currency": "VND",
         "status": "paid|unpaid|partial"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -261,7 +442,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -281,7 +463,8 @@
           }
         ],
         "is_read": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -290,7 +473,8 @@
       "path": "/notifications/{notification_id}/read",
       "response_data": {
         "is_read": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -322,7 +506,8 @@
             "teacher_comment": "string|null"
           }
         ]
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -343,7 +528,8 @@
           "date": "YYYY-MM-DD",
           "issuer": "string|null"
         }
-      ]
+      ],
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -372,7 +558,8 @@
             ]
           }
         ]
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -402,7 +589,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -419,7 +607,8 @@
         "driver_name": "string|null",
         "driver_phone": "string|null",
         "bus_plate": "string|null"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -451,7 +640,8 @@
             "confirmed_by_parent": false
           }
         ]
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -490,7 +680,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "search",
@@ -507,7 +698,8 @@
         "submitted": true,
         "submitted_at": "2026-06-26T20:00:00Z",
         "status": "submitted"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "feedback",
@@ -527,7 +719,8 @@
         "id": "string",
         "status": "new",
         "created_at": "2026-06-20T08:30:00Z"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -550,7 +743,8 @@
             "status": "registered|cancelled|served"
           }
         ]
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -566,7 +760,8 @@
       },
       "response_data": {
         "updated": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -590,7 +785,8 @@
             "created_at": "2026-06-20T08:30:00Z"
           }
         ]
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -621,7 +817,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -634,7 +831,8 @@
       },
       "response_data": {
         "registered": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -673,7 +871,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -691,7 +890,8 @@
       },
       "response_data": {
         "submitted": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -722,7 +922,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -735,7 +936,8 @@
       },
       "response_data": {
         "registered": true
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -753,13 +955,14 @@
         "driver_name": "string",
         "driver_phone": "string",
         "current_location": {
-          "lat": 21.0,
-          "lng": 105.0,
+          "lat": 21,
+          "lng": 105,
           "updated_at": "2026-06-20T08:30:00Z"
         },
         "next_stop": "string|null",
         "estimated_arrival_time": "HH:mm|null"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -794,7 +997,8 @@
           "limit": 20,
           "total": 0
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -816,7 +1020,8 @@
         "order_id": "string",
         "total_amount": 0,
         "status": "pending"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -846,7 +1051,8 @@
           "remaining_amount": 0,
           "currency": "VND"
         }
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "service",
@@ -866,7 +1072,8 @@
         "payment_url": "string|null",
         "qr_code_url": "string|null",
         "status": "pending"
-      }
+      },
+      "implementation_status": "planned"
     },
     {
       "group": "upload",
@@ -884,7 +1091,17 @@
         "file_url": "string",
         "mime_type": "string",
         "size": 0
-      }
+      },
+      "implementation_status": "planned"
     }
-  ]
+  ],
+  "common_error_response": {
+    "success": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Human-readable error message",
+      "details": []
+    },
+    "request_id": "opaque-request-id"
+  }
 }

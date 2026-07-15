@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function EventsManagementRoute() {
-  return <AdminManagementDomainPage domain="events" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Sự kiện" activeHref="/admin/services/events" />; }

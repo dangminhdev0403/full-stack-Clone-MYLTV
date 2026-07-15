@@ -1,28 +1,3 @@
-export type AdminNavItem = {
-  label: string;
-  icon: string;
-  href: string;
-};
-
-export const adminNavItems: AdminNavItem[] = [
-  { label: "Tổng quan", icon: "dashboard", href: "/admin" },
-  { label: "Bản đồ CRUD", icon: "dataset", href: "/admin/management" },
-  { label: "Học sinh", icon: "groups", href: "/admin/students" },
-  { label: "Tin tức", icon: "campaign", href: "/admin/news" },
-  { label: "Thông báo", icon: "notifications_active", href: "/admin/notifications" },
-  { label: "Chuyên cần", icon: "fact_check", href: "/admin/attendance" },
-  { label: "Sổ điểm", icon: "menu_book", href: "/admin/grades" },
-  { label: "Học phí", icon: "payments", href: "/admin/tuition" },
-  { label: "Thời khóa biểu", icon: "calendar_month", href: "/admin/timetable" },
-  { label: "Bài tập", icon: "assignment", href: "/admin/homeworks" },
-  { label: "Suất ăn", icon: "restaurant", href: "/admin/services/meals" },
-  { label: "Sự kiện", icon: "event", href: "/admin/services/events" },
-  { label: "Khảo sát", icon: "quiz", href: "/admin/services/surveys" },
-  { label: "CLB", icon: "diversity_3", href: "/admin/services/clubs" },
-  { label: "Tuyến xe", icon: "directions_bus", href: "/admin/services/bus" },
-  { label: "Đồng phục", icon: "checkroom", href: "/admin/services/uniforms" },
-];
-
 export type StudentRow = {
   id: string;
   name: string;

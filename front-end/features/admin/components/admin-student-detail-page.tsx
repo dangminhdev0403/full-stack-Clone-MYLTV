@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { attendanceMock, gradebookMock, studentsMock, tuitionMock } from "../data/admin-pages.mock";
-import { AdminShell, Icon } from "./admin-shell";
+import { AdminShell, Icon } from "../../admin-shell";
 
 export function AdminStudentDetailPage({ studentId }: { studentId: string }) {
   const student = studentsMock.find((item) => item.id === studentId) ?? studentsMock[0];

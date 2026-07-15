@@ -2,66 +2,115 @@
 
 ## Current Architecture Direction
 
-`web_cloneMYLTV` starts as a standalone monolithic product workspace:
+`web_cloneMYLTV` is a product workspace / monorepo with two deployables:
 
-- `front-end/`: Next.js frontend
-- `backend/`: NestJS backend
-- `share_api.json`: shared API contract draft
-- `Architecture/`: centralized architecture docs
+- `front-end/`: Next.js web application;
+- `backend/`: NestJS API modular monolith;
+- `share_api.json`: temporary shared API contract source;
+- `Architecture/`: centralized architecture docs.
 
-The project should not be over-engineered early. Build as a monolith now, but keep API and module boundaries clean for possible future integration into a larger system.
+Build as a modular monolith now. Prepare possible microservice extraction through ownership, contracts, and tests — not premature distributed infrastructure.
 
-## Initial Milestones
+## Roadmap
 
-### P0 - Documentation and Boundary Setup
+| Phase | Outcome |
+| --- | --- |
+| P0 — Architecture baseline | Update architecture docs, module map, contract conventions, and quality gates. |
+| P1 — Identity & Access | User/account, password hashing, sessions, JWT/refresh flow, RBAC, audit log, seeded super-admin. |
+| P2 — User Management | Admin-only user CRUD: list, detail, create, update, disable, role assignment. |
+| P3 — News pilot | First complete business-domain vertical slice; use as migration template for Communication. |
+| P4 — Context migration | Academics, Communication, Billing, and Student Services migrate one context at a time. |
+| P5 — Contract automation | Adopt OpenAPI/generated types only after core endpoints are stable. |
+| P6 — Extraction review | Assess scaling, deployment, ownership, and integration pressure before extracting any service. |
+
+## P0 — Architecture Baseline
 
 - [x] Create centralized `Architecture/` folder.
 - [x] Add core architecture entry point.
 - [x] Add frontend/backend/API/integration guide files.
-- [x] Document monolith-first, microservice-ready direction.
+- [x] Document modular-monolith-first, extraction-ready direction.
+- [x] Add `MODULE_MAP.md` as the bounded-context ownership map.
+- [ ] Align future implementation tasks to the module map before new business modules are created.
 
-### P1 - Backend Foundation
+## P1 — Identity & Access
 
-- [ ] Replace NestJS starter README with project-specific backend notes when backend work begins.
-- [x] Split starter `AppController` into real domain modules as APIs are implemented.
-- [ ] Add validation/DTO strategy.
-- [x] Align backend endpoints with `share_api.json` for non-auth Android data endpoints.
+Goal: establish platform core before business-domain expansion.
 
-Validation note 2026-07-08:
+Required capabilities:
 
-- Added Prisma/PostgreSQL foundation under `backend/prisma/` and NestJS API modules under `backend/src/school-api/` for non-auth Android data endpoints in `share_api.json`.
-- Auth login/refresh/logout/password remains intentionally out of scope for the current backend data phase.
-- Follow-up validation required on each backend change: `npx prisma generate` and `npm run build` from `backend/`.
+- [ ] account/user model;
+- [ ] password hashing and credential lifecycle;
+- [ ] login/logout/refresh sessions;
+- [ ] JWT/session validation;
+- [ ] roles and permissions;
+- [ ] audit logging for sensitive mutations;
+- [ ] seeded `super_admin` or equivalent bootstrap flow;
+- [ ] positive and negative authorization tests.
 
-Validation note 2026-07-09:
+Decision checkpoint:
 
-- Added backend admin management CRUD readiness endpoints under `/api/v1/admin/management` for students, news, notifications, attendance, tuition, grades, timetable, homeworks, meals, events, surveys, clubs, bus, and uniforms.
-- The admin management payloads intentionally use the same snake_case data fields as `share_api.json` so frontend admin CRUD can create/update the data that feeds Android-facing endpoints.
-- Runtime smoke note: `/api/v1/admin/management` inventory starts without DB access; Prisma-backed list endpoints require the local database schema tables to exist before returning non-500 data.
+- [ ] choose how frontend session boundary stores/refreshes credentials without unsafe browser token storage.
 
-### P2 - Frontend API Integration
+## P2 — User Management
 
-- [x] Keep current admin UI routes thin and feature-based for admin management domains.
-- [x] Replace primary admin management mock list/detail data paths with API services when backend endpoints exist.
-- [ ] Add central HTTP/client service layer before broad API integration.
-- [ ] Keep login/auth temporary state documented until real backend auth is ready.
+Goal: first admin platform feature after Identity & Access.
 
-Validation note 2026-07-09:
+- [ ] list users;
+- [ ] user detail;
+- [ ] create user;
+- [ ] update user profile/status;
+- [ ] disable user;
+- [ ] assign/revoke roles;
+- [ ] contract tests and frontend API client update.
 
-- Frontend admin management routes now call backend `/api/v1/admin/management` inventory/list/detail endpoints through `features/admin/service/admin-management.service.ts` instead of rendering mock CRUD records as real data.
-- Missing or DB-blocked backend domains render explicit blocker states with endpoint/error details; create/update boxes are visible but disabled/TODO-gated for the follow-up mutation task.
-- Students, attendance, grades, tuition, news, notifications, timetable, homeworks, and service admin routes share the API-backed management surface; auth/login remains out of scope.
+## P3 — News Pilot
 
-### P3 - Future Integration Readiness
+Goal: first complete business-domain vertical slice and migration template.
 
-- [ ] Define service/module ownership if integrating into a larger system.
-- [ ] Decide whether this app remains standalone or becomes a service/module.
-- [ ] Replace `share_api.json` with OpenAPI/generated contract if needed.
-- [ ] Add deployment/runtime guide once infrastructure is known.
+- [ ] Communication context owns news/publication workflow;
+- [ ] domain-specific admin endpoints replace generic management ownership;
+- [ ] frontend feature client consumes contract;
+- [ ] tests cover validation, authorization, and response shape.
+
+## P4 — Context Migration
+
+Migrate one bounded context at a time:
+
+1. Student Administration;
+2. Academics;
+3. Billing;
+4. Student Services;
+5. remaining Communication flows.
+
+Each migration must identify owner, public boundary, persistence impact, contract impact, and validation gates.
+
+## P5 — Contract Automation
+
+Adopt OpenAPI/generated types only after core endpoints are stable.
+
+Decision checkpoint:
+
+- [ ] keep `share_api.json` as temporary source;
+- [ ] define OpenAPI generation source and CI gate;
+- [ ] define generated frontend client/type import path;
+- [ ] retire or downgrade `share_api.json` to reference-only.
+
+## P6 — Extraction Review
+
+Review extraction only after modular ownership exists.
+
+Extract a context only if it has independent deployment, scaling, team ownership, availability, security, or integration pressure.
 
 ## Known Risks
 
-- Backend is still close to NestJS starter state.
-- Frontend currently contains mock/static admin data.
-- API contract exists as JSON but is not yet enforced by generated types or backend tests.
-- There are nested git/workspace indicators; repository ownership should be confirmed before push/commit workflows.
+- Existing backend work has signs of generic admin management patterns that should not become the long-term architecture.
+- Frontend admin surfaces may still be organized around admin CRUD instead of domain-owned features.
+- API contract exists as JSON but is not yet enforced by generated types or complete contract tests.
+- There are unrelated dirty working-tree changes outside `Architecture/`; docs tasks should avoid touching them unless explicitly approved.
+- Package/dependency policy must follow the strictest active instruction: repository `AGENTS.md` currently requires explicit approval before `package.json` edits.
+
+## Historical Notes
+
+- Early docs established a centralized `Architecture/` folder and monolith-first direction.
+- Earlier backend/admin management work added broad `/api/v1/admin/management` readiness. Future work should migrate toward domain-specific bounded-context APIs instead of expanding that generic surface.
+- Routine validation logs should stay in command output/CI, not accumulate in this roadmap unless they represent a milestone, architecture decision, or material risk.

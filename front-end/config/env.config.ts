@@ -27,7 +27,7 @@ export function createFrontendEnvConfig(env: FrontendEnvInput): FrontendEnvConfi
   const parsed = ConfigSchema.safeParse(env);
 
   if (!parsed.success) {
-    throw new Error(`Invalid frontend environment variables: ${z.prettifyError(parsed.error)}`);
+    throw new Error(formatFrontendEnvError(parsed.error));
   }
 
   return {
@@ -40,4 +40,16 @@ function readRuntimeEnv(): RuntimeEnvInput {
   return {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   };
+}
+
+function formatFrontendEnvError(error: z.ZodError): string {
+  const messages = error.issues.map((issue) => {
+    const key = issue.path.join(".") || "unknown";
+    if (issue.code === "invalid_type" && issue.input === undefined) {
+      return `- ${key} is missing.`;
+    }
+    return `- ${issue.message}`;
+  });
+
+  return `Invalid frontend environment variables:\n${messages.join("\n")}`;
 }

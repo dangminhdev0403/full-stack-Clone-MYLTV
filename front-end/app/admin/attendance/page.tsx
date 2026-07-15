@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function AttendanceRoute() {
-  return <AdminManagementDomainPage domain="attendance" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Điểm danh" activeHref="/admin/attendance" />; }

@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function ClubsManagementRoute() {
-  return <AdminManagementDomainPage domain="clubs" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Câu lạc bộ" activeHref="/admin/services/clubs" />; }

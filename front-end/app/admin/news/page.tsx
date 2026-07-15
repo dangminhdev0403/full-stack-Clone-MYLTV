@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function NewsManagementRoute() {
-  return <AdminManagementDomainPage domain="news" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Tin tức" activeHref="/admin/news" />; }

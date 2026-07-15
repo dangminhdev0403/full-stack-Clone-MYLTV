@@ -1,128 +1,129 @@
 # web_cloneMYLTV Architecture
 
-## 1. Purpose
+## 1. Executive Decision
 
-This document defines the core architecture for `web_cloneMYLTV`.
+`web_cloneMYLTV` should be rebuilt and extended as a **modular monolith at the backend core**, not as an early microservice system.
 
-The project is currently a standalone monolithic application. It should remain simple while new, but the boundaries must be clear enough to allow future integration as a microservice or product module inside a larger platform.
+The existing frontend may remain a presentation/product surface while backend capabilities are introduced in clean vertical slices. The first backend platform slice is **Identity & Access**: users/accounts, credentials, sessions, roles, permissions, and audit logging.
 
-Keep this file short. Detailed frontend, backend, API, and integration rules belong in companion files in this same `Architecture/` folder.
+Do **not** continue growing `/api/v1/admin/management/:domain` or a catch-all `ManagementService` as the long-term architecture. Admin routes should become domain-specific APIs backed by bounded-context application services.
 
-## 2. Current Runtime Model
+## 2. Runtime Model
+
+| Layer | Role | Ownership rule |
+| --- | --- | --- |
+| Repository | Product workspace / monorepo | Contains web, API, contract, and architecture docs. It is not one runtime layer. |
+| Web | Next.js frontend deployable | Owns UI, route composition, browser interaction, and API consumption. |
+| API | NestJS modular monolith | Owns business rules, authorization, persistence, and external integrations. |
+| Database | PostgreSQL | Owned exclusively by the API. No frontend access and no future service shared writes. |
+| Contract | Versioned HTTP API | The only frontend/backend integration boundary. |
+
+This replaces the previous ambiguous wording that treated the whole repository like one monolithic runtime. The repository is a product workspace; the NestJS API is the modular monolith.
+
+## 3. Repository Shape
 
 ```txt
 web_cloneMYLTV/
-├── front-end/        # Next.js frontend application
-├── backend/          # NestJS backend application
-├── share_api.json    # Shared API contract draft/source
+├── front-end/        # Next.js web deployable
+├── backend/          # NestJS API modular monolith
+├── share_api.json    # Temporary shared API contract source
 └── Architecture/     # Architecture and project documentation
 ```
 
-The application currently runs as a monolith-style product workspace:
-
-- frontend and backend are developed together;
-- frontend consumes backend APIs;
-- API contract is tracked centrally;
-- deployment may initially be standalone;
-- extraction/integration should happen through API/module boundaries, not through ad-hoc coupling.
-
-## 3. Core Principles
-
-- Keep the monolith simple, but keep boundaries explicit.
-- Frontend owns UI, routing, user interaction, browser state, and API consumption.
-- Backend owns business rules, authorization, persistence, domain workflows, and external integrations.
-- API contracts are the boundary between frontend and backend.
-- Shared data shapes should be documented before broad implementation.
-- Avoid cross-layer shortcuts that make later microservice extraction difficult.
-- Do not put secrets or environment values in architecture docs.
-
-## 4. Layer Responsibilities
-
-| Layer | Responsibility |
-| --- | --- |
-| `front-end/app` | Next.js App Router routes, layouts, pages, loading/error boundaries. |
-| `front-end/features` | Feature/domain UI modules, mock data, UI orchestration, feature-local types. |
-| `front-end/components` | Reusable layout and presentation components. |
-| `backend/src` | NestJS modules, controllers, services, providers, application bootstrap. |
-| `share_api.json` | Shared API contract draft until a generated OpenAPI contract exists. |
-| `Architecture/` | Architecture, rules, plans, integration guides, and contract governance. |
-
-## 5. Standard Request Flow
+## 4. Dependency Direction
 
 ```txt
 User / Browser
   ↓
-Next.js Route or Component
+Next.js route / feature UI
   ↓
-Frontend Feature Hook / Service
+Feature API client + response schema
   ↓
-Shared API Contract
+Versioned HTTP contract (/api/v1)
   ↓
-NestJS Controller
+NestJS controller
   ↓
-Backend Service / Domain Logic
+Bounded-context application service
   ↓
-Database / External Provider / In-memory Mock
+Owning module persistence / external provider
 ```
 
 Rules:
 
-- UI components should not hardcode backend URLs or response shapes.
-- Backend controllers should be thin and delegate business behavior to services/modules.
-- Contract changes must update `share_api.json` or the future generated contract source.
-- Frontend mock data should be clearly marked and replaceable by API-backed services.
+- Frontend must not import backend source files directly.
+- Backend must not depend on frontend implementation details.
+- API contracts are the boundary between frontend and backend.
+- Controllers stay thin; application services own business workflows.
+- Cross-module backend calls go through exported application services or explicit ports, not internal folders.
+- Persistence entities are not API responses; map at the boundary.
 
-## 6. Monolith Boundary Model
+## 5. Bounded Context Direction
 
-This project may stay standalone for a long time. That is acceptable.
+The API starts as one NestJS process and one database, but domains must have clear ownership.
 
-However, each domain should be written as if it may later become:
+Initial bounded contexts:
 
-- a backend module inside this NestJS app;
-- an internal service behind HTTP/event contracts;
-- a frontend product surface inside a larger portal;
-- a reusable API contract consumed by mobile/web clients.
+1. Identity & Access
+2. Student Administration
+3. Academics
+4. Communication
+5. Billing
+6. Student Services
 
-Avoid:
+See `MODULE_MAP.md` for the operational ownership table and dependency rules.
 
-- frontend importing backend source files directly;
-- backend depending on frontend implementation details;
-- storing business rules only in frontend mock data;
-- spreading API contract definitions across unrelated files.
+Pragmatic rule: do not create fourteen microservices or fourteen heavy DDD modules. Begin with six bounded contexts in one NestJS process and one database.
 
-## 7. Product Surfaces
+## 6. Platform Core First
 
-Known/expected surfaces:
+Before creating new business modules, establish the platform core:
 
-| Surface | Current status | Notes |
-| --- | --- | --- |
-| Login | Frontend route exists | Temporary auth boundary until backend auth is implemented. |
-| Admin dashboard | Frontend route exists | Currently mock/static UI. |
-| Students | Frontend route exists | Should later bind to API contract. |
-| Attendance | Frontend route exists | Should later bind to API contract. |
-| Grades | Frontend route exists | Should later bind to API contract. |
-| Tuition | Frontend route exists | Should later bind to API contract. |
-| Backend API | NestJS starter exists | Should evolve by module boundaries, not single controller growth. |
+1. accounts/users;
+2. password hashing and credentials;
+3. sessions/JWT/refresh flow;
+4. roles and permissions;
+5. authorization conventions;
+6. audit logging for sensitive mutations;
+7. seeded `super_admin` or equivalent bootstrap account.
 
-This table is a planning aid, not a permanent domain registry. If it becomes large, move detailed status to `PLANS.md`.
+Business domains should consume identity IDs and permissions, not own identity data.
 
-## 8. Extension Rules
+## 7. Contract Boundary
 
-When adding a feature:
+`shared/api-contract/openapi/v1/openapi.json` is the authoritative contract. Root `share_api.json` remains a compatibility/catalog mirror during migration and must not conflict with OpenAPI implementation status.
 
-1. Define the product surface and user role.
-2. Define or update the API contract.
-3. Add a frontend feature module only with folders it actually needs.
-4. Add a backend module/controller/service when real backend behavior is required.
-5. Keep mock data isolated and replaceable.
-6. Add validation notes to `PLANS.md`.
-7. Keep extraction/integration impact visible in `INTEGRATION_GUIDE.md` when relevant.
+Contract rules:
 
-## 9. Rules Summary
+- API prefix: `/api/v1`.
+- External JSON uses `snake_case`.
+- Internal TypeScript and Prisma models use `camelCase`.
+- Mapping happens at the HTTP boundary.
+- Define one success envelope, one error envelope, pagination fields, date/datetime format, and opaque ID convention.
+- A contract change includes DTO validation, backend implementation, frontend client update, and contract test in the same change set.
 
-- Keep architecture docs in `Architecture/`.
-- Keep the main architecture doc short.
-- Keep frontend/backend boundaries explicit.
-- Keep API contract as the integration point.
-- Keep monolith-first development simple.
-- Avoid decisions that block future microservice/module extraction.
+See `CONTRACT_GUIDE.md`.
+
+## 8. Microservice Extraction Position
+
+Microservice readiness is not Kafka, service mesh, API gateway complexity, or a generic repository layer. It is clear ownership and replaceable boundaries.
+
+Extract a bounded context only when it has real independent needs:
+
+- independent deployment;
+- independent scaling;
+- separate team/ownership pressure;
+- availability/SLA isolation;
+- integration needs that justify network boundaries.
+
+Until then, keep the modular monolith simple.
+
+## 9. Agent Operating Rule
+
+Before editing code, an agent must state:
+
+1. the bounded context owner;
+2. the user role or actor;
+3. whether the change affects API contract, authorization, persistence, or another module;
+4. the smallest complete vertical slice needed.
+
+Routine validation evidence belongs in test/CI output, not in architecture docs. Update `PLANS.md` only for milestones, architecture decisions, or material risks.

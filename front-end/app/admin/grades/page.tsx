@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function GradesRoute() {
-  return <AdminManagementDomainPage domain="grades" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Điểm số" activeHref="/admin/grades" />; }

@@ -1,5 +1,2 @@
-import { AdminManagementOverviewPage } from "@/features/admin/components/admin-management-page";
-
-export default function ManagementRoute() {
-  return <AdminManagementOverviewPage />;
-}
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/admin"); }

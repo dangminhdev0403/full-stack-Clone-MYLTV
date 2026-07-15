@@ -22,6 +22,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # local tooling / scan reports
+.hermes/
+**/.hermes/
 .sonarqube-*.json
 **/.sonarqube-*.json
 .scannerwork/

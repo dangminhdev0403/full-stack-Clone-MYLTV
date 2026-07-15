@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function BusManagementRoute() {
-  return <AdminManagementDomainPage domain="bus" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Xe buýt" activeHref="/admin/services/bus" />; }

@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function UniformsManagementRoute() {
-  return <AdminManagementDomainPage domain="uniforms" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Đồng phục" activeHref="/admin/services/uniforms" />; }

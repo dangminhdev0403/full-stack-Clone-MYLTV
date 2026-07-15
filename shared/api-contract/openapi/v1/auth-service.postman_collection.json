@@ -1,0 +1,24 @@
+{
+  "info": {
+    "name": "Deprecated auth-service Postman collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Deprecated and non-authoritative. Use openapi/v1/openapi.json for the school app contract."
+  },
+  "item": [
+    {
+      "name": "Deprecated",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/me",
+        "description": "Placeholder only. This collection is retained to avoid broken references; it is not the contract source."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

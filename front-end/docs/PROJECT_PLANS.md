@@ -1,5 +1,25 @@
 # PROJECT PLANS
 
+## 2026-07-13 - admin-module-boundary-refactor
+
+### What changed
+- Followed `AGENTS.md`, `Architecture/ARCHITECTURE.md`, `Architecture/RULES.md`, `Architecture/MODULE_MAP.md`, `Architecture/FRONTEND_GUIDE.md`, and `docs/PROJECT_RULES.md` before refactoring.
+- Replaced the removed generic admin-management transport with feature-owned Users and Students clients through the authenticated BFF.
+- Moved reusable admin chrome/navigation from `features/admin/components/admin-shell.tsx` into `features/admin-shell`.
+- Kept `app/admin/**/page.tsx` thin by composing feature-owned pages or explicit planned surfaces.
+- Kept legacy static admin demo pages on `features/admin` and left their mock data isolated under `features/admin/data/admin-pages.mock.ts`.
+- Did not change backend contracts, package scripts, dependencies, route URLs, or user-visible CRUD behavior.
+
+### Verification result
+- Passed: `pnpm exec tsc --noEmit`.
+- Passed: `pnpm run lint`.
+- Passed after import-path fix: `pnpm run test` — 4 files, 20 tests passed.
+- Intermediate blocker fixed: Vitest could not resolve the `@/features/admin-shell` alias from moved component tests; component imports now use a relative module boundary import while Next route files keep the existing `@/*` alias.
+
+### Remaining blockers / risks
+- News, attendance, academics, billing, and student-service screens remain planned until their backend bounded contexts are implemented.
+- Pre-existing modified architecture/config files outside this refactor scope were preserved and not normalized in this task.
+
 ## 2026-07-08 - route-stitch-edumanager-admin-pages
 
 ### What changed

@@ -1,5 +1,2 @@
-import { AdminManagementDomainPage } from "@/features/admin/components/admin-management-page";
-
-export default function TuitionRoute() {
-  return <AdminManagementDomainPage domain="tuition" />;
-}
+import { PlannedSurface } from "@/features/planned/components/planned-surface";
+export default function Page() { return <PlannedSurface title="Học phí" activeHref="/admin/tuition" />; }

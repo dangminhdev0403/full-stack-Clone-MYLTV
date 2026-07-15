@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AppProviders } from "@/components/providers/app-providers";
 
 const beVietnam = Be_Vietnam_Pro({
   variable: "--font-be-vietnam",
@@ -38,7 +39,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full"><AppProviders>{children}</AppProviders></body>
     </html>
   );
 }

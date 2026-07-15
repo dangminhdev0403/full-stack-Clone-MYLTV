@@ -1,23 +1,11 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { getBackendEnvConfig } from '../config/env.config';
-
-function createPostgresAdapter() {
-  return new PrismaPg(getBackendEnvConfig().databaseUrl);
-}
+import { createPrismaClientOptions } from './prisma-client-options';
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleDestroy {
   constructor() {
-    super({ adapter: createPostgresAdapter() });
-  }
-
-  async onModuleInit() {
-    await this.$connect();
+    super(createPrismaClientOptions());
   }
 
   async onModuleDestroy() {
