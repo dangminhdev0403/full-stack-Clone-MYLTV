@@ -11,15 +11,12 @@ import {
 import { listStudents } from "@/features/students/service/students.client";
 import { getCurrentAcademicContext } from "@/features/admin-shell/service/academic-context.client";
 
+const sessionUser = {
+  role: "admin",
+  permissions: ["billing.tuition.read", "billing.tuition.manage"],
+};
 vi.mock("next-auth/react", () => ({
-  useSession: () => ({
-    data: {
-      user: {
-        role: "admin",
-        permissions: ["billing.tuition.read", "billing.tuition.manage"],
-      },
-    },
-  }),
+  useSession: () => ({ data: { user: sessionUser } }),
 }));
 vi.mock("@/features/admin-shell", () => ({
   AdminShell: ({ children }: { children: React.ReactNode }) => (
@@ -127,6 +124,21 @@ function renderPage() {
   );
 }
 describe("TuitionPage", () => {
+  it("does not show manage actions when the session lacks manage permission", async () => {
+    sessionUser.role = "super_admin";
+    sessionUser.permissions = ["billing.tuition.read"];
+    renderPage();
+    await screen.findByText("Nguyễn Minh Anh");
+    expect(
+      screen.queryByRole("button", { name: "Tạo khoản thu" }),
+    ).not.toBeInTheDocument();
+    sessionUser.role = "admin";
+    sessionUser.permissions = [
+      "billing.tuition.read",
+      "billing.tuition.manage",
+    ];
+  });
+
   it("shows backend summary and filters by class/status", async () => {
     const user = userEvent.setup();
     renderPage();

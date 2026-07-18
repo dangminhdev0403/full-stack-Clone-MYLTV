@@ -43,9 +43,9 @@ export function TuitionPage() {
     queryKey: ["tuition-students"],
     queryFn: () => listStudents("?is_active=true&page=1&page_size=100"),
   });
-  const canManage =
-    session?.user?.role === "super_admin" ||
-    session?.user?.permissions?.includes("billing.tuition.manage");
+  const canManage = session?.user?.permissions?.includes(
+    "billing.tuition.manage",
+  );
   function filter(event: FormEvent) {
     event.preventDefault();
     setFilters({ className: draftClass.trim(), status: draftStatus });

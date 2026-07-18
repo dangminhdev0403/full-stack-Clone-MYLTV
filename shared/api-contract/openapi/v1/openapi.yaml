@@ -13081,19 +13081,19 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "amount_paid": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "amount_outstanding": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "status": {
             "type": "string",
@@ -13161,19 +13161,19 @@
           "title": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 120
+            "maxLength": 160
           },
           "amount_due": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "amount_paid": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647,
+            "maximum": 2000000000,
             "default": 0
           },
           "due_date": {
@@ -13206,19 +13206,19 @@
           "title": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 120
+            "maxLength": 160
           },
           "amount_due": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "amount_paid": {
             "type": "integer",
             "format": "int32",
             "minimum": 0,
-            "maximum": 2147483647
+            "maximum": 2000000000
           },
           "due_date": {
             "type": "string",
@@ -13263,19 +13263,19 @@
                 "type": "integer",
                 "format": "int32",
                 "minimum": 0,
-                "maximum": 2147483647
+                "maximum": 2000000000
               },
               "amount_paid": {
                 "type": "integer",
                 "format": "int32",
                 "minimum": 0,
-                "maximum": 2147483647
+                "maximum": 2000000000
               },
               "amount_outstanding": {
                 "type": "integer",
                 "format": "int32",
                 "minimum": 0,
-                "maximum": 2147483647
+                "maximum": 2000000000
               }
             },
             "required": [

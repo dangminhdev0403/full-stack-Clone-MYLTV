@@ -22,7 +22,12 @@ async function main() {
       await seedUatStudents(prisma);
     }
     if (process.env.SEED_UAT_ACCOUNTS === 'true') {
-      const accountPassword = process.env.UAT_ACCOUNT_PASSWORD ?? password;
+      const accountPassword = process.env.UAT_ACCOUNT_PASSWORD;
+      if (!accountPassword) {
+        throw new Error(
+          'UAT_ACCOUNT_PASSWORD is required when SEED_UAT_ACCOUNTS=true',
+        );
+      }
       await seedUatAccounts(prisma, accountPassword);
     }
     if (process.env.SEED_UAT_ATTENDANCE === 'true') {
