@@ -1,5 +1,22 @@
 # Contract Changes
 
+## Unreleased - 2026-07-16
+
+- Implemented the first Academics Attendance vertical slice for administrators:
+  persisted class/date/period sessions, explicit per-student statuses, audited
+  create/update operations, and typed management UI list/edit behavior.
+- Added `academics.attendance.read` and `academics.attendance.manage`. Teacher
+  access remains deferred until class-assignment ownership can be enforced.
+- Added the implemented, read-only `GET /admin/academic-context/current` shell
+  bootstrap endpoint for administrators. It returns one coherent current academic
+  year and semester and requires `academics.context.read`.
+- Implemented the Communication News vertical slice: admin CRUD, publish/hide,
+  pin/reorder, and app reads filtered for the active student's all/grade/class/student
+  audience.
+- Added `communication.news.read`, `communication.news.manage`, and
+  `communication.news.publish` authorization metadata and explicit publication
+  lifecycle/audience request schemas.
+
 ## Unreleased - 2026-07-13
 
 - Added Zod request/query validation for Student Administration admin routes and active-student switching.

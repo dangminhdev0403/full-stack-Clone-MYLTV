@@ -28,6 +28,28 @@ export type StudentListResponseDto = {
   has_next: boolean;
 };
 
+export type StudentGenderDto = 'male' | 'female' | 'other';
+export type StudentGuardianRelationshipDto =
+  'father' | 'mother' | 'grandfather' | 'grandmother' | 'guardian' | 'other';
+export type StudentGuardianContactDto = {
+  id?: string;
+  relationship: StudentGuardianRelationshipDto;
+  relationship_label: string | null;
+  full_name: string;
+  phone: string;
+  is_emergency_contact: boolean;
+};
+export type StudentDetailDto = StudentSummaryDto & {
+  date_of_birth: string | null;
+  gender: StudentGenderDto | null;
+  ethnicity: string | null;
+  birth_place: string | null;
+  permanent_address: string | null;
+  cohort_start_year: number | null;
+  cohort_end_year: number | null;
+  guardian_contacts: StudentGuardianContactDto[];
+};
+
 export type StudentWriteRequestDto = {
   code?: string;
   full_name?: string;
@@ -37,6 +59,14 @@ export type StudentWriteRequestDto = {
   school_name?: string;
   guardian_account_ids?: string[];
   is_active?: boolean;
+  date_of_birth?: string | null;
+  gender?: StudentGenderDto | null;
+  ethnicity?: string | null;
+  birth_place?: string | null;
+  permanent_address?: string | null;
+  cohort_start_year?: number | null;
+  cohort_end_year?: number | null;
+  guardian_contacts?: StudentGuardianContactDto[];
 };
 
 export type ReplaceStudentAccountsRequestDto = {

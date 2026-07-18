@@ -10,7 +10,7 @@ The backend is a NestJS modular monolith: one process, one API deployable, one P
 | --- | --- | --- |
 | Identity & Access | accounts/users, credentials, sessions, roles, permissions, audit | No dependency on business domains. Other modules consume identity IDs, user summaries, and permissions only. |
 | Student Administration | students, guardians, account-student relationships | Owns student lifecycle and lookup APIs. Other modules reference student IDs and request read models through public services. |
-| Academics | attendance, grades, timetable, homework | References student IDs; does not modify student ownership data. Owns academic records and academic workflows. |
+| Academics | academic year/semester context, attendance, grades, timetable, homework | References student IDs; does not modify student ownership data. Owns academic context, records, and workflows. |
 | Communication | news, notifications, feedback | Consumes audience/recipient queries through public services, not raw tables. Owns publication and notification workflows. |
 | Billing | tuition, payment requests | References student IDs and emits payment state through explicit APIs/events. Does not own student lifecycle. |
 | Student Services | meals, events, surveys, clubs, bus, uniforms | Starts as one context; split only when operational pressure exists. Owns optional service enrollment/requests. |

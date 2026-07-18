@@ -1,2 +1,5 @@
-import { PlannedSurface } from "@/features/planned/components/planned-surface";
-export default function Page() { return <PlannedSurface title="Điểm danh" activeHref="/admin/attendance" />; }
+import { AttendancePage } from "@/features/attendance/components/attendance-page";
+
+export default function Page() {
+  return <AttendancePage />;
+}

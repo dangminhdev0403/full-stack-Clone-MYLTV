@@ -1,2 +1,5 @@
-import { PlannedSurface } from "@/features/planned/components/planned-surface";
-export default function Page() { return <PlannedSurface title="Tin tức" activeHref="/admin/news" />; }
+import { NewsPage } from "@/features/news/components/news-page";
+
+export default function Page() {
+  return <NewsPage />;
+}

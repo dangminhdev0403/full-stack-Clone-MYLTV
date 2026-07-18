@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "project": "So lien lac dien tu Luong The Vinh",
   "base_url": "{{BASE_URL}}/api/v1",
-  "updated_at": "2026-07-15",
-  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json. OpenAPI JSON is authoritative. implementation_status=implemented means a backend controller exists in the approved Identity & Access, Current Account, User Management, Student Administration, or Global Exception scope; planned means no backend route is promised.",
+  "updated_at": "2026-07-16",
+  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json. OpenAPI JSON is authoritative. implementation_status=implemented means a backend controller exists in the approved Identity & Access, Current Account, User Management, Student Administration, Academic Context, Attendance, or Global Exception scope; planned means no backend route is promised.",
   "common_headers": {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -351,8 +351,8 @@
       "path": "/home/news",
       "query": {
         "page": 1,
-        "limit": 20,
-        "keyword": "string|null"
+        "page_size": 20,
+        "q": "string|null"
       },
       "response_data": {
         "items": [
@@ -373,7 +373,8 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented",
+      "audience_scope": "active_student: all|grade|class|student"
     },
     {
       "group": "home",
@@ -1093,6 +1094,39 @@
         "size": 0
       },
       "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Ngu canh nam hoc va hoc ky hien tai",
+      "method": "GET",
+      "path": "/admin/academic-context/current",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "allowed_roles": [
+        "admin",
+        "super_admin"
+      ],
+      "required_permission": "academics.context.read",
+      "response_data": {
+        "academic_year": {
+          "id": "string",
+          "code": "2025-2026",
+          "display_name": "Nam hoc 2025-2026",
+          "starts_on": "YYYY-MM-DD",
+          "ends_on": "YYYY-MM-DD",
+          "is_current": true
+        },
+        "semester": {
+          "id": "string",
+          "code": "semester-2",
+          "display_name": "Hoc ky 2",
+          "starts_on": "YYYY-MM-DD",
+          "ends_on": "YYYY-MM-DD",
+          "sort_order": 2,
+          "is_current": true
+        }
+      },
+      "implementation_status": "implemented"
     }
   ],
   "common_error_response": {

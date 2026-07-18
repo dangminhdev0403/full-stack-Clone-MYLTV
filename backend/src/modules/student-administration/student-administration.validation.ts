@@ -22,6 +22,32 @@ const pageSizeInteger = z.preprocess(
 );
 
 const stringIdArray = z.array(nonEmptyString);
+const nullableText = z.string().trim().min(1).nullable().optional();
+const nullableYear = z.number().int().min(1900).max(2200).nullable().optional();
+const guardianContactSchema = z
+  .object({
+    id: nonEmptyString.optional(),
+    relationship: z.enum([
+      'father',
+      'mother',
+      'grandfather',
+      'grandmother',
+      'guardian',
+      'other',
+    ]),
+    relationship_label: z.string().trim().min(1).nullable().default(null),
+    full_name: nonEmptyString,
+    phone: nonEmptyString,
+    is_emergency_contact: z.boolean(),
+  })
+  .superRefine((value, context) => {
+    if (value.relationship === 'other' && !value.relationship_label)
+      context.addIssue({
+        code: 'custom',
+        path: ['relationship_label'],
+        message: 'relationship_label is required for other relationship',
+      });
+  });
 
 const studentBaseFields = {
   code: nonEmptyString,
@@ -32,6 +58,14 @@ const studentBaseFields = {
   school_name: optionalString,
   guardian_account_ids: stringIdArray.optional(),
   is_active: z.boolean().optional(),
+  date_of_birth: z.union([z.iso.date(), z.null()]).optional(),
+  gender: z.enum(['male', 'female', 'other']).nullable().optional(),
+  ethnicity: nullableText,
+  birth_place: nullableText,
+  permanent_address: nullableText,
+  cohort_start_year: nullableYear,
+  cohort_end_year: nullableYear,
+  guardian_contacts: z.array(guardianContactSchema).optional(),
 };
 
 export const studentListQuerySchema = z.object({
@@ -52,9 +86,24 @@ export const updateStudentSchema = z
     full_name: studentBaseFields.full_name.optional(),
     class_name: studentBaseFields.class_name.optional(),
   })
-  .refine((payload) => Object.keys(payload).length > 0, {
-    message: 'payload must include at least one field',
-    path: ['body'],
+  .superRefine((payload, context) => {
+    if (Object.keys(payload).length === 0)
+      context.addIssue({
+        code: 'custom',
+        message: 'payload must include at least one field',
+        path: ['body'],
+      });
+    if (
+      payload.cohort_start_year != null &&
+      payload.cohort_end_year != null &&
+      payload.cohort_end_year < payload.cohort_start_year
+    )
+      context.addIssue({
+        code: 'custom',
+        message:
+          'cohort_end_year must be greater than or equal to cohort_start_year',
+        path: ['cohort_end_year'],
+      });
   });
 
 export const replaceStudentAccountsSchema = z.object({

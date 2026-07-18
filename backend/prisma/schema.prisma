@@ -27,6 +27,46 @@ enum StudentAccountRelationship {
   teacher
 }
 
+enum StudentGender {
+  male
+  female
+  other
+}
+
+enum StudentGuardianRelationship {
+  father
+  mother
+  grandfather
+  grandmother
+  guardian
+  other
+}
+
+enum AttendancePeriod {
+  morning
+  afternoon
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+enum NewsPublicationStatus {
+  draft
+  published
+  hidden
+}
+
+enum NewsAudienceType {
+  all
+  grade
+  class
+  student
+}
+
 model Account {
   id                 String              @id @default(uuid())
   username           String              @unique
@@ -39,6 +79,10 @@ model Account {
   permissions        AccountPermission[]
   refreshSessions    RefreshSession[]
   studentLinks       StudentAccountLink[]
+  createdNews        NewsItem[]
+  auditEvents        AuditEvent[]
+  attendanceSessions AttendanceSession[] @relation("AttendanceSessionCreator")
+  attendanceRecords  AttendanceRecord[]  @relation("AttendanceRecordMarker")
 
   @@map("accounts")
 }
@@ -81,23 +125,65 @@ model RefreshSession {
   @@map("refresh_sessions")
 }
 
+model AuditEvent {
+  id             String   @id @default(uuid())
+  actorId        String   @map("actor_id")
+  action         String
+  boundedContext String   @map("bounded_context")
+  resourceType   String   @map("resource_type")
+  resourceId     String   @map("resource_id")
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  actor          Account  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId, createdAt])
+  @@index([boundedContext, resourceType, resourceId])
+  @@map("audit_events")
+}
+
 model Student {
-  id           String               @id @default(uuid())
-  code         String               @unique
-  fullName     String               @map("full_name")
-  avatarUrl    String?              @map("avatar_url")
-  grade        String?
-  className    String               @map("class_name")
-  schoolName   String               @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
-  isActive     Boolean              @default(true) @map("is_active")
-  createdAt    DateTime             @default(now()) @map("created_at")
-  updatedAt    DateTime             @updatedAt @map("updated_at")
-  accountLinks StudentAccountLink[]
+  id               String                   @id @default(uuid())
+  code             String                   @unique
+  fullName         String                   @map("full_name")
+  avatarUrl        String?                  @map("avatar_url")
+  grade            String?
+  className        String                   @map("class_name")
+  schoolName       String                   @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
+  isActive         Boolean                  @default(true) @map("is_active")
+  dateOfBirth      DateTime?                @db.Date @map("date_of_birth")
+  gender           StudentGender?
+  ethnicity        String?
+  birthPlace       String?                  @map("birth_place")
+  permanentAddress String?                  @map("permanent_address")
+  cohortStartYear  Int?                     @map("cohort_start_year")
+  cohortEndYear    Int?                     @map("cohort_end_year")
+  createdAt        DateTime                 @default(now()) @map("created_at")
+  updatedAt        DateTime                 @updatedAt @map("updated_at")
+  accountLinks     StudentAccountLink[]
+  guardianContacts StudentGuardianContact[]
+  attendanceRecords AttendanceRecord[]
 
   @@index([className])
   @@index([grade])
   @@index([isActive])
   @@map("students")
+}
+
+model StudentGuardianContact {
+  id                 String                      @id @default(uuid())
+  studentId          String                      @map("student_id")
+  relationship       StudentGuardianRelationship
+  relationshipLabel  String?                     @map("relationship_label")
+  fullName           String                      @map("full_name")
+  phone              String
+  isEmergencyContact Boolean                     @default(false) @map("is_emergency_contact")
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  student            Student                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([studentId, isEmergencyContact])
+  @@map("student_guardian_contacts")
 }
 
 model StudentAccountLink {
@@ -113,4 +199,106 @@ model StudentAccountLink {
   @@index([accountId])
   @@index([studentId])
   @@map("student_account_links")
+}
+
+model NewsItem {
+  id            String                @id @default(uuid())
+  title         String
+  summary       String
+  content       String
+  imageUrl      String?               @map("image_url")
+  category      String
+  status        NewsPublicationStatus @default(draft)
+  isPinned      Boolean               @default(false) @map("is_pinned")
+  sortOrder     Int                   @default(0) @map("sort_order")
+  publishedAt   DateTime?             @map("published_at")
+  createdById   String                @map("created_by_id")
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+  createdBy     Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  audiences     NewsAudience[]
+
+  @@index([status, isPinned, sortOrder, publishedAt])
+  @@index([createdById])
+  @@map("news_items")
+}
+
+model NewsAudience {
+  id        String           @id @default(uuid())
+  newsId    String           @map("news_id")
+  type      NewsAudienceType
+  value     String?
+  news      NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, type, value])
+  @@index([type, value])
+  @@map("news_audiences")
+}
+
+model AcademicYear {
+  id          String     @id
+  code        String     @unique
+  displayName String     @map("display_name")
+  startsOn    DateTime   @db.Date @map("starts_on")
+  endsOn      DateTime   @db.Date @map("ends_on")
+  isCurrent   Boolean    @default(false) @map("is_current")
+  semesters   Semester[]
+
+  @@map("academic_years")
+}
+
+model Semester {
+  id             String       @id
+  academicYearId String       @map("academic_year_id")
+  code           String
+  displayName    String       @map("display_name")
+  startsOn       DateTime     @db.Date @map("starts_on")
+  endsOn         DateTime     @db.Date @map("ends_on")
+  sortOrder      Int          @map("sort_order")
+  isCurrent      Boolean      @default(false) @map("is_current")
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  attendanceSessions AttendanceSession[]
+
+  @@unique([academicYearId, code])
+  @@unique([academicYearId, sortOrder])
+  @@index([academicYearId])
+  @@map("semesters")
+}
+
+model AttendanceSession {
+  id             String             @id @default(uuid())
+  semesterId     String             @map("semester_id")
+  attendanceDate DateTime           @db.Date @map("attendance_date")
+  period         AttendancePeriod
+  className      String             @map("class_name")
+  createdById    String             @map("created_by_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  semester       Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy      Account            @relation("AttendanceSessionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  records        AttendanceRecord[]
+
+  @@unique([semesterId, attendanceDate, period, className])
+  @@index([attendanceDate, className])
+  @@index([createdById])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id         String            @id @default(uuid())
+  sessionId  String            @map("session_id")
+  studentId  String            @map("student_id")
+  status     AttendanceStatus
+  note       String?
+  markedById String            @map("marked_by_id")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  session    AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  markedBy   Account           @relation("AttendanceRecordMarker", fields: [markedById], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId, createdAt])
+  @@index([markedById])
+  @@map("attendance_records")
 }

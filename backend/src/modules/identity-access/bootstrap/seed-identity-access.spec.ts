@@ -22,7 +22,7 @@ describe('seedIdentityAccess', () => {
     expect(accountPermissionUpsert).not.toHaveBeenCalled();
   });
 
-  it('does not grant permissions to an existing super administrator by username', async () => {
+  it('grants newly registered permissions to an existing super administrator', async () => {
     const accountPermissionUpsert = jest.fn();
     const prisma = {
       permission: { upsert: jest.fn().mockResolvedValue(undefined) },
@@ -40,6 +40,15 @@ describe('seedIdentityAccess', () => {
       password: 'bootstrap-password',
     });
 
-    expect(accountPermissionUpsert).not.toHaveBeenCalled();
+    expect(accountPermissionUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          accountId_permissionKey: {
+            accountId: 'admin-1',
+            permissionKey: 'communication.news.publish',
+          },
+        },
+      }),
+    );
   });
 });

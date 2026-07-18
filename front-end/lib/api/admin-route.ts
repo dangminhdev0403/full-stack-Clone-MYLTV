@@ -13,5 +13,17 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/students/${id}`;
     if (segments.length === 2 && id && segments[1] === "accounts" && method === "PUT") return `/api/v1/admin/students/${id}/accounts`;
   }
+  if (resource === "attendance") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/attendance";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/attendance/${id}`;
+  }
+  if (resource === "news") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/news";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/news/${id}`;
+    if (segments.length === 2 && id && ["publish", "hide", "pin", "reorder"].includes(segments[1]) && method === "POST") return `/api/v1/admin/news/${id}/${segments[1]}`;
+  }
+  if (resource === "academic-context" && segments.length === 1 && segments[0] === "current" && method === "GET") {
+    return "/api/v1/admin/academic-context/current";
+  }
   throw new Error("Unsupported admin endpoint");
 }

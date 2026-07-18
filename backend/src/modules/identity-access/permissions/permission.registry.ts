@@ -74,6 +74,49 @@ export const PERMISSIONS = [
     boundedContext: 'Student Administration',
     risk: 'critical',
   },
+  {
+    key: 'academics.context.read',
+    label: 'Read academic context',
+    description: 'Read the current academic year and semester context.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.attendance.read',
+    label: 'Read attendance',
+    description:
+      'Read class attendance sessions and student attendance records.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.attendance.manage',
+    label: 'Manage attendance',
+    description: 'Create and update class attendance sessions.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'communication.news.read',
+    label: 'Read news',
+    description: 'Read published or administrative news views.',
+    boundedContext: 'Communication',
+    risk: 'low',
+  },
+  {
+    key: 'communication.news.manage',
+    label: 'Manage news',
+    description: 'Create, edit, hide, pin, reorder, and delete news.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
+  {
+    key: 'communication.news.publish',
+    label: 'Publish news',
+    description: 'Publish school news to resolved audiences.',
+    boundedContext: 'Communication',
+    risk: 'critical',
+  },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]['key'];

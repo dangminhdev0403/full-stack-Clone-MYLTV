@@ -1723,11 +1723,16 @@
             }
           },
           {
-            "name": "student_id",
+            "name": "status",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "hidden"
+              ]
             }
           }
         ],
@@ -1794,12 +1799,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.news.read"
       },
       "post": {
         "tags": [
@@ -1818,7 +1823,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewsItem"
+                "$ref": "#/components/schemas/NewsCreateRequest"
               }
             }
           }
@@ -1868,12 +1873,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.news.manage"
       }
     },
     "/admin/news/{id}": {
@@ -1944,12 +1949,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.news.read"
       },
       "patch": {
         "tags": [
@@ -1978,7 +1983,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewsItem"
+                "$ref": "#/components/schemas/NewsUpdateRequest"
               }
             }
           }
@@ -2028,12 +2033,61 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.news.manage"
+      },
+      "delete": {
+        "tags": [
+          "Communication"
+        ],
+        "operationId": "adminDeleteNews",
+        "summary": "Delete hidden or draft news",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "news id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Communication",
+        "x-consumer": "management-ui",
+        "x-implementation-status": "implemented",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-required-permission": "communication.news.manage"
       }
     },
     "/admin/notifications": {
@@ -2742,6 +2796,73 @@
         "x-implementation-status": "planned"
       }
     },
+    "/admin/academic-context/current": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminGetCurrentAcademicContext",
+        "summary": "Get the current academic year and semester context",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current academic context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AcademicContext"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "503": {
+            "description": "Academic context is empty or incoherent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
+    },
     "/admin/attendance": {
       "get": {
         "tags": [
@@ -2756,12 +2877,42 @@
         ],
         "parameters": [
           {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "class_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "morning",
+                "afternoon"
+              ]
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
-              "default": 1
+              "default": 1,
+              "minimum": 1
             }
           },
           {
@@ -2770,23 +2921,9 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "student_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
             }
           }
         ],
@@ -2814,7 +2951,7 @@
                                 "items": {
                                   "type": "array",
                                   "items": {
-                                    "$ref": "#/components/schemas/AttendanceRecord"
+                                    "$ref": "#/components/schemas/AttendanceSession"
                                   }
                                 }
                               },
@@ -2853,12 +2990,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -2877,7 +3013,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AttendanceRecord"
+                "$ref": "#/components/schemas/AttendanceSessionCreate"
               }
             }
           }
@@ -2896,7 +3032,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/AttendanceRecord"
+                          "$ref": "#/components/schemas/AttendanceSession"
                         }
                       },
                       "required": [
@@ -2927,12 +3063,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/attendance/{id}": {
@@ -2972,7 +3107,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/AttendanceRecord"
+                          "$ref": "#/components/schemas/AttendanceSession"
                         }
                       },
                       "required": [
@@ -3003,12 +3138,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
       },
       "patch": {
         "tags": [
@@ -3037,7 +3171,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AttendanceRecord"
+                "$ref": "#/components/schemas/AttendanceSessionUpdate"
               }
             }
           }
@@ -3056,7 +3190,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/AttendanceRecord"
+                          "$ref": "#/components/schemas/AttendanceSession"
                         }
                       },
                       "required": [
@@ -3087,12 +3221,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/timetable": {
@@ -8060,7 +8193,7 @@
             }
           },
           {
-            "name": "limit",
+            "name": "page_size",
             "in": "query",
             "required": false,
             "schema": {
@@ -8069,7 +8202,7 @@
             }
           },
           {
-            "name": "keyword",
+            "name": "q",
             "in": "query",
             "required": false,
             "schema": {
@@ -8146,8 +8279,9 @@
           "admin",
           "super_admin"
         ],
-        "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-scope": "active_student_audience",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.news.read"
       }
     },
     "/notifications": {
@@ -11384,6 +11518,247 @@
         "x-scope": "linked_student",
         "x-implementation-status": "planned"
       }
+    },
+    "/admin/news/{id}/publish": {
+      "post": {
+        "tags": [
+          "Communication"
+        ],
+        "operationId": "adminPublishNews",
+        "summary": "Publish draft news",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "news id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated news item"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Communication",
+        "x-consumer": "management-ui",
+        "x-implementation-status": "implemented",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-required-permission": "communication.news.publish"
+      }
+    },
+    "/admin/news/{id}/hide": {
+      "post": {
+        "tags": [
+          "Communication"
+        ],
+        "operationId": "adminHideNews",
+        "summary": "Hide published news",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "news id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated news item"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Communication",
+        "x-consumer": "management-ui",
+        "x-implementation-status": "implemented",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-required-permission": "communication.news.publish"
+      }
+    },
+    "/admin/news/{id}/pin": {
+      "post": {
+        "tags": [
+          "Communication"
+        ],
+        "operationId": "adminPinNews",
+        "summary": "Set pinned state",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "news id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated news item"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Communication",
+        "x-consumer": "management-ui",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "is_pinned"
+                ],
+                "properties": {
+                  "is_pinned": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "implemented",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-required-permission": "communication.news.manage"
+      }
+    },
+    "/admin/news/{id}/reorder": {
+      "post": {
+        "tags": [
+          "Communication"
+        ],
+        "operationId": "adminReorderNews",
+        "summary": "Set news sort order",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "news id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated news item"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Communication",
+        "x-consumer": "management-ui",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sort_order"
+                ],
+                "properties": {
+                  "sort_order": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "implemented",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-required-permission": "communication.news.manage"
+      }
     }
   },
   "components": {
@@ -11800,6 +12175,20 @@
       },
       "NewsItem": {
         "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "content",
+          "category",
+          "status",
+          "is_pinned",
+          "sort_order",
+          "published_at",
+          "audiences",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -11815,39 +12204,46 @@
           },
           "image_url": {
             "type": "string",
+            "format": "uri",
             "nullable": true
           },
           "category": {
-            "type": "string",
-            "enum": [
-              "Thong bao",
-              "Tin tuc",
-              "Su kien"
-            ]
-          },
-          "is_pinned": {
-            "type": "boolean"
-          },
-          "published_at": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "status": {
             "type": "string",
             "enum": [
               "draft",
               "published",
-              "archived"
+              "hidden"
             ]
+          },
+          "is_pinned": {
+            "type": "boolean"
+          },
+          "sort_order": {
+            "type": "integer"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewsAudience"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "summary",
-          "category",
-          "is_pinned"
-        ]
+        }
       },
       "Notification": {
         "type": "object",
@@ -11940,9 +12336,28 @@
       "AttendanceRecord": {
         "type": "object",
         "properties": {
-          "date": {
+          "id": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string"
+          },
+          "student_code": {
+            "type": "string"
+          },
+          "student_name": {
+            "type": "string"
+          },
+          "avatar_url": {
             "type": "string",
-            "format": "date"
+            "nullable": true
+          },
+          "grade": {
+            "type": "string",
+            "nullable": true
+          },
+          "class_name": {
+            "type": "string"
           },
           "status": {
             "type": "string",
@@ -11950,19 +12365,8 @@
               "present",
               "absent",
               "late",
-              "leave_early",
-              "excused",
-              "unknown"
+              "excused"
             ]
-          },
-          "morning_check_in": {
-            "type": "string",
-            "nullable": true,
-            "example": "07:05"
-          },
-          "afternoon_check_in": {
-            "type": "string",
-            "nullable": true
           },
           "note": {
             "type": "string",
@@ -11970,7 +12374,11 @@
           }
         },
         "required": [
-          "date",
+          "id",
+          "student_id",
+          "student_code",
+          "student_name",
+          "class_name",
           "status"
         ]
       },
@@ -12290,6 +12698,331 @@
           "file_url",
           "mime_type",
           "size"
+        ]
+      },
+      "NewsAudience": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "all",
+              "grade",
+              "class",
+              "student"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NewsCreateRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "summary",
+          "content",
+          "category"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "audiences": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/NewsAudience"
+            },
+            "maxItems": 100
+          }
+        }
+      },
+      "NewsUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "audiences": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/NewsAudience"
+            },
+            "maxItems": 100
+          }
+        },
+        "minProperties": 1
+      },
+      "AcademicYearContext": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "is_current": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on",
+          "is_current"
+        ]
+      },
+      "SemesterContext": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "is_current": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on",
+          "sort_order",
+          "is_current"
+        ]
+      },
+      "AcademicContext": {
+        "type": "object",
+        "properties": {
+          "academic_year": {
+            "$ref": "#/components/schemas/AcademicYearContext"
+          },
+          "semester": {
+            "$ref": "#/components/schemas/SemesterContext"
+          }
+        },
+        "required": [
+          "academic_year",
+          "semester"
+        ]
+      },
+      "AttendanceSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "period": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon"
+            ]
+          },
+          "class_name": {
+            "type": "string"
+          },
+          "semester_id": {
+            "type": "string"
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "present": {
+                "type": "integer"
+              },
+              "absent": {
+                "type": "integer"
+              },
+              "late": {
+                "type": "integer"
+              },
+              "excused": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRecord"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "period",
+          "class_name",
+          "semester_id",
+          "counts",
+          "records"
+        ]
+      },
+      "AttendanceRecordWrite": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "student_id",
+          "status",
+          "note"
+        ]
+      },
+      "AttendanceSessionCreate": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "class_name": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon"
+            ]
+          },
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRecordWrite"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "class_name",
+          "period",
+          "records"
+        ]
+      },
+      "AttendanceSessionUpdate": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRecordWrite"
+            }
+          }
+        },
+        "required": [
+          "records"
         ]
       }
     }

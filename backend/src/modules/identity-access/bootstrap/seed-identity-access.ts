@@ -39,7 +39,22 @@ export async function seedIdentityAccess(
   }
 
   if (existing) {
-    return { adminId: existing.id, permissionCount: 0 };
+    for (const permission of PERMISSIONS) {
+      await prisma.accountPermission.upsert({
+        where: {
+          accountId_permissionKey: {
+            accountId: existing.id,
+            permissionKey: permission.key,
+          },
+        },
+        update: {},
+        create: {
+          accountId: existing.id,
+          permissionKey: permission.key,
+        },
+      });
+    }
+    return { adminId: existing.id, permissionCount: PERMISSIONS.length };
   }
 
   const admin = await prisma.account.create({

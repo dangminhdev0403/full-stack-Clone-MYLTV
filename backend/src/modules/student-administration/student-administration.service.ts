@@ -14,6 +14,8 @@ import type {
   ReplaceStudentAccountsResponseDto,
   StudentListQueryDto,
   StudentListResponseDto,
+  StudentDetailDto,
+  StudentGuardianContactDto,
   StudentSummaryDto,
   StudentWriteRequestDto,
 } from './dto/student-administration.dto';
@@ -30,6 +32,15 @@ const studentSelect = {
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.StudentSelect;
+
+const studentDetailInclude = {
+  guardianContacts: {
+    orderBy: [
+      { isEmergencyContact: 'desc' as const },
+      { createdAt: 'asc' as const },
+    ],
+  },
+} satisfies Prisma.StudentInclude;
 
 type StudentRecord = Pick<
   Student,
@@ -106,11 +117,14 @@ export class StudentAdministrationService {
   }
 
   async getStudent(id: string, actor?: AuthenticatedUser) {
-    const student = await this.findStudentOrThrow(id);
-    if (actor?.role === 'teacher') {
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+      include: studentDetailInclude,
+    });
+    if (!student) throw new NotFoundException('Student not found');
+    if (actor?.role === 'teacher')
       await this.assertTeacherCanRead(actor.id, id);
-    }
-    return ok(this.toSummaryDto(student));
+    return ok<StudentDetailDto>(this.toDetailDto(student));
   }
 
   async createStudent(
@@ -206,17 +220,54 @@ export class StudentAdministrationService {
     if (payload.school_name !== undefined) {
       data.schoolName = payload.school_name;
     }
-    if (payload.is_active !== undefined) {
-      data.isActive = payload.is_active;
-    }
+    if (payload.is_active !== undefined) data.isActive = payload.is_active;
+    if (payload.date_of_birth !== undefined)
+      data.dateOfBirth = payload.date_of_birth
+        ? new Date(`${payload.date_of_birth}T00:00:00.000Z`)
+        : null;
+    if (payload.gender !== undefined) data.gender = payload.gender;
+    if (payload.ethnicity !== undefined)
+      data.ethnicity = this.nullableTrim(payload.ethnicity);
+    if (payload.birth_place !== undefined)
+      data.birthPlace = this.nullableTrim(payload.birth_place);
+    if (payload.permanent_address !== undefined)
+      data.permanentAddress = this.nullableTrim(payload.permanent_address);
+    if (payload.cohort_start_year !== undefined)
+      data.cohortStartYear = payload.cohort_start_year;
+    if (payload.cohort_end_year !== undefined)
+      data.cohortEndYear = payload.cohort_end_year;
 
     try {
+      if (payload.guardian_contacts !== undefined) {
+        const student = await this.prisma.$transaction(async (tx) => {
+          await tx.student.update({
+            where: { id },
+            data,
+            select: studentSelect,
+          });
+          await tx.studentGuardianContact.deleteMany({
+            where: { studentId: id },
+          });
+          if (payload.guardian_contacts!.length)
+            await tx.studentGuardianContact.createMany({
+              data: payload.guardian_contacts!.map((contact) =>
+                this.toGuardianCreate(id, contact),
+              ),
+            });
+          return tx.student.findUnique({
+            where: { id },
+            include: studentDetailInclude,
+          });
+        });
+        if (!student) throw new NotFoundException('Student not found');
+        return ok<StudentDetailDto>(this.toDetailDto(student));
+      }
       const student = await this.prisma.student.update({
         where: { id },
         data,
         select: studentSelect,
       });
-      return ok(this.toSummaryDto(student));
+      return ok<StudentDetailDto>(this.toDetailDto(student));
     } catch (error) {
       this.mapPrismaWriteError(error);
     }
@@ -312,6 +363,69 @@ export class StudentAdministrationService {
       created_at: student.createdAt.toISOString(),
       updated_at: student.updatedAt.toISOString(),
     };
+  }
+
+  private toDetailDto(
+    student: StudentRecord & {
+      dateOfBirth?: Date | null;
+      gender?: 'male' | 'female' | 'other' | null;
+      ethnicity?: string | null;
+      birthPlace?: string | null;
+      permanentAddress?: string | null;
+      cohortStartYear?: number | null;
+      cohortEndYear?: number | null;
+      guardianContacts?: Array<{
+        id: string;
+        relationship:
+          | 'father'
+          | 'mother'
+          | 'grandfather'
+          | 'grandmother'
+          | 'guardian'
+          | 'other';
+        relationshipLabel: string | null;
+        fullName: string;
+        phone: string;
+        isEmergencyContact: boolean;
+      }>;
+    },
+  ): StudentDetailDto {
+    return {
+      ...this.toSummaryDto(student),
+      date_of_birth: student.dateOfBirth?.toISOString().slice(0, 10) ?? null,
+      gender: student.gender ?? null,
+      ethnicity: student.ethnicity ?? null,
+      birth_place: student.birthPlace ?? null,
+      permanent_address: student.permanentAddress ?? null,
+      cohort_start_year: student.cohortStartYear ?? null,
+      cohort_end_year: student.cohortEndYear ?? null,
+      guardian_contacts: (student.guardianContacts ?? []).map((contact) => ({
+        id: contact.id,
+        relationship: contact.relationship,
+        relationship_label: contact.relationshipLabel,
+        full_name: contact.fullName,
+        phone: contact.phone,
+        is_emergency_contact: contact.isEmergencyContact,
+      })),
+    };
+  }
+
+  private toGuardianCreate(
+    studentId: string,
+    contact: StudentGuardianContactDto,
+  ) {
+    return {
+      studentId,
+      relationship: contact.relationship,
+      relationshipLabel: contact.relationship_label,
+      fullName: contact.full_name.trim(),
+      phone: contact.phone.trim(),
+      isEmergencyContact: contact.is_emergency_contact,
+    };
+  }
+
+  private nullableTrim(value: string | null): string | null {
+    return value === null ? null : value.trim();
   }
 
   private positiveInt(

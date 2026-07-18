@@ -20,10 +20,48 @@ export const userSchema = z.object({
   role: accountSchema.shape.role, is_active: z.boolean(), created_at: z.string(), updated_at: z.string(),
   permission_keys: z.array(z.string()).optional(),
 });
-export const studentSchema = z.object({
+export const studentSummarySchema = z.object({
   id: z.string(), code: z.string(), full_name: z.string(), avatar_url: z.string().nullable(),
   grade: z.string().nullable(), class_name: z.string(), school_name: z.string(), is_active: z.boolean(),
   created_at: z.string(), updated_at: z.string(),
+});
+
+export const studentGuardianRelationshipSchema = z.enum(["father", "mother", "grandfather", "grandmother", "guardian", "other"]);
+export const studentGenderSchema = z.enum(["male", "female", "other"]);
+
+export const studentGuardianContactSchema = z.object({
+  id: z.string().optional(),
+  relationship: studentGuardianRelationshipSchema,
+  relationship_label: z.string().nullable(),
+  full_name: z.string(),
+  phone: z.string(),
+  is_emergency_contact: z.boolean(),
+});
+
+export const studentDetailSchema = studentSummarySchema.extend({
+  date_of_birth: z.string().nullable().default(null),
+  gender: studentGenderSchema.nullable().default(null),
+  ethnicity: z.string().nullable().default(null),
+  birth_place: z.string().nullable().default(null),
+  permanent_address: z.string().nullable().default(null),
+  cohort_start_year: z.number().int().nullable().default(null),
+  cohort_end_year: z.number().int().nullable().default(null),
+  guardian_contacts: z.array(studentGuardianContactSchema).default([]),
+});
+
+export const studentSchema = studentSummarySchema;
+
+export const attendanceStatusSchema = z.enum(["present", "absent", "late", "excused"]);
+export const attendancePeriodSchema = z.enum(["morning", "afternoon"]);
+export const attendanceRecordSchema = z.object({
+  id: z.string(), student_id: z.string(), student_code: z.string(), student_name: z.string(),
+  avatar_url: z.string().nullable(), grade: z.string().nullable(), class_name: z.string(),
+  status: attendanceStatusSchema, note: z.string().nullable(),
+});
+export const attendanceSessionSchema = z.object({
+  id: z.string(), date: z.string(), period: attendancePeriodSchema, class_name: z.string(), semester_id: z.string(),
+  counts: z.object({ present: z.number(), absent: z.number(), late: z.number(), excused: z.number() }),
+  records: z.array(attendanceRecordSchema),
 });
 
 export function successSchema<T extends z.ZodType>(data: T) {

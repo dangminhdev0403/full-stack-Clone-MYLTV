@@ -6,12 +6,16 @@ import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
 import { StudentAdministrationModule } from './modules/student-administration/student-administration.module';
 import { UserManagementModule } from './modules/user-management/user-management.module';
+import { CommunicationModule } from './modules/communication/communication.module';
+import { AcademicsModule } from './modules/academics/academics.module';
 
 @Module({
   imports: [
     IdentityAccessModule,
     StudentAdministrationModule,
     UserManagementModule,
+    CommunicationModule,
+    AcademicsModule,
   ],
   controllers: [AppController],
   providers: [

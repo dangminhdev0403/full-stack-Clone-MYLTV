@@ -14,6 +14,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthTokenService } from './auth-token.service';
 import { PermissionService } from './permissions/permission.service';
+import { AuditService } from './audit/audit.service';
 
 @Module({
   imports: [PrismaModule, PassportModule, JwtModule.register({})],
@@ -24,6 +25,7 @@ import { PermissionService } from './permissions/permission.service';
     AuthService,
     AccountService,
     PermissionService,
+    AuditService,
     JwtStrategy,
     AdminSeedService,
     {
@@ -35,6 +37,12 @@ import { PermissionService } from './permissions/permission.service';
       useClass: PermissionGuard,
     },
   ],
-  exports: [AuthService, AccountService, AuthTokenService, PermissionService],
+  exports: [
+    AuthService,
+    AccountService,
+    AuthTokenService,
+    PermissionService,
+    AuditService,
+  ],
 })
 export class IdentityAccessModule {}

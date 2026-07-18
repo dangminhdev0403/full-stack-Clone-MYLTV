@@ -5,11 +5,20 @@ import { StudentAdministrationController } from './student-administration.contro
 import { StudentAdministrationService } from './student-administration.service';
 import { StudentContextController } from './student-context.controller';
 import { StudentContextService } from './student-context.service';
+import { StudentAudienceService } from './student-audience.service';
 
 @Module({
   imports: [PrismaModule, IdentityAccessModule],
   controllers: [StudentAdministrationController, StudentContextController],
-  providers: [StudentAdministrationService, StudentContextService],
-  exports: [StudentAdministrationService, StudentContextService],
+  providers: [
+    StudentAdministrationService,
+    StudentContextService,
+    StudentAudienceService,
+  ],
+  exports: [
+    StudentAdministrationService,
+    StudentContextService,
+    StudentAudienceService,
+  ],
 })
 export class StudentAdministrationModule {}
