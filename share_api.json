@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "project": "So lien lac dien tu Luong The Vinh",
   "base_url": "{{BASE_URL}}/api/v1",
-  "updated_at": "2026-07-16",
-  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json. OpenAPI JSON is authoritative. implementation_status=implemented means a backend controller exists in the approved Identity & Access, Current Account, User Management, Student Administration, Academic Context, Attendance, or Global Exception scope; planned means no backend route is promised.",
+  "updated_at": "2026-07-18",
+  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json. OpenAPI JSON is authoritative. Implemented backend scopes include Billing Tuition; payment requests and consumer tuition remain planned.",
   "common_headers": {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -1125,6 +1125,101 @@
           "sort_order": 2,
           "is_current": true
         }
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Danh sach khoan thu hoc phi",
+      "method": "GET",
+      "path": "/admin/tuition",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "required_permission": "billing.tuition.read",
+      "query": {
+        "student_id": "string|null",
+        "class_name": "string|null",
+        "semester_id": "string|null",
+        "academic_year_id": "string|null",
+        "status": "unpaid|partial|paid|waived|null",
+        "page": 1,
+        "page_size": 20
+      },
+      "response_data": {
+        "items": [],
+        "page": 1,
+        "page_size": 20,
+        "total": 0,
+        "has_next": false,
+        "summary": {
+          "amount_due": 0,
+          "amount_paid": 0,
+          "amount_outstanding": 0
+        }
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Tao khoan thu hoc phi",
+      "method": "POST",
+      "path": "/admin/tuition",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "required_permission": "billing.tuition.manage",
+      "request_body": {
+        "student_id": "string",
+        "semester_id": "string",
+        "title": "string",
+        "amount_due": 0,
+        "amount_paid": 0,
+        "due_date": "YYYY-MM-DD|null",
+        "note": "string|null",
+        "is_waived": false
+      },
+      "response_data": {
+        "id": "string",
+        "status": "unpaid|partial|paid|waived"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Chi tiet khoan thu hoc phi",
+      "method": "GET",
+      "path": "/admin/tuition/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "required_permission": "billing.tuition.read",
+      "response_data": {
+        "id": "string",
+        "student_id": "string",
+        "amount_due": 0,
+        "amount_paid": 0,
+        "amount_outstanding": 0,
+        "status": "unpaid|partial|paid|waived"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Cap nhat khoan thu hoc phi",
+      "method": "PATCH",
+      "path": "/admin/tuition/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "required_permission": "billing.tuition.manage",
+      "request_body": {
+        "title": "string?",
+        "amount_due": "integer?",
+        "amount_paid": "integer?",
+        "due_date": "YYYY-MM-DD|null?",
+        "note": "string|null?",
+        "is_waived": "boolean?"
+      },
+      "response_data": {
+        "id": "string",
+        "status": "unpaid|partial|paid|waived"
       },
       "implementation_status": "implemented"
     }

@@ -13,8 +13,15 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("academic-context", ["current"], "GET")).toBe("/api/v1/admin/academic-context/current");
   });
 
-  it("rejects planned domains, traversal and unsupported methods", () => {
+  it("allows attendance and tuition domain routes", () => {
     expect(resolveAdminEndpoint("attendance", [], "GET")).toBe("/api/v1/admin/attendance");
+    expect(resolveAdminEndpoint("tuition", [], "GET")).toBe("/api/v1/admin/tuition");
+    expect(resolveAdminEndpoint("tuition", [], "POST")).toBe("/api/v1/admin/tuition");
+    expect(resolveAdminEndpoint("tuition", ["charge-1"], "GET")).toBe("/api/v1/admin/tuition/charge-1");
+    expect(resolveAdminEndpoint("tuition", ["charge-1"], "PATCH")).toBe("/api/v1/admin/tuition/charge-1");
+  });
+
+  it("rejects traversal and unsupported methods", () => {
     expect(() => resolveAdminEndpoint("users", [".."], "GET")).toThrow();
     expect(() => resolveAdminEndpoint("students", [], "DELETE")).toThrow();
   });

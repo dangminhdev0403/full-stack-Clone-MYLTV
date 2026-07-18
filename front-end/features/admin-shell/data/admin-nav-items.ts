@@ -24,7 +24,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
     { href: "/admin/timetable", label: "Thời khóa biểu", icon: "calendar_month", readiness: "planned", description: "Sắp xếp lịch học, phòng học và phân công giảng dạy." },
   ] },
   { label: "Dịch vụ", items: [
-    { href: "/admin/tuition", label: "Học phí", icon: "payments", readiness: "planned", description: "Theo dõi học phí, khoản thu và tình trạng thanh toán." },
+    { href: "/admin/tuition", label: "Học phí", icon: "payments", readiness: "implemented", permission: "billing.tuition.read", description: "Theo dõi học phí, khoản thu và tình trạng thanh toán." },
     { href: "/admin/services/meals", label: "Bữa ăn", icon: "restaurant", readiness: "planned", description: "Quản lý thực đơn, suất ăn và đăng ký bữa ăn." },
     { href: "/admin/services/events", label: "Sự kiện", icon: "event", readiness: "planned", description: "Tổ chức sự kiện, lịch hoạt động và danh sách tham gia." },
     { href: "/admin/services/surveys", label: "Khảo sát", icon: "poll", readiness: "planned", description: "Thu thập phản hồi qua khảo sát dành cho phụ huynh và học sinh." },

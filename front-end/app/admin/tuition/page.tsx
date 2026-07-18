@@ -1,2 +1,5 @@
-import { PlannedSurface } from "@/features/planned/components/planned-surface";
-export default function Page() { return <PlannedSurface title="Học phí" activeHref="/admin/tuition" />; }
+import { TuitionPage } from "@/features/tuition/components/tuition-page";
+
+export default function Page() {
+  return <TuitionPage />;
+}

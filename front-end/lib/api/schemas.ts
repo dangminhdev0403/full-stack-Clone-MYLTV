@@ -64,6 +64,20 @@ export const attendanceSessionSchema = z.object({
   records: z.array(attendanceRecordSchema),
 });
 
+export const tuitionStatusSchema = z.enum(["unpaid", "partial", "paid", "waived"]);
+export const tuitionChargeSchema = z.object({
+  id: z.string(), student_id: z.string(), student_code: z.string(), student_name: z.string(),
+  grade: z.string().nullable(), class_name: z.string(), semester_id: z.string(), semester_name: z.string(),
+  academic_year_id: z.string(), academic_year_name: z.string(), title: z.string(),
+  amount_due: z.number().int(), amount_paid: z.number().int(), amount_outstanding: z.number().int(),
+  status: tuitionStatusSchema, due_date: z.string().nullable(), note: z.string().nullable(),
+  is_waived: z.boolean(), created_at: z.string(), updated_at: z.string(),
+});
+export const tuitionListSchema = z.object({
+  items: z.array(tuitionChargeSchema), page: z.number(), page_size: z.number(), total: z.number(), has_next: z.boolean(),
+  summary: z.object({ amount_due: z.number().int(), amount_paid: z.number().int(), amount_outstanding: z.number().int() }),
+});
+
 export function successSchema<T extends z.ZodType>(data: T) {
   return z.object({ success: z.literal(true), data, meta: z.unknown().optional() });
 }

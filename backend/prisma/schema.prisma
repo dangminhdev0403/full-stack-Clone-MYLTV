@@ -54,6 +54,13 @@ enum AttendanceStatus {
   excused
 }
 
+enum TuitionChargeStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
 enum NewsPublicationStatus {
   draft
   published
@@ -68,21 +75,22 @@ enum NewsAudienceType {
 }
 
 model Account {
-  id                 String              @id @default(uuid())
-  username           String              @unique
-  passwordHash       String              @map("password_hash")
-  displayName        String              @map("display_name")
-  role               AccountRole         @default(admin)
-  isActive           Boolean             @default(true) @map("is_active")
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
+  id                 String               @id @default(uuid())
+  username           String               @unique
+  passwordHash       String               @map("password_hash")
+  displayName        String               @map("display_name")
+  role               AccountRole          @default(admin)
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
   permissions        AccountPermission[]
   refreshSessions    RefreshSession[]
   studentLinks       StudentAccountLink[]
   createdNews        NewsItem[]
   auditEvents        AuditEvent[]
-  attendanceSessions AttendanceSession[] @relation("AttendanceSessionCreator")
-  attendanceRecords  AttendanceRecord[]  @relation("AttendanceRecordMarker")
+  attendanceSessions AttendanceSession[]  @relation("AttendanceSessionCreator")
+  attendanceRecords  AttendanceRecord[]   @relation("AttendanceRecordMarker")
+  tuitionCharges     TuitionCharge[]      @relation("TuitionChargeCreator")
 
   @@map("accounts")
 }
@@ -113,13 +121,13 @@ model AccountPermission {
 }
 
 model RefreshSession {
-  id          String    @id @default(uuid())
-  accountId   String    @map("account_id")
-  tokenHash   String    @unique @map("token_hash")
-  expiresAt   DateTime  @map("expires_at")
-  revokedAt   DateTime? @map("revoked_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id        String    @id @default(uuid())
+  accountId String    @map("account_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId])
   @@map("refresh_sessions")
@@ -142,26 +150,27 @@ model AuditEvent {
 }
 
 model Student {
-  id               String                   @id @default(uuid())
-  code             String                   @unique
-  fullName         String                   @map("full_name")
-  avatarUrl        String?                  @map("avatar_url")
-  grade            String?
-  className        String                   @map("class_name")
-  schoolName       String                   @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
-  isActive         Boolean                  @default(true) @map("is_active")
-  dateOfBirth      DateTime?                @db.Date @map("date_of_birth")
-  gender           StudentGender?
-  ethnicity        String?
-  birthPlace       String?                  @map("birth_place")
-  permanentAddress String?                  @map("permanent_address")
-  cohortStartYear  Int?                     @map("cohort_start_year")
-  cohortEndYear    Int?                     @map("cohort_end_year")
-  createdAt        DateTime                 @default(now()) @map("created_at")
-  updatedAt        DateTime                 @updatedAt @map("updated_at")
-  accountLinks     StudentAccountLink[]
-  guardianContacts StudentGuardianContact[]
+  id                String                   @id @default(uuid())
+  code              String                   @unique
+  fullName          String                   @map("full_name")
+  avatarUrl         String?                  @map("avatar_url")
+  grade             String?
+  className         String                   @map("class_name")
+  schoolName        String                   @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
+  isActive          Boolean                  @default(true) @map("is_active")
+  dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
+  gender            StudentGender?
+  ethnicity         String?
+  birthPlace        String?                  @map("birth_place")
+  permanentAddress  String?                  @map("permanent_address")
+  cohortStartYear   Int?                     @map("cohort_start_year")
+  cohortEndYear     Int?                     @map("cohort_end_year")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  accountLinks      StudentAccountLink[]
+  guardianContacts  StudentGuardianContact[]
   attendanceRecords AttendanceRecord[]
+  tuitionCharges    TuitionCharge[]
 
   @@index([className])
   @@index([grade])
@@ -202,21 +211,21 @@ model StudentAccountLink {
 }
 
 model NewsItem {
-  id            String                @id @default(uuid())
-  title         String
-  summary       String
-  content       String
-  imageUrl      String?               @map("image_url")
-  category      String
-  status        NewsPublicationStatus @default(draft)
-  isPinned      Boolean               @default(false) @map("is_pinned")
-  sortOrder     Int                   @default(0) @map("sort_order")
-  publishedAt   DateTime?             @map("published_at")
-  createdById   String                @map("created_by_id")
-  createdAt     DateTime              @default(now()) @map("created_at")
-  updatedAt     DateTime              @updatedAt @map("updated_at")
-  createdBy     Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  audiences     NewsAudience[]
+  id          String                @id @default(uuid())
+  title       String
+  summary     String
+  content     String
+  imageUrl    String?               @map("image_url")
+  category    String
+  status      NewsPublicationStatus @default(draft)
+  isPinned    Boolean               @default(false) @map("is_pinned")
+  sortOrder   Int                   @default(0) @map("sort_order")
+  publishedAt DateTime?             @map("published_at")
+  createdById String                @map("created_by_id")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  createdBy   Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  audiences   NewsAudience[]
 
   @@index([status, isPinned, sortOrder, publishedAt])
   @@index([createdById])
@@ -224,11 +233,11 @@ model NewsItem {
 }
 
 model NewsAudience {
-  id        String           @id @default(uuid())
-  newsId    String           @map("news_id")
-  type      NewsAudienceType
-  value     String?
-  news      NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  id     String           @id @default(uuid())
+  newsId String           @map("news_id")
+  type   NewsAudienceType
+  value  String?
+  news   NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
 
   @@unique([newsId, type, value])
   @@index([type, value])
@@ -239,8 +248,8 @@ model AcademicYear {
   id          String     @id
   code        String     @unique
   displayName String     @map("display_name")
-  startsOn    DateTime   @db.Date @map("starts_on")
-  endsOn      DateTime   @db.Date @map("ends_on")
+  startsOn    DateTime   @map("starts_on") @db.Date
+  endsOn      DateTime   @map("ends_on") @db.Date
   isCurrent   Boolean    @default(false) @map("is_current")
   semesters   Semester[]
 
@@ -248,16 +257,17 @@ model AcademicYear {
 }
 
 model Semester {
-  id             String       @id
-  academicYearId String       @map("academic_year_id")
-  code           String
-  displayName    String       @map("display_name")
-  startsOn       DateTime     @db.Date @map("starts_on")
-  endsOn         DateTime     @db.Date @map("ends_on")
-  sortOrder      Int          @map("sort_order")
-  isCurrent      Boolean      @default(false) @map("is_current")
-  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  id                 String              @id
+  academicYearId     String              @map("academic_year_id")
+  code               String
+  displayName        String              @map("display_name")
+  startsOn           DateTime            @map("starts_on") @db.Date
+  endsOn             DateTime            @map("ends_on") @db.Date
+  sortOrder          Int                 @map("sort_order")
+  isCurrent          Boolean             @default(false) @map("is_current")
+  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
   attendanceSessions AttendanceSession[]
+  tuitionCharges     TuitionCharge[]
 
   @@unique([academicYearId, code])
   @@unique([academicYearId, sortOrder])
@@ -268,7 +278,7 @@ model Semester {
 model AttendanceSession {
   id             String             @id @default(uuid())
   semesterId     String             @map("semester_id")
-  attendanceDate DateTime           @db.Date @map("attendance_date")
+  attendanceDate DateTime           @map("attendance_date") @db.Date
   period         AttendancePeriod
   className      String             @map("class_name")
   createdById    String             @map("created_by_id")
@@ -301,4 +311,30 @@ model AttendanceRecord {
   @@index([studentId, createdAt])
   @@index([markedById])
   @@map("attendance_records")
+}
+
+model TuitionCharge {
+  id          String              @id @default(uuid())
+  studentId   String              @map("student_id")
+  semesterId  String              @map("semester_id")
+  title       String
+  amountDue   Int                 @map("amount_due")
+  amountPaid  Int                 @default(0) @map("amount_paid")
+  status      TuitionChargeStatus @default(unpaid)
+  dueDate     DateTime?           @map("due_date") @db.Date
+  note        String?
+  isWaived    Boolean             @default(false) @map("is_waived")
+  createdById String              @map("created_by_id")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  semester    Semester            @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy   Account             @relation("TuitionChargeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([studentId, semesterId, title])
+  @@index([semesterId, status])
+  @@index([studentId, status])
+  @@index([dueDate])
+  @@index([createdById])
+  @@map("tuition_charges")
 }

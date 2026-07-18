@@ -97,6 +97,20 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'billing.tuition.read',
+    label: 'Read tuition charges',
+    description: 'Read student tuition charges and outstanding balances.',
+    boundedContext: 'Billing',
+    risk: 'high',
+  },
+  {
+    key: 'billing.tuition.manage',
+    label: 'Manage tuition charges',
+    description: 'Create and update student tuition charges.',
+    boundedContext: 'Billing',
+    risk: 'critical',
+  },
+  {
     key: 'communication.news.read',
     label: 'Read news',
     description: 'Read published or administrative news views.',

@@ -8,6 +8,7 @@ import { StudentAdministrationModule } from './modules/student-administration/st
 import { UserManagementModule } from './modules/user-management/user-management.module';
 import { CommunicationModule } from './modules/communication/communication.module';
 import { AcademicsModule } from './modules/academics/academics.module';
+import { BillingModule } from './modules/billing/billing.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AcademicsModule } from './modules/academics/academics.module';
     UserManagementModule,
     CommunicationModule,
     AcademicsModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [

@@ -17,6 +17,10 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/attendance";
     if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/attendance/${id}`;
   }
+  if (resource === "tuition") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/tuition";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/tuition/${id}`;
+  }
   if (resource === "news") {
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/news";
     if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/news/${id}`;

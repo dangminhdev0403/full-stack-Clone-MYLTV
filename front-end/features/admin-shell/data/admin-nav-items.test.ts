@@ -13,20 +13,40 @@ import {
 const expectedIa = [
   { label: "Tổng quan", items: ["Tổng quan"] },
   { label: "Nhà trường", items: ["Người dùng", "Học sinh"] },
-  { label: "Học tập", items: ["Điểm danh", "Điểm số", "Bài tập", "Thời khóa biểu"] },
-  { label: "Dịch vụ", items: ["Học phí", "Bữa ăn", "Sự kiện", "Khảo sát", "Câu lạc bộ", "Xe buýt", "Đồng phục"] },
+  {
+    label: "Học tập",
+    items: ["Điểm danh", "Điểm số", "Bài tập", "Thời khóa biểu"],
+  },
+  {
+    label: "Dịch vụ",
+    items: [
+      "Học phí",
+      "Bữa ăn",
+      "Sự kiện",
+      "Khảo sát",
+      "Câu lạc bộ",
+      "Xe buýt",
+      "Đồng phục",
+    ],
+  },
   { label: "Truyền thông", items: ["Tin tức", "Thông báo"] },
   { label: "Phản hồi", items: ["Phản hồi"] },
   { label: "Báo cáo", items: ["Báo cáo"] },
   { label: "Hệ thống", items: ["Hệ thống"] },
 ];
 
-const expectedImplemented = ["/admin", "/admin/users", "/admin/students", "/admin/attendance", "/admin/news"];
+const expectedImplemented = [
+  "/admin",
+  "/admin/users",
+  "/admin/students",
+  "/admin/attendance",
+  "/admin/tuition",
+  "/admin/news",
+];
 const expectedUnavailable = [
   "/admin/grades",
   "/admin/homeworks",
   "/admin/timetable",
-  "/admin/tuition",
   "/admin/services/meals",
   "/admin/services/events",
   "/admin/services/surveys",
@@ -41,31 +61,46 @@ const expectedUnavailable = [
 
 describe("admin shell navigation metadata", () => {
   it("exposes the full EduManager information architecture in stable groups", () => {
-    expect(adminNavGroups.map((group) => ({
-      label: group.label,
-      items: group.items.map((item) => item.label),
-    }))).toEqual(expectedIa);
+    expect(
+      adminNavGroups.map((group) => ({
+        label: group.label,
+        items: group.items.map((item) => item.label),
+      })),
+    ).toEqual(expectedIa);
   });
 
   it("centralizes route readiness metadata and only allows known statuses", () => {
-    const allowed = new Set<AdminRouteReadiness>(["implemented", "in_progress", "planned"]);
+    const allowed = new Set<AdminRouteReadiness>([
+      "implemented",
+      "in_progress",
+      "planned",
+    ]);
 
-    expect(adminNavItems.every((item) => allowed.has(item.readiness))).toBe(true);
-    expect(implementedAdminRoutes.map((item) => item.href)).toEqual(expectedImplemented);
-    expect(plannedAdminRoutes.map((item) => item.href)).toEqual(expectedUnavailable);
-    expect(plannedAdminRoutes.every((item) => item.description.length > 12)).toBe(true);
+    expect(adminNavItems.every((item) => allowed.has(item.readiness))).toBe(
+      true,
+    );
+    expect(implementedAdminRoutes.map((item) => item.href)).toEqual(
+      expectedImplemented,
+    );
+    expect(plannedAdminRoutes.map((item) => item.href)).toEqual(
+      expectedUnavailable,
+    );
+    expect(
+      plannedAdminRoutes.every((item) => item.description.length > 12),
+    ).toBe(true);
   });
 
   it("keeps planned IA visible to non-super-admin actors without inventing permissions", () => {
     const groups = getVisibleAdminNavGroups(["students.read"], "admin");
 
-    expect(groups.flatMap(({ items }) => items.map(({ label }) => label))).toEqual([
+    expect(
+      groups.flatMap(({ items }) => items.map(({ label }) => label)),
+    ).toEqual([
       "Tổng quan",
       "Học sinh",
       "Điểm số",
       "Bài tập",
       "Thời khóa biểu",
-      "Học phí",
       "Bữa ăn",
       "Sự kiện",
       "Khảo sát",
@@ -77,7 +112,17 @@ describe("admin shell navigation metadata", () => {
       "Báo cáo",
       "Hệ thống",
     ]);
-    expect(getVisibleAdminNavGroups([], "super_admin").flatMap(({ items }) => items)).toHaveLength(19);
+    expect(
+      getVisibleAdminNavGroups(
+        ["students.read", "billing.tuition.read"],
+        "admin",
+      )
+        .flatMap(({ items }) => items)
+        .some(({ label }) => label === "Học phí"),
+    ).toBe(true);
+    expect(
+      getVisibleAdminNavGroups([], "super_admin").flatMap(({ items }) => items),
+    ).toHaveLength(19);
   });
 
   it("builds breadcrumbs from exact, dynamic and nested planned admin routes", () => {
@@ -104,8 +149,8 @@ describe("admin shell navigation metadata", () => {
   });
 
   it("resolves nav metadata for every unavailable route", () => {
-    expect(expectedUnavailable.map((href) => getAdminNavItemByHref(href)?.readiness)).toEqual(
-      expectedUnavailable.map(() => "planned"),
-    );
+    expect(
+      expectedUnavailable.map((href) => getAdminNavItemByHref(href)?.readiness),
+    ).toEqual(expectedUnavailable.map(() => "planned"));
   });
 });
