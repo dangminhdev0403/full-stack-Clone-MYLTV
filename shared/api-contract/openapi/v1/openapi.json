@@ -13686,13 +13686,37 @@
         "properties": {
           "date": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "example": "2026-07-26"
           },
           "period": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon"
+            ],
+            "example": "morning"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused",
+              "leave_early"
+            ],
+            "example": "present"
+          },
+          "check_in_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "07:02"
+          },
+          "check_out_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "11:30"
           },
           "note": {
             "type": "string",

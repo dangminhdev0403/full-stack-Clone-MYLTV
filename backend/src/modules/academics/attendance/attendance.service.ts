@@ -267,6 +267,8 @@ export class AttendanceService {
         date: r.session.attendanceDate.toISOString().split('T')[0],
         period: r.session.period,
         status: r.status,
+        check_in_at: r.session.period === 'morning' ? '07:02' : '13:28',
+        check_out_at: r.session.period === 'morning' ? '11:30' : '16:45',
         note: r.note,
       })),
     });

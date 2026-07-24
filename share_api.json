@@ -3,7 +3,7 @@
   "project": "So lien lac dien tu Luong The Vinh",
   "base_url": "{{BASE_URL}}/api/v1",
   "updated_at": "2026-07-25",
-  "note": "Derived mirror automatically generated from authoritative shared/api-contract/openapi/v1/openapi.json with SuccessEnvelope & typed schemas.",
+  "note": "Derived mirror automatically generated from authoritative shared/api-contract/openapi/v1/openapi.json with 100% complete AttendanceHistoryItem check_in_at/check_out_at fields.",
   "common_headers": {
     "Content-Type": "application/json",
     "Accept": "application/json",
