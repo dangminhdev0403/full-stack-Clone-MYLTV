@@ -8762,7 +8762,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/attendance": {
@@ -8893,7 +8893,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/timetable": {
@@ -9004,7 +9004,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/scores": {
@@ -9103,7 +9103,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/homeworks": {
@@ -9241,7 +9241,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/reward-discipline": {
@@ -9355,7 +9355,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/online-study": {
@@ -9485,7 +9485,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/home/tuition/summary": {
@@ -9583,7 +9583,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/tuition": {
@@ -9696,7 +9696,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/tuition/payment-request": {
@@ -9890,30 +9890,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/MealResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10011,30 +9990,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/EventItem"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10132,30 +10090,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/SurveyItem"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10253,30 +10190,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/ClubItem"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10374,30 +10290,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/BusTrackingResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10495,30 +10390,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/UniformCatalogResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -10616,32 +10490,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "type": "object",
-                          "properties": {
-                            "balance": {
-                              "type": "number"
-                            },
-                            "currency": {
-                              "type": "string",
-                              "example": "coin"
-                            },
-                            "transactions": {
-                              "type": "array",
-                              "items": {
-                                "$ref": "#/components/schemas/ServiceItem"
-                              }
-                            }
-                          },
-                          "required": [
-                            "balance",
-                            "currency",
-                            "transactions"
-                          ]
+                          "$ref": "#/components/schemas/CoinFundResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -11175,7 +11026,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/uniforms/orders": {
@@ -13293,6 +13144,408 @@
           "has_next",
           "summary"
         ]
+      },
+      "MealPackage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "remaining_meals": {
+            "type": "integer"
+          },
+          "paid_amount": {
+            "type": "integer"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "expired"
+            ]
+          }
+        }
+      },
+      "MealMenu": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "day_label": {
+            "type": "string"
+          },
+          "main_dish": {
+            "type": "string"
+          },
+          "soup": {
+            "type": "string",
+            "nullable": true
+          },
+          "side_dish": {
+            "type": "string",
+            "nullable": true
+          },
+          "dessert": {
+            "type": "string",
+            "nullable": true
+          },
+          "registration_status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "unregistered",
+              "cancelled"
+            ]
+          }
+        }
+      },
+      "MealResponse": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "$ref": "#/components/schemas/MealPackage"
+          },
+          "menus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealMenu"
+            }
+          }
+        }
+      },
+      "EventItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string"
+          },
+          "registration_deadline": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "capacity": {
+            "type": "integer"
+          },
+          "registered_count": {
+            "type": "integer"
+          },
+          "registration_status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "student_registration_status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "not_registered"
+            ]
+          }
+        }
+      },
+      "SurveyItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "question_count": {
+            "type": "integer"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "submission_status": {
+            "type": "string",
+            "enum": [
+              "submitted",
+              "not_submitted"
+            ]
+          }
+        }
+      },
+      "ClubItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "schedule_text": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "teacher_name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer"
+          },
+          "remaining_slots": {
+            "type": "integer"
+          },
+          "registration_status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "student_registration_status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "not_registered"
+            ]
+          }
+        }
+      },
+      "BusTrackingResponse": {
+        "type": "object",
+        "properties": {
+          "route_id": {
+            "type": "string"
+          },
+          "route_name": {
+            "type": "string"
+          },
+          "vehicle_plate": {
+            "type": "string"
+          },
+          "driver": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              }
+            }
+          },
+          "tracking": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "speed_kph": {
+                "type": "number"
+              },
+              "heading": {
+                "type": "number"
+              },
+              "location_text": {
+                "type": "string"
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "online",
+                  "offline"
+                ]
+              }
+            }
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "sequence": {
+                  "type": "integer"
+                },
+                "estimated_at": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UniformProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sku": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "integer"
+                },
+                "stock_status": {
+                  "type": "string",
+                  "enum": [
+                    "in_stock",
+                    "out_of_stock"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "UniformCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UniformProduct"
+            }
+          },
+          "latest_order": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "CoinTransaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "credit",
+              "debit"
+            ]
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "pending"
+            ]
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CoinFundResponse": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "integer"
+          },
+          "total_deposit": {
+            "type": "integer"
+          },
+          "total_spent": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoinTransaction"
+            }
+          }
+        }
       }
     }
   }

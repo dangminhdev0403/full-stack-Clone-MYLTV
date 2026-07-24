@@ -65,3 +65,23 @@ export class AttendanceController {
     );
   }
 }
+
+@Controller('api/v1/home/attendance')
+export class AppAttendanceController {
+  constructor(private readonly attendance: AttendanceService) {}
+
+  @Get('today')
+  getToday(@CurrentUser() actor: AuthenticatedUser | undefined) {
+    return this.attendance.getTodayAttendance(actor?.activeStudentId);
+  }
+}
+
+@Controller('api/v1/students')
+export class StudentAttendanceController {
+  constructor(private readonly attendance: AttendanceService) {}
+
+  @Get(':id/attendance')
+  getHistory(@Param('id') studentId: string) {
+    return this.attendance.getStudentAttendanceHistory(studentId);
+  }
+}

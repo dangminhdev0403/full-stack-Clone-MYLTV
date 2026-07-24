@@ -59,3 +59,23 @@ export class TuitionController {
     return this.tuition.updateCharge(id, validateTuitionUpdate(payload), actor);
   }
 }
+
+@Controller('api/v1/home/tuition')
+export class AppTuitionSummaryController {
+  constructor(private readonly tuition: TuitionService) {}
+
+  @Get('summary')
+  getSummary(@CurrentUser() actor: AuthenticatedUser | undefined) {
+    return this.tuition.getTuitionSummary(actor?.activeStudentId);
+  }
+}
+
+@Controller('api/v1/services/tuition')
+export class AppTuitionServicesController {
+  constructor(private readonly tuition: TuitionService) {}
+
+  @Get()
+  getServicesTuition(@CurrentUser() actor: AuthenticatedUser | undefined) {
+    return this.tuition.getStudentTuition(actor?.activeStudentId);
+  }
+}

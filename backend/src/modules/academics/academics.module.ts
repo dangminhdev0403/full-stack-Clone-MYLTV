@@ -3,8 +3,12 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { IdentityAccessModule } from '../identity-access/identity-access.module';
 import { AcademicContextController } from './academic-context/academic-context.controller';
 import { AcademicContextService } from './academic-context/academic-context.service';
-import { AttendanceController } from './attendance/attendance.controller';
-import { AttendanceService } from './attendance/attendance.service';
+import {
+  AppAttendanceController,
+  AttendanceController,
+  StudentAttendanceController,
+} from './attendance/attendance.controller';
+import { AttendanceService } from './attendance.service';
 import { AcademicContextSeedService } from './bootstrap/academic-context-seed.service';
 import { AdminScoresController, AppScoresController } from './scores/scores.controller';
 import { ScoresService } from './scores/scores.service';
@@ -19,6 +23,8 @@ import { TimetableHomeworkService } from './timetable-homework/timetable-homewor
   controllers: [
     AcademicContextController,
     AttendanceController,
+    AppAttendanceController,
+    StudentAttendanceController,
     AppScoresController,
     AdminScoresController,
     AppTimetableHomeworkController,

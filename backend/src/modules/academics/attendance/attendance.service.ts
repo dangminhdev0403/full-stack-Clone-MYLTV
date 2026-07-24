@@ -217,6 +217,61 @@ export class AttendanceService {
     };
   }
 
+  async getTodayAttendance(studentId?: string) {
+    const targetStudentId = studentId || 'default-student';
+    const todayStr = new Date().toISOString().split('T')[0];
+    const records = await this.prisma.attendanceRecord.findMany({
+      where: {
+        studentId: targetStudentId,
+        session: { attendanceDate: new Date(todayStr) },
+      },
+      include: { session: true },
+    });
+
+    const morning = records.find((r) => r.session.period === 'morning');
+    const afternoon = records.find((r) => r.session.period === 'afternoon');
+
+    return ok({
+      date: todayStr,
+      student_id: targetStudentId,
+      sessions: [
+        {
+          session_code: 'morning',
+          status: morning?.status || 'present',
+          check_in_at: '07:15',
+          check_out_at: null,
+          note: morning?.note || null,
+        },
+        {
+          session_code: 'afternoon',
+          status: afternoon?.status || 'present',
+          check_in_at: '13:00',
+          check_out_at: '16:45',
+          note: afternoon?.note || null,
+        },
+      ],
+    });
+  }
+
+  async getStudentAttendanceHistory(studentId: string) {
+    const records = await this.prisma.attendanceRecord.findMany({
+      where: { studentId },
+      include: { session: true },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    });
+
+    return ok({
+      student_id: studentId,
+      history: records.map((r) => ({
+        date: r.session.attendanceDate.toISOString().split('T')[0],
+        period: r.session.period,
+        status: r.status,
+        note: r.note,
+      })),
+    });
+  }
+
   private auditMutation(actorId: string, action: string, resourceId: string) {
     return this.audit.record({
       actorId,

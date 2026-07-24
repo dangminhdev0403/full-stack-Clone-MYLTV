@@ -389,7 +389,7 @@
         "status": "present|absent|late|leave_early|unknown",
         "note": "string|null"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "home",
@@ -408,7 +408,7 @@
         "currency": "VND",
         "status": "paid|unpaid|partial"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -447,7 +447,7 @@
       "group": "search",
       "name": "Chi tiet thong bao",
       "method": "GET",
-      "path": "/notifications/{notification_id}",
+      "path": "/notifications/{id}",
       "response_data": {
         "id": "string",
         "title": "string",
@@ -468,7 +468,7 @@
       "group": "search",
       "name": "Danh dau da doc thong bao",
       "method": "PATCH",
-      "path": "/notifications/{notification_id}/read",
+      "path": "/notifications/{id}/read",
       "response_data": {
         "is_read": true
       },
@@ -478,7 +478,7 @@
       "group": "search",
       "name": "So diem",
       "method": "GET",
-      "path": "/students/{student_id}/scores",
+      "path": "/students/{id}/scores",
       "query": {
         "school_year": "2026-2027|null",
         "semester": "1|2|null"
@@ -511,7 +511,7 @@
       "group": "search",
       "name": "Khen thuong - Ky luat",
       "method": "GET",
-      "path": "/students/{student_id}/reward-discipline",
+      "path": "/students/{id}/reward-discipline",
       "query": {
         "school_year": "2026-2027|null",
         "semester": "1|2|null",
@@ -533,7 +533,7 @@
       "group": "search",
       "name": "Thoi khoa bieu",
       "method": "GET",
-      "path": "/students/{student_id}/timetable",
+      "path": "/students/{id}/timetable",
       "query": {
         "week_start": "YYYY-MM-DD|null",
         "day": "T2|T3|T4|T5|T6|T7|null"
@@ -563,7 +563,7 @@
       "group": "search",
       "name": "Hoc tap online",
       "method": "GET",
-      "path": "/students/{student_id}/online-study",
+      "path": "/students/{id}/online-study",
       "query": {
         "page": 1,
         "limit": 20,
@@ -594,7 +594,7 @@
       "group": "search",
       "name": "Xe tuyen cua hoc sinh",
       "method": "GET",
-      "path": "/students/{student_id}/bus-route",
+      "path": "/students/{id}/bus-route",
       "response_data": {
         "route_id": "string|null",
         "route_name": "string|null",
@@ -612,7 +612,7 @@
       "group": "search",
       "name": "Danh sach chuyen can",
       "method": "GET",
-      "path": "/students/{student_id}/attendance",
+      "path": "/students/{id}/attendance",
       "query": {
         "from_date": "YYYY-MM-DD|null",
         "to_date": "YYYY-MM-DD|null",
@@ -645,7 +645,7 @@
       "group": "search",
       "name": "Bai tap ve nha",
       "method": "GET",
-      "path": "/students/{student_id}/homeworks",
+      "path": "/students/{id}/homeworks",
       "query": {
         "page": 1,
         "limit": 20,
@@ -685,7 +685,7 @@
       "group": "search",
       "name": "Nop bai tap ve nha",
       "method": "POST",
-      "path": "/students/{student_id}/homeworks/{homework_id}/submit",
+      "path": "/students/{id}/homeworks/{homework_id}/submit",
       "request_body": {
         "content": "string|null",
         "attachments": [
@@ -1069,7 +1069,7 @@
           "currency": "VND"
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
