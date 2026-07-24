@@ -72,7 +72,9 @@ export class AppAttendanceController {
 
   @Get('today')
   getToday(@CurrentUser() actor: AuthenticatedUser | undefined) {
-    return this.attendance.getTodayAttendance(actor?.activeStudentId ?? undefined);
+    return this.attendance.getTodayAttendance(
+      actor?.activeStudentId ?? undefined,
+    );
   }
 }
 

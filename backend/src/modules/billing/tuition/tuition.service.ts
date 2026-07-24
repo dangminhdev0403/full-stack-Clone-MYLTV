@@ -165,7 +165,9 @@ export class TuitionService {
           return tx.tuitionCharge.update({
             where: { id },
             data: {
-              ...(payload.title !== undefined ? { title: payload.title.trim() } : {}),
+              ...(payload.title !== undefined
+                ? { title: payload.title.trim() }
+                : {}),
               ...(payload.amount_due !== undefined
                 ? { amountDue: payload.amount_due }
                 : {}),
@@ -231,7 +233,9 @@ export class TuitionService {
     });
   }
 
-  private listWhere(query: TuitionListQueryDto): Prisma.TuitionChargeWhereInput {
+  private listWhere(
+    query: TuitionListQueryDto,
+  ): Prisma.TuitionChargeWhereInput {
     const where: Prisma.TuitionChargeWhereInput = {};
     if (query.semester_id) where.semesterId = query.semester_id;
     if (query.status) where.status = query.status;

@@ -1,6 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RequireRole } from '../../../common/auth/require-role.decorator';
-import { SaveRewardDisciplineDto, SaveScoreDto, ScoresService } from './scores.service';
+import {
+  SaveRewardDisciplineDto,
+  SaveScoreDto,
+  ScoresService,
+} from './scores.service';
 
 @Controller('api/v1/students')
 export class AppScoresController {
@@ -22,7 +26,12 @@ export class AppScoresController {
     @Query('semester') semester?: string,
     @Query('type') type?: string,
   ) {
-    return this.scoresService.getRewardDiscipline(studentId, schoolYear, semester, type);
+    return this.scoresService.getRewardDiscipline(
+      studentId,
+      schoolYear,
+      semester,
+      type,
+    );
   }
 }
 

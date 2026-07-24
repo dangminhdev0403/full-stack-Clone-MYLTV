@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import { RequireRole } from '../../common/auth/require-role.decorator';
@@ -10,12 +18,23 @@ export class StudentServicesController {
 
   // Meals
   @Get('services/meals')
-  getMeals(@Query('student_id') studentId?: string, @Query('from_date') fromDate?: string, @Query('to_date') toDate?: string) {
+  getMeals(
+    @Query('student_id') studentId?: string,
+    @Query('from_date') fromDate?: string,
+    @Query('to_date') toDate?: string,
+  ) {
     return this.services.getMeals(studentId, fromDate, toDate);
   }
 
   @Post('services/meals/register')
-  registerMeals(@Body() body: { student_id: string; dates: string[]; action: 'register' | 'cancel' }) {
+  registerMeals(
+    @Body()
+    body: {
+      student_id: string;
+      dates: string[];
+      action: 'register' | 'cancel';
+    },
+  ) {
     return this.services.registerMeals(body);
   }
 
@@ -32,7 +51,10 @@ export class StudentServicesController {
   }
 
   @Post('services/events/:id/register')
-  registerEvent(@Param('id') eventId: string, @Body() body: { student_id: string; note?: string }) {
+  registerEvent(
+    @Param('id') eventId: string,
+    @Body() body: { student_id: string; note?: string },
+  ) {
     return this.services.registerEvent(eventId, body);
   }
 
@@ -43,7 +65,10 @@ export class StudentServicesController {
   }
 
   @Post('services/surveys/:id/submit')
-  submitSurvey(@Param('id') surveyId: string, @Body() body: { student_id: string; answers: any[] }) {
+  submitSurvey(
+    @Param('id') surveyId: string,
+    @Body() body: { student_id: string; answers: any[] },
+  ) {
     return this.services.submitSurvey(surveyId, body);
   }
 
@@ -54,7 +79,10 @@ export class StudentServicesController {
   }
 
   @Post('services/clubs/:id/register')
-  registerClub(@Param('id') clubId: string, @Body() body: { student_id: string; note?: string }) {
+  registerClub(
+    @Param('id') clubId: string,
+    @Body() body: { student_id: string; note?: string },
+  ) {
     return this.services.registerClub(clubId, body);
   }
 
@@ -65,7 +93,10 @@ export class StudentServicesController {
   }
 
   @Get('services/bus-tracking')
-  getBusTracking(@Query('student_id') studentId?: string, @Query('route_id') routeId?: string) {
+  getBusTracking(
+    @Query('student_id') studentId?: string,
+    @Query('route_id') routeId?: string,
+  ) {
     return this.services.getBusTracking(studentId, routeId);
   }
 
@@ -76,13 +107,23 @@ export class StudentServicesController {
   }
 
   @Post('services/uniforms/orders')
-  orderUniforms(@Body() body: { student_id: string; items: any[]; note?: string }) {
+  orderUniforms(
+    @Body() body: { student_id: string; items: any[]; note?: string },
+  ) {
     return this.services.orderUniforms(body);
   }
 
   // Uploads
   @Post('uploads')
-  upload(@Body() body: { file_name?: string; mime_type?: string; size?: number; folder?: string }) {
+  upload(
+    @Body()
+    body: {
+      file_name?: string;
+      mime_type?: string;
+      size?: number;
+      folder?: string;
+    },
+  ) {
     return this.services.saveUpload({
       fileName: body.file_name || 'upload.png',
       mimeType: body.mime_type || 'image/png',
@@ -93,7 +134,10 @@ export class StudentServicesController {
 
   // Feedback
   @Post('feedback')
-  submitFeedback(@Body() body: any, @CurrentUser() actor: AuthenticatedUser | undefined) {
+  submitFeedback(
+    @Body() body: any,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
     return this.services.submitFeedback(body, actor?.id);
   }
 }

@@ -12,7 +12,10 @@ export class AppTimetableHomeworkController {
   constructor(private readonly service: TimetableHomeworkService) {}
 
   @Get(':student_id/timetable')
-  getTimetable(@Param('student_id') studentId: string, @Query('week_start') weekStart?: string) {
+  getTimetable(
+    @Param('student_id') studentId: string,
+    @Query('week_start') weekStart?: string,
+  ) {
     return this.service.getTimetable(studentId, weekStart);
   }
 
@@ -23,7 +26,12 @@ export class AppTimetableHomeworkController {
     @Query('limit') limit?: number,
     @Query('status') status?: string,
   ) {
-    return this.service.getHomeworks(studentId, page ? Number(page) : 1, limit ? Number(limit) : 20, status);
+    return this.service.getHomeworks(
+      studentId,
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      status,
+    );
   }
 
   @Post(':student_id/homeworks/:homework_id/submit')

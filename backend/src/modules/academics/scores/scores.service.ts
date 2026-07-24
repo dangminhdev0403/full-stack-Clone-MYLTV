@@ -31,7 +31,11 @@ export class SaveRewardDisciplineDto {
 export class ScoresService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getStudentScores(studentId: string, schoolYear?: string, semester?: string) {
+  async getStudentScores(
+    studentId: string,
+    schoolYear?: string,
+    semester?: string,
+  ) {
     const records = await this.prisma.studentScoreRecord.findMany({
       where: {
         studentId,
@@ -46,7 +50,14 @@ export class ScoresService {
       semester: semester || '1',
       subjects: records.map((r) => {
         const avg = r.averageScore ?? 8.6;
-        const classification = avg >= 9 ? 'excellent' : avg >= 8 ? 'good' : avg >= 6.5 ? 'fair' : 'average';
+        const classification =
+          avg >= 9
+            ? 'excellent'
+            : avg >= 8
+              ? 'good'
+              : avg >= 6.5
+                ? 'fair'
+                : 'average';
         return {
           subject_id: r.subjectId,
           subject_name: r.subjectName,
@@ -63,7 +74,12 @@ export class ScoresService {
     };
   }
 
-  async getRewardDiscipline(studentId: string, schoolYear?: string, semester?: string, type?: string) {
+  async getRewardDiscipline(
+    studentId: string,
+    schoolYear?: string,
+    semester?: string,
+    type?: string,
+  ) {
     const records = await this.prisma.rewardDisciplineRecord.findMany({
       where: {
         studentId,

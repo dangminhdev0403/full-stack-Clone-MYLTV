@@ -16,7 +16,8 @@ async function main() {
     await seedIdentityAccess(prisma, { username, password });
     await seedAcademicContext(prisma);
     await seedUatStudents(prisma);
-    const accountPassword = process.env.UAT_ACCOUNT_PASSWORD ?? 'password123456';
+    const accountPassword =
+      process.env.UAT_ACCOUNT_PASSWORD ?? 'password123456';
     await seedUatAccounts(prisma, accountPassword);
     await seedUatAttendance(prisma, username);
     await seedUatTuition(prisma);
@@ -219,8 +220,10 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     where: { id: 'news-sample-1' },
     update: {
       title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
-      summary: 'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
-      content: 'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
+      summary:
+        'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
+      content:
+        'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
       category: 'Sự kiện',
       status: 'published',
       isPinned: true,
@@ -230,8 +233,10 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     create: {
       id: 'news-sample-1',
       title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
-      summary: 'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
-      content: 'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
+      summary:
+        'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
+      content:
+        'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
       category: 'Sự kiện',
       status: 'published',
       isPinned: true,
@@ -245,7 +250,8 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     update: {
       title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
       summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
-      content: 'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
+      content:
+        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
@@ -256,7 +262,8 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       id: 'news-sample-2',
       title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
       summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
-      content: 'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
+      content:
+        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
@@ -271,14 +278,16 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     update: {
       title: 'Nhắc nhở đóng học phí Kỳ 1',
       sender: 'Phòng Tài Chính',
-      content: 'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
+      content:
+        'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
       tag: 'Học phí',
     },
     create: {
       id: 'notif-sample-1',
       title: 'Nhắc nhở đóng học phí Kỳ 1',
       sender: 'Phòng Tài Chính',
-      content: 'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
+      content:
+        'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
       tag: 'Học phí',
     },
   });
@@ -288,14 +297,16 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     where: { id: 'feedback-sample-1' },
     update: {
       title: 'Góp ý chất lượng thực đơn bán trú',
-      content: 'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
+      content:
+        'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
       category: 'Bán trú',
       status: 'received',
     },
     create: {
       id: 'feedback-sample-1',
       title: 'Góp ý chất lượng thực đơn bán trú',
-      content: 'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
+      content:
+        'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
       category: 'Bán trú',
       status: 'received',
     },
@@ -303,8 +314,12 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
 }
 
 async function seedStudentServices(prisma: PrismaClient): Promise<void> {
-  const student = await prisma.student.findFirst({ where: { code: 'UAT-HS-001' } });
-  const semester = await prisma.semester.findFirst({ where: { isCurrent: true } });
+  const student = await prisma.student.findFirst({
+    where: { code: 'UAT-HS-001' },
+  });
+  const semester = await prisma.semester.findFirst({
+    where: { isCurrent: true },
+  });
   if (!student || !semester) return;
 
   // MealRegistration

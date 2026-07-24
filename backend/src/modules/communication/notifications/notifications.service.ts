@@ -5,7 +5,17 @@ import { PrismaService } from '../../../prisma/prisma.service';
 export class NotificationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listNotifications(query: { student_id?: string; page?: number; limit?: number; keyword?: string; tag?: string; is_read?: boolean }, actorId?: string) {
+  async listNotifications(
+    query: {
+      student_id?: string;
+      page?: number;
+      limit?: number;
+      keyword?: string;
+      tag?: string;
+      is_read?: boolean;
+    },
+    actorId?: string,
+  ) {
     const page = Math.max(Number(query.page) || 1, 1);
     const limit = Math.max(Number(query.limit) || 20, 1);
     const skip = (page - 1) * limit;
@@ -25,7 +35,16 @@ export class NotificationsService {
         orderBy: { sentAt: 'desc' },
         skip,
         take: limit,
-        include: { reads: { where: { OR: [{ accountId: actorId ?? '' }, { studentId: query.student_id ?? '' }] } } },
+        include: {
+          reads: {
+            where: {
+              OR: [
+                { accountId: actorId ?? '' },
+                { studentId: query.student_id ?? '' },
+              ],
+            },
+          },
+        },
       }),
       this.prisma.notification.count({ where }),
     ]);
@@ -95,7 +114,10 @@ export class NotificationsService {
     return { is_read: true };
   }
 
-  async createNotification(data: { title: string; sender: string; content: string; tag?: string }, actorId?: string) {
+  async createNotification(
+    data: { title: string; sender: string; content: string; tag?: string },
+    actorId?: string,
+  ) {
     const item = await this.prisma.notification.create({
       data: {
         title: data.title,

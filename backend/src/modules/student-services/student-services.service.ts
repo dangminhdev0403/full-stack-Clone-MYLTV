@@ -30,7 +30,9 @@ export class StudentServicesService {
     const records = await this.prisma.mealRegistration.findMany({
       where: {
         studentId: studentId ?? 'default-student',
-        ...(fromDate && toDate ? { date: { gte: new Date(fromDate), lte: new Date(toDate) } } : {}),
+        ...(fromDate && toDate
+          ? { date: { gte: new Date(fromDate), lte: new Date(toDate) } }
+          : {}),
       },
       orderBy: { date: 'asc' },
     });
@@ -45,7 +47,8 @@ export class StudentServicesService {
       },
       menus: records.map((r) => ({
         date: r.date.toISOString().split('T')[0],
-        day_label: 'Thứ ' + (r.date.getDay() === 0 ? 'Chủ nhật' : r.date.getDay() + 1),
+        day_label:
+          'Thứ ' + (r.date.getDay() === 0 ? 'Chủ nhật' : r.date.getDay() + 1),
         main_dish: r.lunch || 'Cơm trưa bán trú',
         soup: 'Canh rau cải',
         side_dish: null,
@@ -118,7 +121,9 @@ export class StudentServicesService {
         starts_at: e.startAt.toISOString(),
         ends_at: e.endAt.toISOString(),
         location: e.location,
-        registration_deadline: e.registrationDeadline ? e.registrationDeadline.toISOString() : null,
+        registration_deadline: e.registrationDeadline
+          ? e.registrationDeadline.toISOString()
+          : null,
         capacity: 300,
         registered_count: 120,
         registration_status: e.status,
@@ -128,7 +133,10 @@ export class StudentServicesService {
     };
   }
 
-  async registerEvent(eventId: string, body: { student_id: string; note?: string }) {
+  async registerEvent(
+    eventId: string,
+    body: { student_id: string; note?: string },
+  ) {
     await this.prisma.eventRegistration.upsert({
       where: { eventId_studentId: { eventId, studentId: body.student_id } },
       create: { eventId, studentId: body.student_id, note: body.note },
@@ -157,7 +165,10 @@ export class StudentServicesService {
     };
   }
 
-  async submitSurvey(surveyId: string, body: { student_id: string; answers: unknown[] }) {
+  async submitSurvey(
+    surveyId: string,
+    body: { student_id: string; answers: unknown[] },
+  ) {
     await this.prisma.surveySubmission.upsert({
       where: { surveyId_studentId: { surveyId, studentId: body.student_id } },
       create: {
@@ -192,7 +203,10 @@ export class StudentServicesService {
     };
   }
 
-  async registerClub(clubId: string, body: { student_id: string; note?: string }) {
+  async registerClub(
+    clubId: string,
+    body: { student_id: string; note?: string },
+  ) {
     await this.prisma.clubRegistration.upsert({
       where: { clubId_studentId: { clubId, studentId: body.student_id } },
       create: { clubId, studentId: body.student_id, note: body.note },
@@ -309,7 +323,12 @@ export class StudentServicesService {
   }
 
   // Uploads
-  async saveUpload(fileInfo: { fileName: string; mimeType: string; size: number; folder?: string }) {
+  async saveUpload(fileInfo: {
+    fileName: string;
+    mimeType: string;
+    size: number;
+    folder?: string;
+  }) {
     const file = await this.prisma.attachmentFile.create({
       data: {
         fileName: fileInfo.fileName,
@@ -349,7 +368,9 @@ export class StudentServicesService {
   }
 
   async listAdminFeedback() {
-    const items = await this.prisma.feedbackItem.findMany({ orderBy: { createdAt: 'desc' } });
+    const items = await this.prisma.feedbackItem.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
     return items.map((f) => ({
       id: f.id,
       student_id: f.studentId,

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
 import { CurrentUser } from '../../../common/auth/current-user.decorator';
 import { RequireRole } from '../../../common/auth/require-role.decorator';
@@ -9,12 +17,18 @@ export class AppNotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
-  list(@Query() query: any, @CurrentUser() actor: AuthenticatedUser | undefined) {
+  list(
+    @Query() query: any,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
     return this.notificationsService.listNotifications(query, actor?.id);
   }
 
   @Get(':id')
-  detail(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser | undefined) {
+  detail(
+    @Param('id') id: string,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
     return this.notificationsService.getNotificationDetail(id, actor?.id);
   }
 
@@ -34,12 +48,19 @@ export class AdminNotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
-  list(@Query() query: any, @CurrentUser() actor: AuthenticatedUser | undefined) {
+  list(
+    @Query() query: any,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
     return this.notificationsService.listNotifications(query, actor?.id);
   }
 
   @Post()
-  create(@Body() body: { title: string; sender: string; content: string; tag?: string }, @CurrentUser() actor: AuthenticatedUser | undefined) {
+  create(
+    @Body()
+    body: { title: string; sender: string; content: string; tag?: string },
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
     return this.notificationsService.createNotification(body, actor?.id);
   }
 }
