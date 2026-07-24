@@ -346,6 +346,8 @@ export class NewsService {
   private toDto(news: NewsRecord) {
     return {
       id: news.id,
+      source: 'SLLĐT',
+      author_name: 'Lương Thế Vinh',
       title: news.title,
       summary: news.summary,
       content: news.content,

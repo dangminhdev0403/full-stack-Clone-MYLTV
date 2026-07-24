@@ -2206,7 +2206,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -2280,7 +2280,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/notifications/{id}": {
@@ -2559,7 +2559,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -2633,7 +2633,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/feedback/{id}": {
@@ -3344,7 +3344,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -3418,7 +3418,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/timetable/{id}": {
@@ -3697,7 +3697,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -3771,7 +3771,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/scores/{id}": {
@@ -4403,7 +4403,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -4477,7 +4477,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/reward-discipline/{id}": {
@@ -8433,7 +8433,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/notifications/{id}": {
@@ -8511,7 +8511,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/notifications/{id}/read": {
@@ -8598,7 +8598,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/feedback": {
@@ -8676,7 +8676,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/home/attendance/today": {
@@ -9946,7 +9946,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/events": {
@@ -10067,7 +10067,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/surveys": {
@@ -10188,7 +10188,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/clubs": {
@@ -10309,7 +10309,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/bus-tracking": {
@@ -10430,7 +10430,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/uniforms": {
@@ -10551,7 +10551,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/coin-fund": {
@@ -10674,7 +10674,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/meals/register": {
@@ -10776,7 +10776,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/events/{id}/register": {
@@ -10883,7 +10883,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/surveys/{id}/submit": {
@@ -10990,7 +10990,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/services/clubs/{id}/register": {
@@ -11097,7 +11097,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/bus-route": {
@@ -11308,7 +11308,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/uploads": {
@@ -11404,7 +11404,7 @@
           "super_admin"
         ],
         "x-scope": "authenticated_actor",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented"
       }
     },
     "/students/{id}/homeworks/submit": {

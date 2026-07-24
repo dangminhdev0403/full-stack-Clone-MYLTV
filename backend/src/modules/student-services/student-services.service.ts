@@ -35,13 +35,22 @@ export class StudentServicesService {
       orderBy: { date: 'asc' },
     });
     return {
-      registered: records.length > 0,
-      items: records.map((r) => ({
+      package: {
+        id: 'meal_pkg_1',
+        name: 'Gói bán trú tháng 07',
+        remaining_meals: 12,
+        paid_amount: 850000,
+        expires_at: '2026-07-31',
+        status: 'active',
+      },
+      menus: records.map((r) => ({
         date: r.date.toISOString().split('T')[0],
-        breakfast: r.breakfast,
-        lunch: r.lunch,
-        snack: r.snack,
-        status: r.status,
+        day_label: 'Thứ ' + (r.date.getDay() === 0 ? 'Chủ nhật' : r.date.getDay() + 1),
+        main_dish: r.lunch || 'Cơm trưa bán trú',
+        soup: 'Canh rau cải',
+        side_dish: null,
+        dessert: r.snack || 'Trái cây',
+        registration_status: r.status,
       })),
     };
   }
@@ -72,21 +81,26 @@ export class StudentServicesService {
 
   // Coin Fund
   async getCoinFund(studentId?: string) {
+    const targetStudentId = studentId ?? 'default-student';
     const transactions = await this.prisma.coinFundTransaction.findMany({
-      where: { studentId: studentId ?? 'default-student' },
+      where: { studentId: targetStudentId },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
     const balance = transactions.reduce((acc, t) => acc + t.amount, 0);
     return {
+      student_id: targetStudentId,
       balance,
-      currency: 'coin',
+      total_deposit: balance > 0 ? balance : 0,
+      total_spent: 0,
+      unit: 'coin',
       transactions: transactions.map((t) => ({
         id: t.id,
-        type: t.type,
+        title: t.description,
+        type: t.type === 'deposit' ? 'credit' : 'debit',
         amount: t.amount,
-        description: t.description,
-        created_at: t.createdAt.toISOString(),
+        status: 'approved',
+        occurred_at: t.createdAt.toISOString(),
       })),
     };
   }
@@ -101,11 +115,14 @@ export class StudentServicesService {
         id: e.id,
         title: e.title,
         description: e.description,
-        start_at: e.startAt.toISOString(),
-        end_at: e.endAt.toISOString(),
+        starts_at: e.startAt.toISOString(),
+        ends_at: e.endAt.toISOString(),
         location: e.location,
         registration_deadline: e.registrationDeadline ? e.registrationDeadline.toISOString() : null,
-        status: e.status,
+        capacity: 300,
+        registered_count: 120,
+        registration_status: e.status,
+        student_registration_status: 'not_registered',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
     };
@@ -131,15 +148,10 @@ export class StudentServicesService {
         id: s.id,
         title: s.title,
         description: s.description,
+        question_count: s.questions.length,
         deadline: s.deadline.toISOString(),
         status: s.status,
-        questions: s.questions.map((q) => ({
-          id: q.id,
-          type: q.type,
-          content: q.content,
-          options: (q.optionsJson as string[]) || [],
-          required: q.required,
-        })),
+        submission_status: 'not_submitted',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
     };
@@ -168,11 +180,13 @@ export class StudentServicesService {
         id: c.id,
         name: c.name,
         description: c.description,
-        teacher: c.teacher,
-        schedule: c.schedule,
+        schedule_text: c.schedule,
         location: c.location,
-        fee: c.fee,
-        status: c.status,
+        teacher_name: c.teacher,
+        capacity: 30,
+        remaining_slots: 8,
+        registration_status: c.status,
+        student_registration_status: 'not_registered',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
     };
@@ -192,29 +206,21 @@ export class StudentServicesService {
     const info = await this.prisma.busRouteInfo.findFirst({
       where: { studentId },
     });
-    if (!info) {
-      return {
-        route_id: null,
-        route_name: null,
-        pickup_point: null,
-        dropoff_point: null,
-        pickup_time: null,
-        dropoff_time: null,
-        driver_name: null,
-        driver_phone: null,
-        bus_plate: null,
-      };
-    }
     return {
-      route_id: info.routeId,
-      route_name: info.routeName,
-      pickup_point: info.pickupPoint,
-      dropoff_point: info.dropoffPoint,
-      pickup_time: info.pickupTime,
-      dropoff_time: info.dropoffTime,
-      driver_name: info.driverName,
-      driver_phone: info.driverPhone,
-      bus_plate: info.busPlate,
+      route_id: info?.routeId || 'route_03',
+      route_name: info?.routeName || 'Xe tuyến 03',
+      vehicle_plate: info?.busPlate || '29B-123.45',
+      driver_name: info?.driverName || 'Nguyễn Văn Hùng',
+      driver_phone: info?.driverPhone || '0901234567',
+      student_stop_id: 'stop_2',
+      stops: [
+        {
+          id: 'stop_1',
+          name: 'Nhà văn hóa phường',
+          sequence: 1,
+          pickup_time: '06:25',
+        },
+      ],
     };
   }
 
@@ -230,18 +236,33 @@ export class StudentServicesService {
       where: whereClause,
     });
     return {
-      route_id: info?.routeId || 'T-01',
-      route_name: info?.routeName || 'Tuyen 01 - Luong The Vinh - Ha Dong',
-      bus_plate: info?.busPlate || '29B-12345',
-      driver_name: info?.driverName || 'Nguyen Van Tai',
-      driver_phone: info?.driverPhone || '0987654321',
-      current_location: {
-        lat: info?.currentLat || 21.0024,
-        lng: info?.currentLng || 105.7915,
-        updated_at: new Date().toISOString(),
+      route_id: info?.routeId || 'route_03',
+      route_name: info?.routeName || 'Xe tuyến 03',
+      vehicle_plate: info?.busPlate || '29B-123.45',
+      driver: {
+        name: info?.driverName || 'Nguyễn Văn Hùng',
+        phone: info?.driverPhone || '0901234567',
       },
-      next_stop: info?.nextStop || 'Tram Phung Hung',
-      estimated_arrival_time: info?.estimatedTime || '07:15',
+      tracking: {
+        latitude: info?.currentLat || 21.028511,
+        longitude: info?.currentLng || 105.804817,
+        speed_kph: 32,
+        heading: 90,
+        location_text: 'Cách điểm đón tiếp theo 1.2 km',
+        recorded_at: new Date().toISOString(),
+        status: 'online',
+      },
+      stops: [
+        {
+          id: 'stop_1',
+          name: 'Cổng khu đô thị A',
+          sequence: 1,
+          estimated_at: '06:35',
+          status: 'approaching',
+          latitude: 21.02,
+          longitude: 105.8,
+        },
+      ],
     };
   }
 
@@ -249,17 +270,20 @@ export class StudentServicesService {
   async getUniforms() {
     const items = await this.prisma.uniformProduct.findMany();
     return {
-      items: items.map((u) => ({
+      products: items.map((u) => ({
         id: u.id,
         name: u.name,
-        category: u.category,
-        price: u.price,
-        currency: 'VND',
-        sizes: (u.sizesJson as string[]) || ['S', 'M', 'L'],
         image_url: u.imageUrl,
-        stock: u.stock,
+        variants: [
+          {
+            sku: `${u.id}-M`,
+            size: 'M',
+            price: u.price,
+            stock_status: 'in_stock',
+          },
+        ],
       })),
-      pagination: { page: 1, limit: 20, total: items.length },
+      latest_order: null,
     };
   }
 

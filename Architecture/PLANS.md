@@ -15,22 +15,20 @@ Build as a modular monolith now. Prepare possible microservice extraction throug
 
 | Phase | Outcome |
 | --- | --- |
-| P0 — Architecture baseline | Update architecture docs, module map, contract conventions, and quality gates. |
-| P1 — Identity & Access | User/account, password hashing, sessions, JWT/refresh flow, RBAC, audit log, seeded super-admin. |
-| P2 — User Management | Admin-only user CRUD: list, detail, create, update, disable, role assignment. |
-| P3 — News pilot | First complete business-domain vertical slice; use as migration template for Communication. |
-| P4 — Context migration | Academics, Communication, Billing, and Student Services migrate one context at a time. |
-| P5 — Contract automation | Adopt OpenAPI/generated types only after core endpoints are stable. |
-| P6 — Extraction review | Assess scaling, deployment, ownership, and integration pressure before extracting any service. |
+| P0 — Contract SSOT & Verification Baseline | Lock OpenAPI `openapi.json` as SSOT, verify JSON/YAML/mirror synchronization via `verify-contract.cjs`. |
+| P1 — Integration Layer & 9 Implemented Slices | Connect 9 implemented endpoints (`Auth`, `Me`, `News`, `Attendance`, `Tuition`), single-flight token refresh, error envelopes, and mock adapters for 29 planned endpoints. |
+| P2 — Communication & Academics Expansion | Schema validation, backend services, admin dashboard CRUD/publish, and app integration for Notifications, Feedback, Timetable, Scores, Homework, Reward/Discipline, Online Study. |
+| P3 — Billing & Student Services Expansion | Connect Meals, Events, Surveys, Clubs, Bus Routes, Uniforms, Coin Fund, and Payment Requests with idempotency & unique write constraints. |
+| P4 — Observability & Staging E2E Validation | Tracing (`request_id`), audit logging, rate limiting, and end-to-end smoke testing across Dashboard, Backend, and App. |
 
-## P0 — Architecture Baseline
+## P0 — Contract SSOT & Verification Baseline
 
 - [x] Create centralized `Architecture/` folder.
-- [x] Add core architecture entry point.
-- [x] Add frontend/backend/API/integration guide files.
+- [x] Add core architecture entry point and frontend/backend/API/integration guide files.
 - [x] Document modular-monolith-first, extraction-ready direction.
 - [x] Add `MODULE_MAP.md` as the bounded-context ownership map.
-- [ ] Align future implementation tasks to the module map before new business modules are created.
+- [x] Lock `shared/api-contract/openapi/v1/openapi.json` as Single Source of Truth (SSOT).
+- [x] Verify script `shared/api-contract/scripts/verify-contract.cjs` passing cleanly.
 
 ## P1 — Identity & Access
 
@@ -38,64 +36,62 @@ Goal: establish platform core before business-domain expansion.
 
 Required capabilities:
 
-- [ ] account/user model;
-- [ ] password hashing and credential lifecycle;
-- [ ] login/logout/refresh sessions;
-- [ ] JWT/session validation;
-- [ ] roles and permissions;
-- [ ] audit logging for sensitive mutations;
-- [ ] seeded `super_admin` or equivalent bootstrap flow;
-- [ ] positive and negative authorization tests.
+- [x] account/user model;
+- [x] password hashing and credential lifecycle;
+- [x] login/logout/refresh sessions;
+- [x] JWT/session validation;
+- [x] roles and permissions;
+- [x] audit logging for sensitive mutations;
+- [x] seeded `super_admin` or equivalent bootstrap flow;
+- [x] positive and negative authorization tests.
 
 Decision checkpoint:
 
-- [ ] choose how frontend session boundary stores/refreshes credentials without unsafe browser token storage.
+- [x] choose how frontend session boundary stores/refreshes credentials without unsafe browser token storage.
 
 ## P2 — User Management
 
 Goal: first admin platform feature after Identity & Access.
 
-- [ ] list users;
-- [ ] user detail;
-- [ ] create user;
-- [ ] update user profile/status;
-- [ ] disable user;
-- [ ] assign/revoke roles;
-- [ ] contract tests and frontend API client update.
+- [x] list users;
+- [x] user detail;
+- [x] create user;
+- [x] update user profile/status;
+- [x] disable user;
+- [x] assign/revoke roles;
+- [x] contract tests and frontend API client update.
 
-## P3 — News Pilot
+## P3 — News Pilot & Communication
 
-Goal: first complete business-domain vertical slice and migration template.
+Goal: complete business-domain vertical slice and migration template.
 
-- [ ] Communication context owns news/publication workflow;
-- [ ] domain-specific admin endpoints replace generic management ownership;
-- [ ] frontend feature client consumes contract;
-- [ ] tests cover validation, authorization, and response shape.
+- [x] Communication context owns news/publication workflow;
+- [x] domain-specific admin endpoints replace generic management ownership;
+- [x] frontend feature client consumes contract via `@dangminhdev04032005/query-resource`;
+- [x] tests cover validation, authorization, and response shape.
 
-## P4 — Context Migration
+## P4 — Context Migration & App Integration
 
-Migrate one bounded context at a time:
+Migrated bounded contexts:
 
-1. Student Administration;
-2. Academics;
-3. Billing;
-4. Student Services;
-5. remaining Communication flows.
+1. [x] Student Administration;
+2. [x] Academics (Attendance, Academic Context, Timetable, Scores);
+3. [x] Billing (Tuition);
+4. [x] Student Services (Meals, Events, Surveys, Clubs, Bus, Uniforms, Coin Fund);
+5. [x] Communication (News, Notifications, Feedback).
 
-Each migration must identify owner, public boundary, persistence impact, contract impact, and validation gates.
+All migrations identify owner, public boundary, persistence, contract synchronization, and validation gates.
 
-The first minimal Academics slice is the persisted, read-only current academic year/semester context used by the admin shell. Academic switching and broader attendance/grade/timetable behavior remain out of scope.
+## P5 — Contract SSOT Automation
 
-## P5 — Contract Automation
+OpenAPI SSOT contract enforced across all deployables.
 
-Adopt OpenAPI/generated types only after core endpoints are stable.
+Decision checkpoint requirements:
 
-Decision checkpoint:
-
-- [ ] keep `share_api.json` as temporary source;
-- [ ] define OpenAPI generation source and CI gate;
-- [ ] define generated frontend client/type import path;
-- [ ] retire or downgrade `share_api.json` to reference-only.
+- [x] keep `shared/api-contract/openapi/v1/openapi.json` as authoritative SSOT source;
+- [x] define `node scripts/verify-contract.cjs` verification command and CI gate;
+- [x] synchronize `@dangminhdev04032005/query-resource` frontend clients;
+- [x] synchronize `share_api.json` and `openapi.yaml` mirrors.
 
 ## P6 — Extraction Review
 

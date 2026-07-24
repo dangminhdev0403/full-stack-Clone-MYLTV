@@ -46,8 +46,22 @@ export class TimetableHomeworkService {
           day_code: 'T2',
           date: start.toISOString().split('T')[0],
           lessons: [
-            { period: 'Tiet 1', subject: 'Toan hoc', time: '07:00 - 07:45', room: 'Phong 10A1', teacher: 'Nguyen Van Minh', status: 'Hom nay' },
-            { period: 'Tiet 2', subject: 'Ngu van', time: '07:55 - 08:40', room: 'Phong 10A1', teacher: 'Tran Thi Hang', status: 'Hom nay' },
+            {
+              period: 'Tiet 1',
+              subject: 'Toan hoc',
+              time: '07:00 - 07:45',
+              room: 'Phong 10A1',
+              teacher: 'Nguyen Van Minh',
+              status: 'Hom nay',
+            },
+            {
+              period: 'Tiet 2',
+              subject: 'Ngu van',
+              time: '07:55 - 08:40',
+              room: 'Phong 10A1',
+              teacher: 'Tran Thi Hang',
+              status: 'Hom nay',
+            },
           ],
         },
       ],
@@ -91,7 +105,9 @@ export class TimetableHomeworkService {
       this.prisma.homeworkAssignment.count({ where }),
     ]);
 
-    const completed = items.filter((i) => i.status === 'submitted' || i.submissions.length > 0).length;
+    const completed = items.filter(
+      (i) => i.status === 'submitted' || i.submissions.length > 0,
+    ).length;
 
     return {
       progress: { completed, total },
@@ -104,15 +120,25 @@ export class TimetableHomeworkService {
         assigned_at: hw.assignedAt.toISOString(),
         deadline: hw.deadline.toISOString(),
         status: hw.status,
-        submission_url: hw.submissions[0]?.attachmentsJson ? (hw.submissions[0].attachmentsJson as string[])[0] : null,
-        submitted_at: hw.submissions[0]?.submittedAt ? hw.submissions[0].submittedAt.toISOString() : null,
+        submission_url: hw.submissions[0]?.attachmentsJson
+          ? (hw.submissions[0].attachmentsJson as string[])[0]
+          : null,
+        submitted_at: hw.submissions[0]?.submittedAt
+          ? hw.submissions[0].submittedAt.toISOString()
+          : null,
       })),
       pagination: { page, limit, total },
     };
   }
 
-  async submitHomework(studentId: string, homeworkId: string, body: SubmitHomeworkDto) {
-    const hw = await this.prisma.homeworkAssignment.findUnique({ where: { id: homeworkId } });
+  async submitHomework(
+    studentId: string,
+    homeworkId: string,
+    body: SubmitHomeworkDto,
+  ) {
+    const hw = await this.prisma.homeworkAssignment.findUnique({
+      where: { id: homeworkId },
+    });
     if (!hw) throw new NotFoundException('Khong tim thay bai tap');
 
     await this.prisma.homeworkSubmission.create({
@@ -160,12 +186,14 @@ export class TimetableHomeworkService {
     return {
       items: items.map((o) => ({
         id: o.id,
-        title: o.title,
         subject: o.subject,
-        teacher: o.teacher,
-        start_at: o.startAt.toISOString(),
-        end_at: o.endAt.toISOString(),
-        meeting_url: o.meetingUrl,
+        teacher_name: o.teacher,
+        starts_at: o.startAt.toISOString(),
+        ends_at: o.endAt.toISOString(),
+        platform: 'Google Meet',
+        join_url: o.meetingUrl,
+        material_urls: [],
+        progress: 0,
         status: o.status,
       })),
       pagination: { page: 1, limit: 20, total: items.length },

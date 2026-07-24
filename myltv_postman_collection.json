@@ -1,0 +1,3749 @@
+{
+  "info": {
+    "name": "MyLTV Full-Stack API Contract v1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST /auth/login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /auth/refresh-token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/refresh-token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "refresh-token"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /auth/logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "me"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "PUT /me/password",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me/password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "me",
+            "password"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /me/accounts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "me",
+            "accounts"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /me/accounts/switch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me/accounts/switch",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "me",
+            "accounts",
+            "switch"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /me/student",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me/student",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "me",
+            "student"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /users",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /users/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /users/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /users/{id}/disable",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:id/disable",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "disable"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /users/{id}/reset-password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:id/reset-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "reset-password"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/students",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/students",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "students"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/students",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/students",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "students"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/students/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/students/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "students"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/students/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/students/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "students"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PUT /admin/students/{id}/accounts",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/students/:id/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "students",
+            "accounts"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/news",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/news",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/news/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/news/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "DELETE /admin/news/{id}",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/notifications",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "notifications"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/notifications",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/notifications",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "notifications"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/notifications/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/notifications/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "notifications"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/notifications/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/notifications/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "notifications"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/feedback",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "feedback"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/feedback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "feedback"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/feedback/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/feedback/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "feedback"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/feedback/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/feedback/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "feedback"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/academic-context/current",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/academic-context/current",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "academic-context",
+            "current"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/attendance",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/attendance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "attendance"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/attendance",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/attendance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "attendance"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/attendance/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/attendance/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "attendance"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/attendance/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/attendance/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "attendance"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/timetable",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/timetable",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "timetable"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/timetable",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/timetable",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "timetable"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/timetable/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/timetable/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "timetable"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/timetable/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/timetable/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "timetable"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/scores",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/scores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "scores"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/scores",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/scores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "scores"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/scores/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/scores/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "scores"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/scores/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/scores/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "scores"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/homework",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/homework",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "homework"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/homework",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/homework",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "homework"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/homework/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/homework/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "homework"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/homework/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/homework/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "homework"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/reward-discipline",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/reward-discipline",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "reward-discipline"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/reward-discipline",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/reward-discipline",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "reward-discipline"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/reward-discipline/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/reward-discipline/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "reward-discipline"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/reward-discipline/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/reward-discipline/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "reward-discipline"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/online-study",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/online-study",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "online-study"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/online-study",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/online-study",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "online-study"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/online-study/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/online-study/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "online-study"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/online-study/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/online-study/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "online-study"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/tuition",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/tuition",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "tuition"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/tuition",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/tuition",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "tuition"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/tuition/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/tuition/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "tuition"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/tuition/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/tuition/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "tuition"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/payment-requests",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/payment-requests",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "payment-requests"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/payment-requests",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/payment-requests",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "payment-requests"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/payment-requests/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/payment-requests/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "payment-requests"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/payment-requests/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/payment-requests/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "payment-requests"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/meals",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/meals",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "meals"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/meals",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/meals",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "meals"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/meals/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/meals/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "meals"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/meals/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/meals/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "meals"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/events",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "events"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/events",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "events"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/events/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/events/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "events"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/events/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/events/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "events"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/surveys",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/surveys",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "surveys"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/surveys",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/surveys",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "surveys"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/surveys/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/surveys/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "surveys"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/surveys/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/surveys/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "surveys"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/clubs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/clubs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "clubs"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/clubs",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/clubs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "clubs"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/clubs/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/clubs/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "clubs"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/clubs/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/clubs/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "clubs"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/bus",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/bus",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "bus"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/bus",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/bus",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "bus"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/bus/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/bus/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "bus"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/bus/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/bus/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "bus"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/uniforms",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/uniforms",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "uniforms"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/uniforms",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/uniforms",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "uniforms"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/uniforms/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/uniforms/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "uniforms"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/uniforms/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/uniforms/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "uniforms"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /admin/coin-fund",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/coin-fund",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "coin-fund"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /admin/coin-fund",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/coin-fund",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "coin-fund"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /admin/coin-fund/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/coin-fund/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "coin-fund"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /admin/coin-fund/{id}",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/coin-fund/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "coin-fund"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /home/news",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/home/news",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "home",
+            "news"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "notifications"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /notifications/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "notifications"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "PATCH /notifications/{id}/read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/:id/read",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "notifications",
+            "read"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /feedback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "feedback"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /home/attendance/today",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/home/attendance/today",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "home",
+            "attendance",
+            "today"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/attendance",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/attendance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "attendance"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/timetable",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/timetable",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "timetable"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/scores",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/scores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "scores"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/homeworks",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/homeworks",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "homeworks"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/reward-discipline",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/reward-discipline",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "reward-discipline"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/online-study",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/online-study",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "online-study"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /home/tuition/summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/home/tuition/summary",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "home",
+            "tuition",
+            "summary"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/tuition",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/tuition",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "tuition"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /services/tuition/payment-request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/tuition/payment-request",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "tuition",
+            "payment-request"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/meals",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/meals",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "meals"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/events",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "events"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/surveys",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/surveys",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "surveys"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/clubs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/clubs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "clubs"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/bus-tracking",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/bus-tracking",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "bus-tracking"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/uniforms",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/uniforms",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "uniforms"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "GET /services/coin-fund",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/coin-fund",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "coin-fund"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /services/meals/register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/meals/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "meals",
+            "register"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /services/events/{id}/register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/events/:id/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "events",
+            "register"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /services/surveys/{id}/submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/surveys/:id/submit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "surveys",
+            "submit"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /services/clubs/{id}/register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/clubs/:id/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "clubs",
+            "register"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /students/{id}/bus-route",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/bus-route",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "bus-route"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /services/uniforms/orders",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/services/uniforms/orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "services",
+            "uniforms",
+            "orders"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /uploads",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/uploads",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "uploads"
+          ],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "POST /students/{id}/homeworks/submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/:id/homeworks/submit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "homeworks",
+            "submit"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /admin/news/{id}/publish",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id/publish",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news",
+            "publish"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /admin/news/{id}/hide",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id/hide",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news",
+            "hide"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /admin/news/{id}/pin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id/pin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news",
+            "pin"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /admin/news/{id}/reorder",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin/news/:id/reorder",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "news",
+            "reorder"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "sample_id"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

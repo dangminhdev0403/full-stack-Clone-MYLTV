@@ -44,16 +44,22 @@ export class ScoresService {
       student_id: studentId,
       school_year: schoolYear || '2026-2027',
       semester: semester || '1',
-      subjects: records.map((r) => ({
-        subject_id: r.subjectId,
-        subject_name: r.subjectName,
-        oral_scores: (r.oralScoresJson as number[]) || [8, 9],
-        fifteen_minute_scores: (r.fifteenMinScoresJson as number[]) || [8.5],
-        midterm_score: r.midtermScore ?? 8,
-        final_score: r.finalScore ?? 9,
-        average_score: r.averageScore ?? 8.6,
-        teacher_comment: r.teacherComment,
-      })),
+      subjects: records.map((r) => {
+        const avg = r.averageScore ?? 8.6;
+        const classification = avg >= 9 ? 'excellent' : avg >= 8 ? 'good' : avg >= 6.5 ? 'fair' : 'average';
+        return {
+          subject_id: r.subjectId,
+          subject_name: r.subjectName,
+          teacher_name: 'Cô Trần Thị Mai',
+          oral_scores: (r.oralScoresJson as number[]) || [8, 9],
+          fifteen_minute_scores: (r.fifteenMinScoresJson as number[]) || [8.5],
+          midterm_score: r.midtermScore ?? 8,
+          final_score: r.finalScore ?? 9,
+          average_score: avg,
+          classification,
+          teacher_comment: r.teacherComment || 'Tiến bộ tốt',
+        };
+      }),
     };
   }
 
@@ -71,8 +77,10 @@ export class ScoresService {
       type: r.type as 'reward' | 'discipline',
       title: r.title,
       content: r.content,
-      date: r.date.toISOString().split('T')[0],
-      issuer: r.issuer,
+      recorded_at: r.date.toISOString().split('T')[0],
+      recorded_by_name: r.issuer || 'GVCN Nguyễn Văn A',
+      points: r.type === 'reward' ? 10 : 0,
+      status: 'active',
     }));
   }
 
