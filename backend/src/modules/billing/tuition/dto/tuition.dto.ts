@@ -6,6 +6,7 @@ export type TuitionListQueryDto = {
   semester_id?: string;
   academic_year_id?: string;
   status?: TuitionStatus;
+  q?: string;
   page?: string | number;
   page_size?: string | number;
 };

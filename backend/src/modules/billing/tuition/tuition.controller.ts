@@ -66,7 +66,7 @@ export class AppTuitionSummaryController {
 
   @Get('summary')
   getSummary(@CurrentUser() actor: AuthenticatedUser | undefined) {
-    return this.tuition.getTuitionSummary(actor?.activeStudentId);
+    return this.tuition.getTuitionSummary(actor?.activeStudentId ?? undefined);
   }
 }
 
@@ -76,6 +76,6 @@ export class AppTuitionServicesController {
 
   @Get()
   getServicesTuition(@CurrentUser() actor: AuthenticatedUser | undefined) {
-    return this.tuition.getStudentTuition(actor?.activeStudentId);
+    return this.tuition.getStudentTuition(actor?.activeStudentId ?? undefined);
   }
 }

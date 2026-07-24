@@ -8,7 +8,7 @@ import {
   AttendanceController,
   StudentAttendanceController,
 } from './attendance/attendance.controller';
-import { AttendanceService } from './attendance.service';
+import { AttendanceService } from './attendance/attendance.service';
 import { AcademicContextSeedService } from './bootstrap/academic-context-seed.service';
 import { AdminScoresController, AppScoresController } from './scores/scores.controller';
 import { ScoresService } from './scores/scores.service';

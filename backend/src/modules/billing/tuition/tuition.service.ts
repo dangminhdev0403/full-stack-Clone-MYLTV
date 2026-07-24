@@ -233,17 +233,20 @@ export class TuitionService {
 
   private listWhere(query: TuitionListQueryDto): Prisma.TuitionChargeWhereInput {
     const where: Prisma.TuitionChargeWhereInput = {};
-    if (query.class_name) where.student = { className: query.class_name.trim() };
     if (query.semester_id) where.semesterId = query.semester_id;
     if (query.status) where.status = query.status;
+
+    const studentWhere: Prisma.StudentWhereInput = {};
+    if (query.class_name) studentWhere.className = query.class_name.trim();
     if (query.q) {
-      where.student = {
-        ...(where.student ?? {}),
-        OR: [
-          { code: { contains: query.q, mode: 'insensitive' } },
-          { fullName: { contains: query.q, mode: 'insensitive' } },
-        ],
-      };
+      studentWhere.OR = [
+        { code: { contains: query.q, mode: 'insensitive' } },
+        { fullName: { contains: query.q, mode: 'insensitive' } },
+      ];
+    }
+
+    if (Object.keys(studentWhere).length > 0) {
+      where.student = studentWhere;
     }
     return where;
   }
