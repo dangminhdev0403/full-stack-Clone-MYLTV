@@ -3,11 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { AdminShell, Icon } from "@/features/admin-shell";
 import { ApiClientError } from "@/lib/api/schemas";
-import { listStudents, updateStudent, type Student } from "../service/students.client";
+import { type Student } from "../service/students.client";
+import { useStudentsQuery, useUpdateStudentMutation } from "../hooks/use-students";
 
 const PAGE_SIZE = 20;
 const grades = Array.from({ length: 12 }, (_, index) => String(index + 1));
@@ -17,17 +17,22 @@ const emptyFilters: Filters = { q: "", grade: "", className: "", active: "" };
 
 export function StudentsPage() {
   const { data: session } = useSession();
-  const queryClient = useQueryClient();
   const [statusTarget, setStatusTarget] = useState<Student | null>(null);
   const canManage = session?.user?.role === "super_admin" || session?.user?.permissions?.includes("students.manage");
-  const statusMutation = useMutation({ mutationFn: (student: Student) => updateStudent(student.id, { is_active: !student.is_active }), onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["students"] }); setStatusTarget(null); } });
+  const updateMutation = useUpdateStudentMutation();
+  const statusMutation = {
+    ...updateMutation,
+    mutate: (student: Student) =>
+      updateMutation.mutate(
+        { id: student.id, payload: { is_active: !student.is_active } },
+        { onSuccess: () => setStatusTarget(null) },
+      ),
+  };
   const [draft, setDraft] = useState<Filters>(emptyFilters);
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [page, setPage] = useState(1);
   const query = buildQuery(filters, page);
-  const studentsQuery = useQuery({
-    queryKey: ["students", query],
-    queryFn: () => listStudents(query),
+  const studentsQuery = useStudentsQuery(query, {
     placeholderData: (previous) => previous,
   });
   const students = studentsQuery.data?.items ?? [];

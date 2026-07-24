@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { getVisibleAdminNavGroups, resolveAdminBreadcrumbs } from "../data/admin-nav-items";
+import { useAcademicContextQuery } from "../hooks/use-academic-context";
 import { getCurrentAcademicContext } from "../service/academic-context.client";
 
 export function Icon({ name, className = "" }: { name: string; className?: string }) {
@@ -29,9 +29,7 @@ export function AdminShell({ activeHref, title, subtitle, children }: { activeHr
   const groups = getVisibleAdminNavGroups(actor?.permissions ?? [], actor?.role);
   const breadcrumbs = resolveAdminBreadcrumbs(pathname || activeHref);
   const canReadAcademicContext = actor?.role === "super_admin" || actor?.permissions?.includes("academics.context.read");
-  const academicContext = useQuery({
-    queryKey: ["academic-context", "current"],
-    queryFn: getCurrentAcademicContext,
+  const academicContext = useAcademicContextQuery({
     enabled: Boolean(canReadAcademicContext),
   });
 
@@ -119,7 +117,7 @@ function Breadcrumbs({ items }: { items: ReturnType<typeof resolveAdminBreadcrum
   return <nav aria-label="Đường dẫn trang" className="flex min-w-0 items-center gap-1 overflow-x-auto text-xs text-[var(--secondary)]">{items.map((item, index) => <span key={`${item.label}-${index}`} className="flex shrink-0 items-center gap-1">{index > 0 ? <Icon name="chevron_right" className="text-[16px]" /> : null}{item.href ? <Link href={item.href} className="hover:text-[var(--primary)]">{item.label}</Link> : <span aria-current={index === items.length - 1 ? "page" : undefined}>{item.label}</span>}</span>)}</nav>;
 }
 
-function AcademicContextStatus({ query, canRead }: { query: ReturnType<typeof useQuery>; canRead: boolean }) {
+function AcademicContextStatus({ query, canRead }: { query: ReturnType<typeof useAcademicContextQuery>; canRead: boolean }) {
   if (!canRead) return <div className="min-w-0"><p className="truncate text-sm font-semibold">Niên khóa</p><p className="truncate text-xs text-[var(--secondary)]">Không có quyền xem</p></div>;
   if (query.isPending) return <div role="status" className="min-w-0"><p className="truncate text-sm font-semibold">Đang tải niên khóa...</p><p className="truncate text-xs text-[var(--secondary)]">Đang đồng bộ ngữ cảnh học tập</p></div>;
   if (query.isError || !query.data) return <div className="min-w-0"><p className="truncate text-sm font-semibold">Chưa có niên khóa</p><p className="truncate text-xs text-[var(--secondary)]">Ngữ cảnh học tập chưa khả dụng</p></div>;

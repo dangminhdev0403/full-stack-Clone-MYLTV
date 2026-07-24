@@ -1,28 +1,28 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { AdminShell } from "@/features/admin-shell";
 import { ApiClientError } from "@/lib/api/schemas";
 import {
-  createNews,
-  hideNews,
-  listNews,
-  pinNews,
-  publishNews,
-  reorderNews,
-  updateNews,
   type NewsItem,
   type NewsWritePayload,
 } from "../service/news.client";
+import {
+  useCreateNewsMutation,
+  useHideNewsMutation,
+  useNewsQuery,
+  usePinNewsMutation,
+  usePublishNewsMutation,
+  useReorderNewsMutation,
+  useUpdateNewsMutation,
+} from "../hooks/use-news";
 
 const categoryLabels: Record<string, string> = { "Thong bao": "Thông báo", "Tin tuc": "Tin tức", "Su kien": "Sự kiện" };
 const statusLabels = { draft: "Bản nháp", published: "Đã xuất bản", hidden: "Đã ẩn" } as const;
 
 export function NewsPage() {
   const { data: session } = useSession();
-  const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<NewsItem | null>(null);
   const [preview, setPreview] = useState<NewsItem | null>(null);
@@ -33,35 +33,83 @@ export function NewsPage() {
   const isSuperAdmin = session?.user?.role === "super_admin";
   const canManage = isSuperAdmin || permissions.includes("communication.news.manage");
   const canPublish = isSuperAdmin || permissions.includes("communication.news.publish");
-  const newsQuery = useQuery({
-    queryKey: ["news", query],
-    queryFn: () => listNews(query ? `?q=${encodeURIComponent(query)}` : ""),
-  });
-  const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id?: string; payload: NewsWritePayload }) => id ? updateNews(id, payload) : createNews(payload),
-    onSuccess: async (_, variables) => {
-      setActionError("");
-      setFeedback(variables.id ? "Đã cập nhật tin tức." : "Đã tạo tin tức.");
-      setEditing(null);
-      setShowForm(false);
-      await queryClient.invalidateQueries({ queryKey: ["news"] });
+  
+  const newsQuery = useNewsQuery(query ? `?q=${encodeURIComponent(query)}` : "");
+  const createMutation = useCreateNewsMutation();
+  const updateMutation = useUpdateNewsMutation();
+  const publishMutation = usePublishNewsMutation();
+  const hideMutation = useHideNewsMutation();
+  const pinMutation = usePinNewsMutation();
+  const reorderMutation = useReorderNewsMutation();
+
+  const saveMutation = {
+    isPending: createMutation.isPending || updateMutation.isPending,
+    mutate: ({ id, payload }: { id?: string; payload: NewsWritePayload }) => {
+      if (id) {
+        updateMutation.mutate(
+          { id, payload },
+          {
+            onSuccess: () => {
+              setActionError("");
+              setFeedback("Đã cập nhật tin tức.");
+              setEditing(null);
+              setShowForm(false);
+            },
+            onError: (error) => setActionError(errorMessage(error)),
+          },
+        );
+      } else {
+        createMutation.mutate(payload, {
+          onSuccess: () => {
+            setActionError("");
+            setFeedback("Đã tạo tin tức.");
+            setEditing(null);
+            setShowForm(false);
+          },
+          onError: (error) => setActionError(errorMessage(error)),
+        });
+      }
     },
-    onError: (error) => setActionError(errorMessage(error)),
-  });
-  const actionMutation = useMutation({
-    mutationFn: ({ item, action, value }: { item: NewsItem; action: "publish" | "hide" | "pin" | "reorder"; value?: boolean | number }) => {
-      if (action === "publish") return publishNews(item.id);
-      if (action === "hide") return hideNews(item.id);
-      if (action === "pin") return pinNews(item.id, Boolean(value));
-      return reorderNews(item.id, Number(value));
+  };
+
+  const actionMutation = {
+    isPending:
+      publishMutation.isPending ||
+      hideMutation.isPending ||
+      pinMutation.isPending ||
+      reorderMutation.isPending,
+    mutate: ({
+      item,
+      action,
+      value,
+    }: {
+      item: NewsItem;
+      action: "publish" | "hide" | "pin" | "reorder";
+      value?: boolean | number;
+    }) => {
+      const onSuccess = () => {
+        setActionError("");
+        setFeedback("Đã cập nhật trạng thái tin tức.");
+      };
+      const onError = (error: unknown) => setActionError(errorMessage(error));
+
+      if (action === "publish") {
+        publishMutation.mutate({ id: item.id }, { onSuccess, onError });
+      } else if (action === "hide") {
+        hideMutation.mutate({ id: item.id }, { onSuccess, onError });
+      } else if (action === "pin") {
+        pinMutation.mutate(
+          { id: item.id, isPinned: Boolean(value) },
+          { onSuccess, onError },
+        );
+      } else {
+        reorderMutation.mutate(
+          { id: item.id, sortOrder: Number(value) },
+          { onSuccess, onError },
+        );
+      }
     },
-    onSuccess: async () => {
-      setActionError("");
-      setFeedback("Đã cập nhật trạng thái tin tức.");
-      await queryClient.invalidateQueries({ queryKey: ["news"] });
-    },
-    onError: (error) => setActionError(errorMessage(error)),
-  });
+  };
   const items = newsQuery.data?.items ?? [];
   const queryError = newsQuery.error ? errorMessage(newsQuery.error) : "";
 

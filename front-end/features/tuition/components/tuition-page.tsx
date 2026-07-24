@@ -1,19 +1,20 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { AdminShell } from "@/features/admin-shell";
-import { getCurrentAcademicContext } from "@/features/admin-shell/service/academic-context.client";
-import { listStudents } from "@/features/students/service/students.client";
+import { useAcademicContextQuery } from "@/features/admin-shell/hooks/use-academic-context";
+import { useStudentsQuery } from "@/features/students/hooks/use-students";
 import { ApiClientError } from "@/lib/api/schemas";
 import {
-  createTuitionCharge,
-  listTuitionCharges,
-  updateTuitionCharge,
   type TuitionCharge,
   type TuitionStatus,
 } from "../service/tuition.client";
+import {
+  useCreateTuitionMutation,
+  useTuitionListQuery,
+  useUpdateTuitionMutation,
+} from "../hooks/use-tuition";
 
 const statusLabels: Record<TuitionStatus, string> = {
   unpaid: "Chưa thanh toán",
@@ -31,18 +32,9 @@ export function TuitionPage() {
   const [editing, setEditing] = useState<TuitionCharge | null>(null);
   const [feedback, setFeedback] = useState("");
   const queryString = buildQuery(filters);
-  const charges = useQuery({
-    queryKey: ["tuition", queryString],
-    queryFn: () => listTuitionCharges(queryString),
-  });
-  const context = useQuery({
-    queryKey: ["academic-context"],
-    queryFn: getCurrentAcademicContext,
-  });
-  const students = useQuery({
-    queryKey: ["tuition-students"],
-    queryFn: () => listStudents("?is_active=true&page=1&page_size=100"),
-  });
+  const charges = useTuitionListQuery(queryString);
+  const context = useAcademicContextQuery();
+  const students = useStudentsQuery("?is_active=true&page=1&page_size=100");
   const canManage = session?.user?.permissions?.includes(
     "billing.tuition.manage",
   );
@@ -245,28 +237,25 @@ function CreateDialog({
   close: () => void;
   saved: () => void;
 }>) {
-  const client = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: createTuitionCharge,
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["tuition"] });
-      saved();
-    },
-  });
+  const createMutation = useCreateTuitionMutation();
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    mutation.mutate({
-      student_id: String(form.get("student_id")),
-      semester_id: semesterId,
-      title: String(form.get("title")),
-      amount_due: Number(form.get("amount_due")),
-      amount_paid: 0,
-      due_date: String(form.get("due_date")) || null,
-      note: null,
-      is_waived: false,
-    });
+    createMutation.mutate(
+      {
+        student_id: String(form.get("student_id")),
+        semester_id: semesterId,
+        title: String(form.get("title")),
+        amount_due: Number(form.get("amount_due")),
+        amount_paid: 0,
+        due_date: String(form.get("due_date")) || null,
+        note: null,
+        is_waived: false,
+      },
+      { onSuccess: saved },
+    );
   }
+  const mutation = createMutation;
   return (
     <Dialog title="Tạo khoản thu" close={close}>
       <form onSubmit={submit} className="grid gap-4">
@@ -331,21 +320,16 @@ function EditDialog({
   close,
   saved,
 }: Readonly<{ charge: TuitionCharge; close: () => void; saved: () => void }>) {
-  const client = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: (amount: number) =>
-      updateTuitionCharge(charge.id, { amount_paid: amount }),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["tuition"] });
-      saved();
-    },
-  });
+  const updateMutation = useUpdateTuitionMutation();
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    mutation.mutate(
-      Number(new FormData(event.currentTarget).get("amount_paid")),
+    const amount = Number(new FormData(event.currentTarget).get("amount_paid"));
+    updateMutation.mutate(
+      { id: charge.id, payload: { amount_paid: amount } },
+      { onSuccess: saved },
     );
   }
+  const mutation = updateMutation;
   return (
     <Dialog title={`Cập nhật ${charge.student_name}`} close={close}>
       <form onSubmit={submit} className="grid gap-4">

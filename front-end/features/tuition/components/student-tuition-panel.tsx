@@ -1,7 +1,6 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
 import { ApiClientError } from "@/lib/api/schemas";
-import { listTuitionCharges } from "../service/tuition.client";
+import { useTuitionListQuery } from "../hooks/use-tuition";
 
 export function StudentTuitionPanel({
   studentId,
@@ -27,13 +26,9 @@ export function StudentTuitionPanel({
   return <StudentTuitionQuery studentId={studentId} />;
 }
 function StudentTuitionQuery({ studentId }: { studentId: string }) {
-  const query = useQuery({
-    queryKey: ["student-tuition", studentId],
-    queryFn: () =>
-      listTuitionCharges(
-        `?student_id=${encodeURIComponent(studentId)}&page=1&page_size=100`,
-      ),
-  });
+  const query = useTuitionListQuery(
+    `?student_id=${encodeURIComponent(studentId)}&page=1&page_size=100`,
+  );
   if (query.isPending)
     return (
       <section

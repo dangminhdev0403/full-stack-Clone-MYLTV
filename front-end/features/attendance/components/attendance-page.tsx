@@ -1,17 +1,18 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { AdminShell, Icon } from "@/features/admin-shell";
 import { ApiClientError } from "@/lib/api/schemas";
 import {
-  createAttendanceSession,
-  listAttendanceSessions,
-  updateAttendanceSession,
   type AttendanceSession,
   type AttendanceStatus,
 } from "../service/attendance.client";
+import {
+  useAttendanceQuery,
+  useCreateAttendanceMutation,
+  useUpdateAttendanceMutation,
+} from "../hooks/use-attendance";
 import { listStudents } from "@/features/students/service/students.client";
 
 const statusOptions: Array<{
@@ -31,7 +32,6 @@ const statusOptions: Array<{
 
 export function AttendancePage() {
   const { data: session } = useSession();
-  const queryClient = useQueryClient();
   const [draftDate, setDraftDate] = useState("");
   const [draftClass, setDraftClass] = useState("");
   const [draftPeriod, setDraftPeriod] =
@@ -42,10 +42,7 @@ export function AttendancePage() {
     period: "morning" as AttendanceSession["period"],
   });
   const queryString = buildQuery(filters);
-  const query = useQuery({
-    queryKey: ["attendance", queryString],
-    queryFn: () => listAttendanceSessions(queryString),
-  });
+  const query = useAttendanceQuery(queryString);
   const selected = query.data?.items[0];
   const canManage =
     session?.user?.role === "super_admin" ||
@@ -173,7 +170,6 @@ export function AttendancePage() {
             canManage={Boolean(canManage)}
             saved={async () => {
               setFeedback("Đã lưu điểm danh.");
-              await queryClient.invalidateQueries({ queryKey: ["attendance"] });
             }}
           />
         </>
@@ -196,13 +192,16 @@ function CreateSessionCard({
   period: AttendanceSession["period"];
   created: () => Promise<void>;
 }>) {
-  const create = useMutation({
-    mutationFn: async () => {
+  const createMutation = useCreateAttendanceMutation();
+  const [error, setError] = useState<unknown>(null);
+  const handleCreate = async () => {
+    try {
+      setError(null);
       const students = await listStudents(
         `?class_name=${encodeURIComponent(className)}&is_active=true&page=1&page_size=100`,
       );
       if (!students.items.length) throw new Error("EMPTY_CLASS");
-      return createAttendanceSession({
+      await createMutation.mutateAsync({
         date,
         class_name: className,
         period,
@@ -212,9 +211,12 @@ function CreateSessionCard({
           note: null,
         })),
       });
-    },
-    onSuccess: created,
-  });
+      await created();
+    } catch (e) {
+      setError(e);
+    }
+  };
+
   return (
     <section className="rounded-2xl border border-dashed border-[var(--primary)] bg-white p-6 text-center">
       <Icon name="fact_check" className="text-4xl text-[var(--primary)]" />
@@ -223,18 +225,18 @@ function CreateSessionCard({
         {formatDate(date)} · Lớp {className}. Danh sách lấy từ học sinh đang
         học.
       </p>
-      {create.error ? (
+      {error || createMutation.error ? (
         <p role="alert" className="mt-3 text-sm font-bold text-rose-700">
           Không thể tạo buổi điểm danh. Kiểm tra lớp có học sinh đang học.
         </p>
       ) : null}
       <button
         type="button"
-        disabled={create.isPending}
-        onClick={() => create.mutate()}
+        disabled={createMutation.isPending}
+        onClick={handleCreate}
         className="mt-5 min-h-11 rounded-lg bg-[var(--primary)] px-5 font-bold text-white disabled:opacity-50"
       >
-        {create.isPending ? "Đang tạo..." : "Tạo buổi điểm danh"}
+        {createMutation.isPending ? "Đang tạo..." : "Tạo buổi điểm danh"}
       </button>
     </section>
   );
@@ -249,17 +251,24 @@ function AttendanceEditor({
   saved: () => Promise<void>;
 }) {
   const [records, setRecords] = useState(session.records);
-  const save = useMutation({
-    mutationFn: () =>
-      updateAttendanceSession(session.id, {
-        records: records.map(({ student_id, status, note }) => ({
-          student_id,
-          status,
-          note,
-        })),
-      }),
-    onSuccess: saved,
-  });
+  const updateMutation = useUpdateAttendanceMutation();
+  const save = {
+    ...updateMutation,
+    mutate: () =>
+      updateMutation.mutate(
+        {
+          id: session.id,
+          payload: {
+            records: records.map(({ student_id, status, note }) => ({
+              student_id,
+              status,
+              note,
+            })),
+          },
+        },
+        { onSuccess: saved },
+      ),
+  };
   return (
     <section className="overflow-hidden rounded-2xl border border-[var(--outline-variant)] bg-white shadow-sm">
       <div className="flex flex-col gap-2 border-b border-[var(--outline-variant)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">

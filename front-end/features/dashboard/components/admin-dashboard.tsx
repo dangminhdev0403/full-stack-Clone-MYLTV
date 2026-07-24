@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { AdminShell, Icon } from "@/features/admin-shell";
-import { listStudents } from "@/features/students/service/students.client";
-import { listUsers } from "@/features/users/service/users.client";
+import { useStudentsQuery } from "@/features/students/hooks/use-students";
+import { useUsersQuery } from "@/features/users/hooks/use-users";
 
 const SUMMARY_QUERY = "?page=1&page_size=1";
 
 export function AdminDashboard() {
-  const usersQuery = useQuery({ queryKey: ["users", "dashboard-total"], queryFn: () => listUsers(SUMMARY_QUERY) });
-  const studentsQuery = useQuery({ queryKey: ["students", "dashboard-total"], queryFn: () => listStudents(SUMMARY_QUERY) });
+  const usersQuery = useUsersQuery(SUMMARY_QUERY);
+  const studentsQuery = useStudentsQuery(SUMMARY_QUERY);
 
   return <AdminShell activeHref="/admin" title="Tổng quan" subtitle="Theo dõi các module đang vận hành bằng dữ liệu trực tiếp từ hệ thống.">
     <section aria-label="Chỉ số hệ thống" className="grid gap-5 md:grid-cols-2">

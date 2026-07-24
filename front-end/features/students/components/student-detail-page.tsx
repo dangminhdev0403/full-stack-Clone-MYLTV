@@ -1,17 +1,18 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { AdminShell, Icon } from "@/features/admin-shell";
 import { StudentTuitionPanel } from "@/features/tuition/components/student-tuition-panel";
 import { ApiClientError } from "@/lib/api/schemas";
 import {
-  getStudent,
-  updateStudent,
   type StudentDetail,
   type StudentWritePayload,
 } from "../service/students.client";
+import {
+  useStudentDetailQuery,
+  useUpdateStudentMutation,
+} from "../hooks/use-students";
 import {
   StudentDetailTabs,
   type StudentDetailTab,
@@ -30,11 +31,7 @@ const validTabs = new Set<StudentDetailTab>([
 
 export function StudentDetailPage({ id }: Readonly<{ id: string }>) {
   const { data: session } = useSession();
-  const queryClient = useQueryClient();
-  const query = useQuery({
-    queryKey: ["students", id],
-    queryFn: () => getStudent(id),
-  });
+  const query = useStudentDetailQuery(id);
   const [activeTab, setActiveTab] = useState<StudentDetailTab>(() => readTab());
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -42,18 +39,21 @@ export function StudentDetailPage({ id }: Readonly<{ id: string }>) {
   const permissions = session?.user?.permissions ?? [];
   const canManage = permissions.includes("students.manage");
   const canReadTuition = permissions.includes("billing.tuition.read");
-  const mutation = useMutation({
-    mutationFn: (payload: StudentWritePayload) => updateStudent(id, payload),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["students", id] }),
-        queryClient.invalidateQueries({ queryKey: ["students"] }),
-      ]);
-      setEditing(false);
-      setConfirming(false);
-      setFeedback("Đã cập nhật hồ sơ học sinh.");
-    },
-  });
+  const updateMutation = useUpdateStudentMutation();
+  const mutation = {
+    ...updateMutation,
+    mutate: (payload: StudentWritePayload) =>
+      updateMutation.mutate(
+        { id, payload },
+        {
+          onSuccess: () => {
+            setEditing(false);
+            setConfirming(false);
+            setFeedback("Đã cập nhật hồ sơ học sinh.");
+          },
+        },
+      ),
+  };
   useEffect(() => {
     const popState = () => setActiveTab(readTab());
     window.addEventListener("popstate", popState);
