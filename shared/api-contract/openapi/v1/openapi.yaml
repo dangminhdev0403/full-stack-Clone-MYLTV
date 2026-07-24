@@ -8724,12 +8724,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/AttendanceRecord"
+                          "$ref": "#/components/schemas/AttendanceTodayResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -8837,30 +8834,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "type": "object",
-                          "properties": {
-                            "summary": {
-                              "type": "object",
-                              "additionalProperties": {
-                                "type": "integer"
-                              }
-                            },
-                            "items": {
-                              "type": "array",
-                              "items": {
-                                "$ref": "#/components/schemas/AttendanceRecord"
-                              }
-                            }
-                          },
-                          "required": [
-                            "summary",
-                            "items"
-                          ]
+                          "$ref": "#/components/schemas/StudentAttendanceResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -9316,13 +9292,10 @@
                         "data": {
                           "type": "array",
                           "items": {
-                            "$ref": "#/components/schemas/ServiceItem"
+                            "$ref": "#/components/schemas/RewardDisciplineRecord"
                           }
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -9429,30 +9402,12 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ServiceItem"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/OnlineStudyItem"
+                          }
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -9882,7 +9837,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MealResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/MealResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -9970,7 +9937,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EventItem"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/EventListResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10058,7 +10037,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SurveyItem"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SurveyListResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10146,7 +10137,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClubItem"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ClubListResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10234,7 +10237,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BusTrackingResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/BusTrackingResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10322,7 +10337,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UniformCatalogResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UniformCatalogResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10410,7 +10437,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CoinFundResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CoinFundResponse"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -10904,12 +10943,9 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/ServiceItem"
+                          "$ref": "#/components/schemas/BusRouteResponse"
                         }
-                      },
-                      "required": [
-                        "data"
-                      ]
+                      }
                     }
                   ]
                 }
@@ -11616,21 +11652,23 @@
       },
       "SuccessEnvelope": {
         "type": "object",
+        "required": [
+          "success",
+          "data"
+        ],
         "properties": {
           "success": {
             "type": "boolean",
             "example": true
           },
-          "data": {},
+          "data": {
+            "type": "object"
+          },
           "meta": {
             "type": "object",
-            "additionalProperties": true
+            "nullable": true
           }
-        },
-        "required": [
-          "success",
-          "data"
-        ]
+        }
       },
       "ErrorEnvelope": {
         "type": "object",
@@ -13071,6 +13109,14 @@
       },
       "MealPackage": {
         "type": "object",
+        "required": [
+          "id",
+          "name",
+          "remaining_meals",
+          "paid_amount",
+          "expires_at",
+          "status"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13099,6 +13145,12 @@
       },
       "MealMenu": {
         "type": "object",
+        "required": [
+          "date",
+          "day_label",
+          "main_dish",
+          "registration_status"
+        ],
         "properties": {
           "date": {
             "type": "string",
@@ -13134,6 +13186,10 @@
       },
       "MealResponse": {
         "type": "object",
+        "required": [
+          "package",
+          "menus"
+        ],
         "properties": {
           "package": {
             "$ref": "#/components/schemas/MealPackage"
@@ -13148,6 +13204,18 @@
       },
       "EventItem": {
         "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "starts_at",
+          "ends_at",
+          "location",
+          "capacity",
+          "registered_count",
+          "registration_status",
+          "student_registration_status"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13198,6 +13266,15 @@
       },
       "SurveyItem": {
         "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "question_count",
+          "deadline",
+          "status",
+          "submission_status"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13233,6 +13310,18 @@
       },
       "ClubItem": {
         "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "schedule_text",
+          "location",
+          "teacher_name",
+          "capacity",
+          "remaining_slots",
+          "registration_status",
+          "student_registration_status"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13276,6 +13365,14 @@
       },
       "BusTrackingResponse": {
         "type": "object",
+        "required": [
+          "route_id",
+          "route_name",
+          "vehicle_plate",
+          "driver",
+          "tracking",
+          "stops"
+        ],
         "properties": {
           "route_id": {
             "type": "string"
@@ -13288,6 +13385,10 @@
           },
           "driver": {
             "type": "object",
+            "required": [
+              "name",
+              "phone"
+            ],
             "properties": {
               "name": {
                 "type": "string"
@@ -13299,6 +13400,15 @@
           },
           "tracking": {
             "type": "object",
+            "required": [
+              "latitude",
+              "longitude",
+              "speed_kph",
+              "heading",
+              "location_text",
+              "recorded_at",
+              "status"
+            ],
             "properties": {
               "latitude": {
                 "type": "number"
@@ -13332,6 +13442,15 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "id",
+                "name",
+                "sequence",
+                "estimated_at",
+                "status",
+                "latitude",
+                "longitude"
+              ],
               "properties": {
                 "id": {
                   "type": "string"
@@ -13361,6 +13480,11 @@
       },
       "UniformProduct": {
         "type": "object",
+        "required": [
+          "id",
+          "name",
+          "variants"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13376,6 +13500,12 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "sku",
+                "size",
+                "price",
+                "stock_status"
+              ],
               "properties": {
                 "sku": {
                   "type": "string"
@@ -13400,6 +13530,9 @@
       },
       "UniformCatalogResponse": {
         "type": "object",
+        "required": [
+          "products"
+        ],
         "properties": {
           "products": {
             "type": "array",
@@ -13408,13 +13541,21 @@
             }
           },
           "latest_order": {
-            "type": "object",
+            "$ref": "#/components/schemas/UniformOrderSummary",
             "nullable": true
           }
         }
       },
       "CoinTransaction": {
         "type": "object",
+        "required": [
+          "id",
+          "title",
+          "type",
+          "amount",
+          "status",
+          "occurred_at"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -13447,6 +13588,14 @@
       },
       "CoinFundResponse": {
         "type": "object",
+        "required": [
+          "student_id",
+          "balance",
+          "total_deposit",
+          "total_spent",
+          "unit",
+          "transactions"
+        ],
         "properties": {
           "student_id": {
             "type": "string"
@@ -13467,6 +13616,444 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CoinTransaction"
+            }
+          }
+        }
+      },
+      "AttendanceSessionDetail": {
+        "type": "object",
+        "required": [
+          "session_code",
+          "status"
+        ],
+        "properties": {
+          "session_code": {
+            "type": "string",
+            "example": "morning"
+          },
+          "status": {
+            "type": "string",
+            "example": "present"
+          },
+          "check_in_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "07:15"
+          },
+          "check_out_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "11:30"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AttendanceTodayResponse": {
+        "type": "object",
+        "required": [
+          "date",
+          "student_id",
+          "sessions"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-07-26"
+          },
+          "student_id": {
+            "type": "string",
+            "example": "student_1"
+          },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceSessionDetail"
+            }
+          }
+        }
+      },
+      "AttendanceHistoryItem": {
+        "type": "object",
+        "required": [
+          "date",
+          "period",
+          "status"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "period": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StudentAttendanceResponse": {
+        "type": "object",
+        "required": [
+          "student_id",
+          "history"
+        ],
+        "properties": {
+          "student_id": {
+            "type": "string"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceHistoryItem"
+            }
+          }
+        }
+      },
+      "RewardDisciplineRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "title",
+          "content",
+          "recorded_at",
+          "recorded_by_name",
+          "points",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "reward",
+              "discipline"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "recorded_by_name": {
+            "type": "string"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked"
+            ]
+          }
+        }
+      },
+      "OnlineStudyItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "subject",
+          "teacher_name",
+          "starts_at",
+          "ends_at",
+          "platform",
+          "join_url",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "teacher_name": {
+            "type": "string"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "join_url": {
+            "type": "string"
+          },
+          "material_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "progress": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "in_progress",
+              "completed"
+            ]
+          }
+        }
+      },
+      "BusRouteResponse": {
+        "type": "object",
+        "required": [
+          "route_id",
+          "route_name",
+          "vehicle_plate",
+          "driver_name",
+          "driver_phone",
+          "pickup_point",
+          "dropoff_point",
+          "pickup_time",
+          "dropoff_time",
+          "stops"
+        ],
+        "properties": {
+          "route_id": {
+            "type": "string"
+          },
+          "route_name": {
+            "type": "string"
+          },
+          "vehicle_plate": {
+            "type": "string"
+          },
+          "driver_name": {
+            "type": "string"
+          },
+          "driver_phone": {
+            "type": "string"
+          },
+          "pickup_point": {
+            "type": "string"
+          },
+          "dropoff_point": {
+            "type": "string"
+          },
+          "pickup_time": {
+            "type": "string"
+          },
+          "dropoff_time": {
+            "type": "string"
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "sequence",
+                "pickup_time"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "sequence": {
+                  "type": "integer"
+                },
+                "pickup_time": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UniformOrderItem": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "size",
+          "quantity",
+          "price"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "integer"
+          }
+        }
+      },
+      "UniformOrderSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "total_amount",
+          "items"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "delivering",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "total_amount": {
+            "type": "integer"
+          },
+          "expected_delivery_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UniformOrderItem"
+            }
+          }
+        }
+      },
+      "EventListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventItem"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "required": [
+              "page",
+              "limit",
+              "total"
+            ],
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "SurveyListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SurveyItem"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "required": [
+              "page",
+              "limit",
+              "total"
+            ],
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "ClubListResponse": {
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClubItem"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "required": [
+              "page",
+              "limit",
+              "total"
+            ],
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
             }
           }
         }
