@@ -56,6 +56,7 @@ Only create folders the feature actually needs.
 
 Avoid:
 
+- writing raw TanStack Query `queryKey`/`queryFn`/`mutationFn` configurations in pages or feature hooks;
 - a generic CRUD engine for every entity;
 - direct fetch logic in presentation components;
 - frontend mock data pretending to be business truth;
@@ -63,6 +64,7 @@ Avoid:
 
 Adopt:
 
+- `@dangminhdev04032005/query-resource` for client server-state: `repository` → `resource` → `feature hook` → `component`;
 - a central HTTP client;
 - typed feature-local API clients;
 - response schemas at the feature boundary when useful;
