@@ -9882,19 +9882,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/MealResponse"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/MealResponse"
                 }
               }
             }
@@ -9982,19 +9970,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/EventItem"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/EventItem"
                 }
               }
             }
@@ -10082,19 +10058,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/SurveyItem"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/SurveyItem"
                 }
               }
             }
@@ -10182,19 +10146,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/ClubItem"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/ClubItem"
                 }
               }
             }
@@ -10282,19 +10234,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/BusTrackingResponse"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/BusTrackingResponse"
                 }
               }
             }
@@ -10382,19 +10322,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/UniformCatalogResponse"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/UniformCatalogResponse"
                 }
               }
             }
@@ -10482,19 +10410,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/CoinFundResponse"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/CoinFundResponse"
                 }
               }
             }
@@ -12108,6 +12024,14 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "example": "SLLĐT"
+          },
+          "author_name": {
+            "type": "string",
+            "example": "Lương Thế Vinh"
           }
         }
       },
