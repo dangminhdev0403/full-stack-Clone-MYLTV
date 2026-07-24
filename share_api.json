@@ -392,7 +392,7 @@
         "status": "present|absent|late|leave_early|unknown",
         "note": "string|null"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "home",
@@ -411,7 +411,7 @@
         "currency": "VND",
         "status": "paid|unpaid|partial"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -444,7 +444,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -465,7 +465,7 @@
         ],
         "is_read": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -475,7 +475,7 @@
       "response_data": {
         "is_read": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -508,7 +508,7 @@
           }
         ]
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -530,7 +530,7 @@
           "issuer": "string|null"
         }
       ],
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -560,7 +560,7 @@
           }
         ]
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -591,7 +591,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -609,7 +609,7 @@
         "driver_phone": "string|null",
         "bus_plate": "string|null"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -642,7 +642,7 @@
           }
         ]
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -682,7 +682,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "search",
@@ -700,7 +700,7 @@
         "submitted_at": "2026-06-26T20:00:00Z",
         "status": "submitted"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "feedback",
@@ -721,7 +721,7 @@
         "status": "new",
         "created_at": "2026-06-20T08:30:00Z"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -745,7 +745,7 @@
           }
         ]
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -762,7 +762,7 @@
       "response_data": {
         "updated": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -787,7 +787,7 @@
           }
         ]
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -819,7 +819,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -833,7 +833,7 @@
       "response_data": {
         "registered": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -873,7 +873,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -892,7 +892,7 @@
       "response_data": {
         "submitted": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -924,7 +924,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -938,7 +938,7 @@
       "response_data": {
         "registered": true
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -963,7 +963,7 @@
         "next_stop": "string|null",
         "estimated_arrival_time": "HH:mm|null"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -999,7 +999,7 @@
           "total": 0
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -1022,7 +1022,7 @@
         "total_amount": 0,
         "status": "pending"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -1053,7 +1053,7 @@
           "currency": "VND"
         }
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "service",
@@ -1074,7 +1074,7 @@
         "qr_code_url": "string|null",
         "status": "pending"
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "upload",
@@ -1093,7 +1093,7 @@
         "mime_type": "string",
         "size": 0
       },
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",

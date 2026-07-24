@@ -338,3 +338,320 @@ model TuitionCharge {
   @@index([createdById])
   @@map("tuition_charges")
 }
+
+model Notification {
+  id        String                 @id @default(uuid())
+  title     String
+  sender    String
+  sentAt    DateTime               @default(now()) @map("sent_at")
+  content   String
+  tag       String                 @default("Quan trong")
+  createdById String?              @map("created_by_id")
+  createdAt DateTime               @default(now()) @map("created_at")
+  updatedAt DateTime               @updatedAt @map("updated_at")
+  reads     NotificationRead[]
+
+  @@index([sentAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             String       @id @default(uuid())
+  notificationId String       @map("notification_id")
+  studentId      String?      @map("student_id")
+  accountId      String?      @map("account_id")
+  readAt         DateTime     @default(now()) @map("read_at")
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId, accountId])
+  @@map("notification_reads")
+}
+
+model FeedbackItem {
+  id        String   @id @default(uuid())
+  studentId String?  @map("student_id")
+  accountId String?  @map("account_id")
+  title     String
+  content   String
+  category  String   @default("khac")
+  status    String   @default("new")
+  attachmentsJson Json? @map("attachments_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("feedback_items")
+}
+
+model StudentScoreRecord {
+  id                    String   @id @default(uuid())
+  studentId             String   @map("student_id")
+  semesterId            String   @map("semester_id")
+  schoolYear            String   @default("2026-2027") @map("school_year")
+  semesterCode          String   @default("1") @map("semester_code")
+  subjectId             String   @map("subject_id")
+  subjectName           String   @map("subject_name")
+  oralScoresJson        Json?    @map("oral_scores_json")
+  fifteenMinScoresJson  Json?    @map("fifteen_min_scores_json")
+  midtermScore          Float?   @map("midterm_score")
+  finalScore            Float?   @map("final_score")
+  averageScore          Float?   @map("average_score")
+  teacherComment        String?  @map("teacher_comment")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, semesterId, subjectId])
+  @@map("student_score_records")
+}
+
+model RewardDisciplineRecord {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  semesterId  String?  @map("semester_id")
+  schoolYear  String?  @map("school_year")
+  type        String   @default("reward")
+  title       String
+  content     String
+  date        DateTime @db.Date
+  issuer      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, type])
+  @@map("reward_discipline_records")
+}
+
+model TimetableSchedule {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  weekStart DateTime @map("week_start") @db.Date
+  daysJson  Json     @map("days_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, weekStart])
+  @@map("timetable_schedules")
+}
+
+model HomeworkAssignment {
+  id          String               @id @default(uuid())
+  studentId   String               @map("student_id")
+  subjectId   String?              @map("subject_id")
+  subject     String
+  title       String
+  content     String
+  teacher     String
+  assignedAt  DateTime             @default(now()) @map("assigned_at")
+  deadline    DateTime
+  status      String               @default("pending")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  submissions HomeworkSubmission[]
+
+  @@index([studentId, status])
+  @@map("homework_assignments")
+}
+
+model HomeworkSubmission {
+  id          String             @id @default(uuid())
+  homeworkId  String             @map("homework_id")
+  content     String?
+  attachmentsJson Json?          @map("attachments_json")
+  submittedAt DateTime           @default(now()) @map("submitted_at")
+  status      String             @default("submitted")
+  homework    HomeworkAssignment @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@map("homework_submissions")
+}
+
+model OnlineStudySession {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  title      String
+  subject    String
+  teacher    String
+  startAt    DateTime @map("start_at")
+  endAt      DateTime @map("end_at")
+  meetingUrl String   @map("meeting_url")
+  status     String   @default("upcoming")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, status])
+  @@map("online_study_sessions")
+}
+
+model MealRegistration {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  date      DateTime @db.Date
+  breakfast String?
+  lunch     String?
+  snack     String?
+  status    String   @default("registered")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, date])
+  @@map("meal_registrations")
+}
+
+model CoinFundTransaction {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  type        String   @default("deposit")
+  amount      Int      @default(0)
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, createdAt])
+  @@map("coin_fund_transactions")
+}
+
+model SchoolEvent {
+  id                   String              @id @default(uuid())
+  title                String
+  description          String
+  startAt              DateTime            @map("start_at")
+  endAt                DateTime            @map("end_at")
+  location             String?
+  registrationDeadline DateTime?           @map("registration_deadline")
+  status               String              @default("open")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  registrations        EventRegistration[]
+
+  @@map("school_events")
+}
+
+model EventRegistration {
+  id           String      @id @default(uuid())
+  eventId      String      @map("event_id")
+  studentId    String      @map("student_id")
+  note         String?
+  registeredAt DateTime    @default(now()) @map("registered_at")
+  event        SchoolEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, studentId])
+  @@map("event_registrations")
+}
+
+model SurveyForm {
+  id          String           @id @default(uuid())
+  title       String
+  description String
+  deadline    DateTime
+  status      String           @default("pending")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  questions   SurveyQuestion[]
+  submissions SurveySubmission[]
+
+  @@map("survey_forms")
+}
+
+model SurveyQuestion {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  type        String     @default("text")
+  content     String
+  optionsJson Json?      @map("options_json")
+  required    Boolean    @default(true)
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_questions")
+}
+
+model SurveySubmission {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  studentId   String     @map("student_id")
+  answersJson Json       @map("answers_json")
+  submittedAt DateTime   @default(now()) @map("submitted_at")
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@unique([surveyId, studentId])
+  @@map("survey_submissions")
+}
+
+model SchoolClub {
+  id            String             @id @default(uuid())
+  name          String
+  description   String
+  teacher       String?
+  schedule      String?
+  location      String?
+  fee           Int                @default(0)
+  status        String             @default("open")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  registrations ClubRegistration[]
+
+  @@map("school_clubs")
+}
+
+model ClubRegistration {
+  id           String     @id @default(uuid())
+  clubId       String     @map("club_id")
+  studentId    String     @map("student_id")
+  note         String?
+  registeredAt DateTime   @default(now()) @map("registered_at")
+  club         SchoolClub @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, studentId])
+  @@map("club_registrations")
+}
+
+model BusRouteInfo {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  routeId       String   @map("route_id")
+  routeName     String   @map("route_name")
+  pickupPoint   String?  @map("pickup_point")
+  dropoffPoint  String?  @map("dropoff_point")
+  pickupTime    String?  @map("pickup_time")
+  dropoffTime   String?  @map("dropoff_time")
+  driverName    String?  @map("driver_name")
+  driverPhone   String?  @map("driver_phone")
+  busPlate      String?  @map("bus_plate")
+  currentLat    Float?   @map("current_lat")
+  currentLng    Float?   @map("current_lng")
+  nextStop      String?  @map("next_stop")
+  estimatedTime String?  @map("estimated_time")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, routeId])
+  @@map("bus_route_infos")
+}
+
+model UniformProduct {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  price     Int      @default(0)
+  sizesJson Json     @map("sizes_json")
+  imageUrl  String?  @map("image_url")
+  stock     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_products")
+}
+
+model UniformOrder {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  itemsJson   Json     @map("items_json")
+  totalAmount Int      @map("total_amount")
+  status      String   @default("pending")
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_orders")
+}
+
+model AttachmentFile {
+  id        String   @id @default(uuid())
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  mimeType  String   @map("mime_type")
+  size      Int      @default(0)
+  folder    String   @default("attachment")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("attachment_files")
+}
+

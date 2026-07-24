@@ -1,5 +1,5 @@
-import { AdminCommandCenter } from "@/features/admin/components/admin-command-center";
+import { AdminDashboard } from "@/features/dashboard/components/admin-dashboard";
 
 export default function AdminPage() {
-  return <AdminCommandCenter />;
+  return <AdminDashboard />;
 }

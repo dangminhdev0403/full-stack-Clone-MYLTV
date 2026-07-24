@@ -9,6 +9,7 @@ import { UserManagementModule } from './modules/user-management/user-management.
 import { CommunicationModule } from './modules/communication/communication.module';
 import { AcademicsModule } from './modules/academics/academics.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { StudentServicesModule } from './modules/student-services/student-services.module';
 
 @Module({
   imports: [
@@ -18,7 +19,9 @@ import { BillingModule } from './modules/billing/billing.module';
     CommunicationModule,
     AcademicsModule,
     BillingModule,
+    StudentServicesModule,
   ],
+
   controllers: [AppController],
   providers: [
     AppService,

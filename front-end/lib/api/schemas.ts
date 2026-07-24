@@ -78,6 +78,119 @@ export const tuitionListSchema = z.object({
   summary: z.object({ amount_due: z.number().int(), amount_paid: z.number().int(), amount_outstanding: z.number().int() }),
 });
 
+export const notificationItemSchema = z.object({
+  id: z.string(), title: z.string(), sender: z.string(), sent_at: z.string(), content: z.string(),
+  tag: z.string(), is_read: z.boolean(),
+});
+export const notificationListSchema = z.object({
+  items: z.array(notificationItemSchema),
+  pagination: z.object({ page: z.number(), limit: z.number(), total: z.number() }),
+});
+
+export const subjectScoreSchema = z.object({
+  subject_id: z.string(), subject_name: z.string(),
+  oral_scores: z.array(z.number()), fifteen_minute_scores: z.array(z.number()),
+  midterm_score: z.number().nullable(), final_score: z.number().nullable(),
+  average_score: z.number().nullable(), teacher_comment: z.string().nullable(),
+});
+export const studentScoresSchema = z.object({
+  student_id: z.string(), school_year: z.string(), semester: z.string(),
+  subjects: z.array(subjectScoreSchema),
+});
+
+export const rewardDisciplineItemSchema = z.object({
+  id: z.string(), type: z.enum(["reward", "discipline"]), title: z.string(), content: z.string(),
+  date: z.string(), issuer: z.string().nullable(),
+});
+
+export const timetableLessonSchema = z.object({
+  period: z.string(), subject: z.string(), time: z.string(), room: z.string().optional(),
+  teacher: z.string().optional(), status: z.string().optional(),
+});
+export const timetableDaySchema = z.object({
+  day_code: z.string(), date: z.string(), lessons: z.array(timetableLessonSchema),
+});
+export const timetableResponseSchema = z.object({
+  week_start: z.string(), days: z.array(timetableDaySchema),
+});
+
+export const homeworkItemSchema = z.object({
+  id: z.string(), subject: z.string(), title: z.string(), content: z.string(),
+  teacher: z.string(), assigned_at: z.string(), deadline: z.string(),
+  status: z.enum(["pending", "doing", "submitted", "overdue"]),
+  submission_url: z.string().nullable().optional(), submitted_at: z.string().nullable().optional(),
+});
+export const homeworkListSchema = z.object({
+  progress: z.object({ completed: z.number(), total: z.number() }),
+  items: z.array(homeworkItemSchema),
+  pagination: z.object({ page: z.number(), limit: z.number(), total: z.number() }),
+});
+
+export const onlineStudyItemSchema = z.object({
+  id: z.string(), title: z.string(), subject: z.string(), teacher: z.string(),
+  start_at: z.string(), end_at: z.string(), meeting_url: z.string(),
+  status: z.enum(["upcoming", "live", "ended"]),
+});
+
+export const mealItemSchema = z.object({
+  date: z.string(), breakfast: z.string().nullable(), lunch: z.string().nullable(),
+  snack: z.string().nullable(), status: z.enum(["registered", "cancelled", "served"]),
+});
+export const mealsResponseSchema = z.object({
+  registered: z.boolean(), items: z.array(mealItemSchema),
+});
+
+export const coinTransactionSchema = z.object({
+  id: z.string(), type: z.enum(["deposit", "withdraw", "payment", "refund"]),
+  amount: z.number(), description: z.string(), created_at: z.string(),
+});
+export const coinFundResponseSchema = z.object({
+  balance: z.number(), currency: z.string(), transactions: z.array(coinTransactionSchema),
+});
+
+export const eventItemSchema = z.object({
+  id: z.string(), title: z.string(), description: z.string(), start_at: z.string(),
+  end_at: z.string(), location: z.string().nullable(), registration_deadline: z.string().nullable(),
+  status: z.enum(["open", "closed", "joined"]),
+});
+
+export const surveyQuestionSchema = z.object({
+  id: z.string(), type: z.enum(["text", "single_choice", "multiple_choice", "rating"]),
+  content: z.string(), options: z.array(z.string()).optional(), required: z.boolean(),
+});
+export const surveyItemSchema = z.object({
+  id: z.string(), title: z.string(), description: z.string(), deadline: z.string(),
+  status: z.enum(["pending", "submitted", "expired"]), questions: z.array(surveyQuestionSchema),
+});
+
+export const clubItemSchema = z.object({
+  id: z.string(), name: z.string(), description: z.string(), teacher: z.string().nullable(),
+  schedule: z.string().nullable(), location: z.string().nullable(), fee: z.number(),
+  status: z.enum(["open", "joined", "closed"]),
+});
+
+export const busRouteResponseSchema = z.object({
+  route_id: z.string().nullable(), route_name: z.string().nullable(), pickup_point: z.string().nullable(),
+  dropoff_point: z.string().nullable(), pickup_time: z.string().nullable(), dropoff_time: z.string().nullable(),
+  driver_name: z.string().nullable(), driver_phone: z.string().nullable(), bus_plate: z.string().nullable(),
+});
+
+export const busTrackingResponseSchema = z.object({
+  route_id: z.string(), route_name: z.string(), bus_plate: z.string(), driver_name: z.string(),
+  driver_phone: z.string(), current_location: z.object({ lat: z.number(), lng: z.number(), updated_at: z.string() }),
+  next_stop: z.string().nullable(), estimated_arrival_time: z.string().nullable(),
+});
+
+export const uniformItemSchema = z.object({
+  id: z.string(), name: z.string(), category: z.string(), price: z.number(), currency: z.string(),
+  sizes: z.array(z.string()), image_url: z.string().nullable(), stock: z.number(),
+});
+
+export const uploadResponseSchema = z.object({
+  file_id: z.string(), file_name: z.string(), file_url: z.string(), mime_type: z.string(), size: z.number(),
+});
+
+
 export function successSchema<T extends z.ZodType>(data: T) {
   return z.object({ success: z.literal(true), data, meta: z.unknown().optional() });
 }

@@ -84,6 +84,8 @@ Migrate one bounded context at a time:
 
 Each migration must identify owner, public boundary, persistence impact, contract impact, and validation gates.
 
+The first minimal Academics slice is the persisted, read-only current academic year/semester context used by the admin shell. Academic switching and broader attendance/grade/timetable behavior remain out of scope.
+
 ## P5 — Contract Automation
 
 Adopt OpenAPI/generated types only after core endpoints are stable.
