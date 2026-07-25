@@ -42,7 +42,7 @@ export default function ClubsAdminPage() {
               Đang mở đăng ký
             </span>
           </div>
-          <h3 className="text-xl font-bold text-[var(--foreground)]">Câu lạc bộ Bóng Rổ Luong The Vinh (LTV Basketball)</h3>
+          <h3 className="text-xl font-bold text-[var(--foreground)]">Câu lạc bộ Bóng Rổ</h3>
           <p className="text-base text-[var(--secondary)] leading-relaxed">
             Rèn luyện thể lực, kỹ thuật ném bóng, phối hợp đồng đội và tham gia giải đấu giao hữu liên trường.
           </p>

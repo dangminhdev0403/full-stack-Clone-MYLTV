@@ -46,10 +46,10 @@ export default function BusAdminPage() {
           </thead>
           <tbody className="divide-y divide-[var(--outline-variant)] text-sm">
             <tr className="hover:bg-slate-50">
-              <td className="px-5 py-4 font-bold text-[var(--foreground)]">Tuyến 01: Lương Thế Vinh - Hà Đông</td>
+              <td className="px-5 py-4 font-bold text-[var(--foreground)]">Tuyến 01: Hà Đông</td>
               <td className="px-5 py-4 font-mono font-bold text-indigo-700">29B-123.45</td>
               <td className="px-5 py-4 text-[var(--foreground)] font-medium">Nguyễn Văn Tài (0987.654.321)</td>
-              <td className="px-5 py-4 text-[var(--secondary)]">Trạm Phùng Hưng → Cổng Trường LTV</td>
+              <td className="px-5 py-4 text-[var(--secondary)]">Trạm Phùng Hưng → Cổng Trường</td>
               <td className="px-5 py-4 font-bold text-amber-700">06:45 sáng</td>
               <td className="px-5 py-4">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -59,10 +59,10 @@ export default function BusAdminPage() {
               </td>
             </tr>
             <tr className="hover:bg-slate-50">
-              <td className="px-5 py-4 font-bold text-[var(--foreground)]">Tuyến 02: Lương Thế Vinh - Cầu Giấy</td>
+              <td className="px-5 py-4 font-bold text-[var(--foreground)]">Tuyến 02: Cầu Giấy</td>
               <td className="px-5 py-4 font-mono font-bold text-indigo-700">29B-678.90</td>
               <td className="px-5 py-4 text-[var(--foreground)] font-medium">Lê Hoàng Nam (0912.345.678)</td>
-              <td className="px-5 py-4 text-[var(--secondary)]">Công viên Cầu Giấy → Cổng Trường LTV</td>
+              <td className="px-5 py-4 text-[var(--secondary)]">Công viên Cầu Giấy → Cổng Trường</td>
               <td className="px-5 py-4 font-bold text-amber-700">06:40 sáng</td>
               <td className="px-5 py-4">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">

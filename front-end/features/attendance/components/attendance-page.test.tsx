@@ -123,7 +123,7 @@ describe("AttendancePage", () => {
           avatar_url: null,
           grade: "6",
           class_name: "6A1",
-          school_name: "Lương Thế Vinh",
+          school_name: "Sổ Liên Lạc Điện Tử",
           is_active: true,
           created_at: "2026-07-18T00:00:00.000Z",
           updated_at: "2026-07-18T00:00:00.000Z",

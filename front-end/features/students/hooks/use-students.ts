@@ -1,9 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { listStudents } from "../service/students.client";
 import { studentResource } from "../service/students.resource";
 
 const students = studentResource.bind();
 
-type StudentListResult = Awaited<ReturnType<typeof students.queries.list.options>> extends { queryFn?: (...args: unknown[]) => infer R } ? Awaited<R> : unknown;
+type StudentListResult = Awaited<ReturnType<typeof listStudents>>;
 
 export function useStudentsQuery(
   query = "",

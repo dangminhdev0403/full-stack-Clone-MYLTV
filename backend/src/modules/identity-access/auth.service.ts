@@ -111,10 +111,20 @@ export class AuthService {
   private async issueTokens(
     account: AccountWithPermissions,
   ): Promise<RefreshTokenResponseDto> {
+    let activeStudentId: string | null = null;
+    if (account.role === 'parent' || account.role === 'student') {
+      const link = await this.prisma.studentAccountLink.findFirst({
+        where: { accountId: account.id, isActive: true },
+        select: { studentId: true },
+      });
+      activeStudentId = link?.studentId ?? null;
+    }
+
     const access_token = await this.authTokenService.issueAccessToken({
       id: account.id,
       username: account.username,
       role: account.role,
+      activeStudentId,
     });
 
     const refresh_token = randomBytes(32).toString('base64url');

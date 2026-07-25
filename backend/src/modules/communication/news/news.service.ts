@@ -347,7 +347,7 @@ export class NewsService {
     return {
       id: news.id,
       source: 'SLLĐT',
-      author_name: 'Lương Thế Vinh',
+      author_name: 'Sổ Liên Lạc Điện Tử',
       title: news.title,
       summary: news.summary,
       content: news.content,

@@ -1,6 +1,6 @@
 # School API Contract Sync Package
 
-Shared API contract package for the Luong The Vinh school app/backend project.
+Shared API contract package for the Sổ Liên Lạc Điện Tử school app/backend project.
 
 This package lets clients synchronize without importing backend source. `openapi/v1/openapi.json` is authoritative; `openapi.yaml` and root `share_api.json` are compatibility mirrors verified for status drift.
 

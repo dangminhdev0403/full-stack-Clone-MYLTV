@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
 import {
   CreateHomeworkDto,
   SaveTimetableDto,
@@ -7,6 +8,7 @@ import {
   TimetableHomeworkService,
 } from './timetable-homework.service';
 
+@SkipAuthorization()
 @Controller('api/v1/students')
 export class AppTimetableHomeworkController {
   constructor(private readonly service: TimetableHomeworkService) {}

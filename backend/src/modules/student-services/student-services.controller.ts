@@ -3,15 +3,16 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import { RequireRole } from '../../common/auth/require-role.decorator';
+import { SkipAuthorization } from '../../common/auth/skip-authorization.decorator';
 import { StudentServicesService } from './student-services.service';
 
+@SkipAuthorization()
 @Controller('api/v1')
 export class StudentServicesController {
   constructor(private readonly services: StudentServicesService) {}

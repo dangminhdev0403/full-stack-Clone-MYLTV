@@ -83,7 +83,7 @@ describe("StudentsPage", () => {
 function student(overrides: Record<string, unknown> = {}) {
   return {
     id: "student-1", code: "HS001", full_name: "Nguyễn Minh Anh", avatar_url: null,
-    grade: "10", class_name: "10A1", school_name: "Lương Thế Vinh", is_active: true,
+    grade: "10", class_name: "10A1", school_name: "Sổ Liên Lạc Điện Tử", is_active: true,
     created_at: "2026-07-15T00:00:00.000Z", updated_at: "2026-07-16T00:00:00.000Z", ...overrides,
   };
 }

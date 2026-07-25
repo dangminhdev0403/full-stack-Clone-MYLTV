@@ -66,6 +66,9 @@ export class AttendanceController {
   }
 }
 
+import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
+
+@SkipAuthorization()
 @Controller('api/v1/home/attendance')
 export class AppAttendanceController {
   constructor(private readonly attendance: AttendanceService) {}
@@ -78,6 +81,7 @@ export class AppAttendanceController {
   }
 }
 
+@SkipAuthorization()
 @Controller('api/v1/students')
 export class StudentAttendanceController {
   constructor(private readonly attendance: AttendanceService) {}

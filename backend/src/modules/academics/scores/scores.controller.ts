@@ -1,11 +1,13 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
 import {
   SaveRewardDisciplineDto,
   SaveScoreDto,
   ScoresService,
 } from './scores.service';
 
+@SkipAuthorization()
 @Controller('api/v1/students')
 export class AppScoresController {
   constructor(private readonly scoresService: ScoresService) {}

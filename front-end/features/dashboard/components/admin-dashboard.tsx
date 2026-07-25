@@ -30,9 +30,19 @@ export function AdminDashboard() {
   </AdminShell>;
 }
 
-type SummaryCardProps = { title: string; icon: string; href: string; value?: number; isPending: boolean; isError: boolean; errorMessage: string; retryLabel: string; onRetry: () => void };
+type SummaryCardProps = Readonly<{
+  title: string;
+  icon: string;
+  href: string;
+  value?: number;
+  isPending: boolean;
+  isError: boolean;
+  errorMessage: string;
+  retryLabel: string;
+  onRetry: () => void;
+}>;
 
-function SummaryCard({ title, icon, href, value, isPending, isError, errorMessage, retryLabel, onRetry }: SummaryCardProps) {
+function SummaryCard({ title, icon, href, value, isPending, isError, errorMessage, retryLabel, onRetry }: Readonly<SummaryCardProps>) {
   return <article className="rounded-xl border border-[var(--outline-variant)] bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-shadow hover:shadow-md">
     <div className="flex items-start justify-between"><div><p className="text-sm font-medium text-[var(--secondary)]">{title}</p>{!isPending && !isError ? <p className="mt-1 text-3xl font-bold leading-10 tracking-[-0.02em]">{value ?? 0}</p> : null}</div><span className="grid size-11 place-items-center rounded-lg bg-[var(--primary-fixed)] text-[var(--primary)]"><Icon name={icon} /></span></div>
     {isPending ? <div role="status" className="mt-3"><span className="sr-only">Đang tải...</span><div className="h-10 w-24 animate-pulse rounded-lg bg-[var(--surface-container)]" /></div> : null}

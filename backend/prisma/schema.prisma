@@ -156,7 +156,7 @@ model Student {
   avatarUrl         String?                  @map("avatar_url")
   grade             String?
   className         String                   @map("class_name")
-  schoolName        String                   @default("Truong THPT & THCS Luong The Vinh") @map("school_name")
+  schoolName        String                   @default("Sổ Liên Lạc Điện Tử") @map("school_name")
   isActive          Boolean                  @default(true) @map("is_active")
   dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
   gender            StudentGender?

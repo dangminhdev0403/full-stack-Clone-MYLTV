@@ -115,7 +115,7 @@ function studentRecord() {
     avatarUrl: null,
     grade: '10',
     className: '10A1',
-    schoolName: 'Luong The Vinh',
+    schoolName: 'Sổ Liên Lạc Điện Tử',
     isActive: true,
     createdAt: now,
     updatedAt: now,

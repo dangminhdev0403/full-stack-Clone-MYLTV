@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "So lien lac dien tu Luong The Vinh API",
+    "title": "So lien lac dien tu API",
     "version": "1.0.0",
     "description": "Authoritative versioned contract. Every operation is explicitly classified as implemented or planned; planned does not imply a live backend route."
   },
@@ -11888,7 +11888,7 @@
           },
           "school_name": {
             "type": "string",
-            "example": "Truong THPT & THCS Luong The Vinh"
+            "example": "So lien lac dien tu"
           }
         },
         "required": [
@@ -12069,7 +12069,7 @@
           },
           "author_name": {
             "type": "string",
-            "example": "Lương Thế Vinh"
+            "example": "Sổ Liên Lạc Điện Tử"
           }
         }
       },

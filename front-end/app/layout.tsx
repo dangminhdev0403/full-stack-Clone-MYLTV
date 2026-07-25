@@ -28,6 +28,7 @@ export default function RootLayout({
     <html
       lang="vi"
       className={`${beVietnam.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +40,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full"><AppProviders>{children}</AppProviders></body>
+      <body className="min-h-full" suppressHydrationWarning>
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

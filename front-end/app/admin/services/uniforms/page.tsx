@@ -37,7 +37,7 @@ export default function UniformsAdminPage() {
           <span className="px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
             Áo sơ mi
           </span>
-          <h3 className="text-xl font-bold text-[var(--foreground)]">Áo sơ mi đồng phục Luong The Vinh (Nam/Nữ)</h3>
+          <h3 className="text-xl font-bold text-[var(--foreground)]">Áo sơ mi đồng phục (Nam/Nữ)</h3>
           <p className="text-base font-bold text-indigo-700">180,000 VNĐ</p>
           <p className="text-sm text-[var(--secondary)]">Kích cỡ sẵn có: S, M, L, XL, XXL</p>
           <div className="pt-3 border-t border-[var(--outline-variant)] flex items-center justify-between text-sm">

@@ -224,7 +224,7 @@ function student() {
     avatar_url: null,
     grade: "10",
     class_name: "10A1",
-    school_name: "Lương Thế Vinh",
+    school_name: "Sổ Liên Lạc Điện Tử",
     is_active: true,
     date_of_birth: "2011-06-16",
     gender: "male" as const,

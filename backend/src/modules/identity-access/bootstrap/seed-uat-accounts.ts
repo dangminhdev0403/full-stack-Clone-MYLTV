@@ -6,6 +6,7 @@ const roleSeeds: Array<{
   username: string;
   displayName: string;
   role: AccountRole;
+  customPassword?: string;
   permissionKeys: PermissionKey[];
   studentCode?: string;
   relationship?: 'guardian' | 'student';
@@ -38,7 +39,36 @@ const roleSeeds: Array<{
     username: 'uat-parent',
     displayName: 'UAT Parent',
     role: 'parent',
-    permissionKeys: ['identity.me.read', 'identity.accounts.switch'],
+    permissionKeys: [
+      'identity.me.read',
+      'identity.accounts.switch',
+      'identity.password.change',
+      'identity.sessions.revoke',
+      'students.read',
+      'academics.context.read',
+      'academics.attendance.read',
+      'billing.tuition.read',
+      'communication.news.read',
+    ],
+    studentCode: 'UAT-HS-001',
+    relationship: 'guardian',
+  },
+  {
+    username: 'a123456',
+    displayName: 'Phụ huynh a123456',
+    role: 'parent',
+    customPassword: 'a123456',
+    permissionKeys: [
+      'identity.me.read',
+      'identity.accounts.switch',
+      'identity.password.change',
+      'identity.sessions.revoke',
+      'students.read',
+      'academics.context.read',
+      'academics.attendance.read',
+      'billing.tuition.read',
+      'communication.news.read',
+    ],
     studentCode: 'UAT-HS-001',
     relationship: 'guardian',
   },
@@ -46,7 +76,17 @@ const roleSeeds: Array<{
     username: 'uat-student',
     displayName: 'UAT Student',
     role: 'student',
-    permissionKeys: ['identity.me.read', 'identity.accounts.switch'],
+    permissionKeys: [
+      'identity.me.read',
+      'identity.accounts.switch',
+      'identity.password.change',
+      'identity.sessions.revoke',
+      'students.read',
+      'academics.context.read',
+      'academics.attendance.read',
+      'billing.tuition.read',
+      'communication.news.read',
+    ],
     studentCode: 'UAT-HS-001',
     relationship: 'student',
   },
@@ -59,8 +99,11 @@ export async function seedUatAccounts(
   if (password.length < 12) {
     throw new Error('UAT_ACCOUNT_PASSWORD must contain at least 12 characters');
   }
-  const passwordHash = await hash(password, 12);
+  const defaultPasswordHash = await hash(password, 12);
   for (const seed of roleSeeds) {
+    const passwordHash = seed.customPassword
+      ? await hash(seed.customPassword, 12)
+      : defaultPasswordHash;
     const permissionKeys =
       seed.role === 'super_admin'
         ? (await prisma.permission.findMany({ select: { key: true } })).map(

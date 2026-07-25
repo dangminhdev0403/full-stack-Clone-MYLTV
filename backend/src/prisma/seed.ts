@@ -60,6 +60,7 @@ async function seedUatStudents(prisma: PrismaClient): Promise<void> {
         fullName,
         grade,
         className,
+        schoolName: 'Sổ Liên Lạc Điện Tử',
         isActive,
         dateOfBirth: new Date(`${birthDate}T00:00:00.000Z`),
         gender,
@@ -75,7 +76,7 @@ async function seedUatStudents(prisma: PrismaClient): Promise<void> {
         grade,
         className,
         isActive,
-        schoolName: 'Trường THPT & THCS Lương Thế Vinh',
+        schoolName: 'Sổ Liên Lạc Điện Tử',
         dateOfBirth: new Date(`${birthDate}T00:00:00.000Z`),
         gender,
         ethnicity: 'Kinh',
@@ -221,7 +222,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     update: {
       title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
       summary:
-        'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
+        'Sổ Liên Lạc Điện Tử trang trọng tổ chức lễ khai giảng năm học mới.',
       content:
         'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
       category: 'Sự kiện',
@@ -234,7 +235,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       id: 'news-sample-1',
       title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
       summary:
-        'Trường THPT & THCS Lương Thế Vinh trang trọng tổ chức lễ khai giảng năm học mới.',
+        'Sổ Liên Lạc Điện Tử trang trọng tổ chức lễ khai giảng năm học mới.',
       content:
         'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
       category: 'Sự kiện',
@@ -251,7 +252,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
       summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
       content:
-        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
+        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng Sổ Liên Lạc Điện Tử.',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
@@ -263,7 +264,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
       summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
       content:
-        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng MyLTV.',
+        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng Sổ Liên Lạc Điện Tử.',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
@@ -350,7 +351,7 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
   await prisma.schoolEvent.upsert({
     where: { id: 'event-sample-1' },
     update: {
-      title: 'Hội Thao Học Sinh Lương Thế Vinh 2026',
+      title: 'Hội Thao Học Sinh 2026',
       description: 'Giải thi đấu bóng đá, cầu lông và điền kinh toàn trường.',
       startAt: new Date('2026-10-10T08:00:00Z'),
       endAt: new Date('2026-10-12T17:00:00Z'),
@@ -359,7 +360,7 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
     },
     create: {
       id: 'event-sample-1',
-      title: 'Hội Thao Học Sinh Lương Thế Vinh 2026',
+      title: 'Hội Thao Học Sinh 2026',
       description: 'Giải thi đấu bóng đá, cầu lông và điền kinh toàn trường.',
       startAt: new Date('2026-10-10T08:00:00Z'),
       endAt: new Date('2026-10-12T17:00:00Z'),
@@ -403,7 +404,7 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
     update: {
       routeName: 'Tuyến Bus 01 - Thanh Xuân - Cầu Giấy',
       pickupPoint: '128 Nguyễn Trãi',
-      dropoffPoint: 'Cổng Trường Lương Thế Vinh',
+      dropoffPoint: 'Cổng Trường',
       pickupTime: '06:45',
       dropoffTime: '17:15',
       driverName: 'Bác Bùi Văn Thắng',
@@ -419,7 +420,7 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
       routeId: 'route-01',
       routeName: 'Tuyến Bus 01 - Thanh Xuân - Cầu Giấy',
       pickupPoint: '128 Nguyễn Trãi',
-      dropoffPoint: 'Cổng Trường Lương Thế Vinh',
+      dropoffPoint: 'Cổng Trường',
       pickupTime: '06:45',
       dropoffTime: '17:15',
       driverName: 'Bác Bùi Văn Thắng',

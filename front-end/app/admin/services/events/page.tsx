@@ -23,7 +23,7 @@ export default function EventsAdminPage() {
     description: "",
     start_at: "2026-06-20T08:30",
     end_at: "2026-06-20T11:30",
-    location: "Hội trường A - Lương Thế Vinh",
+    location: "Hội trường A",
     registration_deadline: "2026-06-18T17:00",
   });
 
@@ -38,7 +38,7 @@ export default function EventsAdminPage() {
         setEvents([
           {
             id: "evt-01",
-            title: "Ngày hội STEM & Khoa học Luong The Vinh 2026",
+            title: "Ngày hội STEM & Khoa học 2026",
             description: "Triển lãm sản phẩm sáng tạo robot, mô hình toán học và thí nghiệm hóa học của học sinh các khối.",
             start_at: new Date(Date.now() + 86400000 * 3).toISOString(),
             end_at: new Date(Date.now() + 86400000 * 3 + 10800000).toISOString(),
@@ -48,7 +48,7 @@ export default function EventsAdminPage() {
           },
           {
             id: "evt-02",
-            title: "Giải bóng đá học sinh Luong The Vinh Cup",
+            title: "Giải bóng đá học sinh Cup",
             description: "Giải đấu giao hữu giữa các lớp khối 10 và khối 11 tranh cúp vô địch nhà trường.",
             start_at: new Date(Date.now() + 86400000 * 7).toISOString(),
             end_at: new Date(Date.now() + 86400000 * 7 + 14400000).toISOString(),
@@ -62,7 +62,7 @@ export default function EventsAdminPage() {
       setEvents([
         {
           id: "evt-01",
-          title: "Ngày hội STEM & Khoa học Luong The Vinh 2026",
+          title: "Ngày hội STEM & Khoa học 2026",
           description: "Triển lãm sản phẩm sáng tạo robot, mô hình toán học và thí nghiệm hóa học của học sinh các khối.",
           start_at: new Date(Date.now() + 86400000 * 3).toISOString(),
           end_at: new Date(Date.now() + 86400000 * 3 + 10800000).toISOString(),
@@ -99,7 +99,7 @@ export default function EventsAdminPage() {
       description: "",
       start_at: "2026-06-20T08:30",
       end_at: "2026-06-20T11:30",
-      location: "Hội trường A - Lương Thế Vinh",
+      location: "Hội trường A",
       registration_deadline: "2026-06-18T17:00",
     });
   };

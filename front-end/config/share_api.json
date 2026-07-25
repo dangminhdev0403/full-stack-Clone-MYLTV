@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "project": "So lien lac dien tu Luong The Vinh",
+  "project": "So lien lac dien tu",
   "base_url": "{{BASE_URL}}/api/v1",
   "updated_at": "2026-07-24",
   "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json.",
