@@ -60,6 +60,13 @@ async function action(id: string, name: "publish" | "hide" | "pin" | "reorder", 
   return mutation(`/api/admin/news/${encodeURIComponent(id)}/${name}`, "POST", payload);
 }
 
+export async function deleteNews(id: string): Promise<void> {
+  const response = await fetch(`/api/admin/news/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!response.ok) {
+    throw new Error("Failed to delete news");
+  }
+}
+
 async function mutation(path: string, method: "POST" | "PATCH", payload?: unknown): Promise<NewsItem> {
   const response = await fetch(path, {
     method,

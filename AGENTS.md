@@ -24,17 +24,20 @@ Do not load every markdown file by default. Load only the architecture entry poi
 - Future-ready direction: may later integrate as a product module, backend microservice, or frontend surface inside a larger system.
 - Keep the monolith simple, but keep frontend/backend/API boundaries explicit.
 
-## Hard Rules
+## Enforceable Coding Rules
 
 - Do not create architecture docs outside `Architecture/`.
-- Do not modify `package.json` unless explicitly approved by the user.
-- Do not add dependencies unless explicitly approved by the user.
-- For frontend client server-state, use `@dangminhdev04032005/query-resource`: repository → resource → feature hook → component. Do not write raw TanStack Query `queryKey`/`queryFn`/`mutationFn` configurations in pages or feature hooks. Raw hooks consume resource-generated options; the application `QueryClient` provider is exempt.
+- Do not modify `package.json` or add dependencies unless explicitly approved by the user.
+- Frontend server-state pattern is mandatory: `repository/client → resource (@dangminhdev04032005/query-resource) → feature hook → component`.
+- Do not use direct `useEffect + fetch` in pages or components to fetch/mutate server data.
+- Do not write raw TanStack Query `queryKey`/`queryFn`/`mutationFn` configurations in pages or feature hooks.
+- Do not use fallback mock data on API errors. Always handle loading, empty, error, and retry states explicitly.
+- All frontend admin operations must call Next BFF `/api/admin/...`, never direct `/api/v1/...`.
+- Frontend must not import backend source files directly; backend must not depend on frontend code.
+- External API contracts use `snake_case` and standard envelope `{ success, data, meta }`.
+- Every API change must sync `openapi.json`, `openapi.yaml`, `share_api.json`, `API_CATALOG.md`, `IMPLEMENTATION_STATUS.md`, and `CONTRACT_CHANGES.md`.
+- Mark endpoints `implemented` only when backend route, DTO validation, authorization, response contract, and tests are complete.
 - Do not write secrets, tokens, passwords, API keys, or connection strings into docs or code.
-- Frontend must not import backend source files directly.
-- Backend must not depend on frontend implementation details.
-- API behavior changes must update `share_api.json` or the future contract source in the same task.
-- Mock data must stay clearly isolated and replaceable by API-backed services.
 
 ## Before Final Report
 

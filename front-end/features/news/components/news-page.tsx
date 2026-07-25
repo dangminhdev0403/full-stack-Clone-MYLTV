@@ -10,6 +10,7 @@ import {
 } from "../service/news.client";
 import {
   useCreateNewsMutation,
+  useDeleteNewsMutation,
   useHideNewsMutation,
   useNewsQuery,
   usePinNewsMutation,
@@ -72,12 +73,30 @@ export function NewsPage() {
     },
   };
 
+  const deleteMutation = useDeleteNewsMutation();
+
+  const handleDelete = (id: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa tin tức này?")) {
+      deleteMutation.mutate(
+        { id },
+        {
+          onSuccess: () => {
+            setActionError("");
+            setFeedback("Đã xóa tin tức.");
+          },
+          onError: (error) => setActionError(errorMessage(error)),
+        }
+      );
+    }
+  };
+
   const actionMutation = {
     isPending:
       publishMutation.isPending ||
       hideMutation.isPending ||
       pinMutation.isPending ||
-      reorderMutation.isPending,
+      reorderMutation.isPending ||
+      deleteMutation.isPending,
     mutate: ({
       item,
       action,
@@ -132,14 +151,14 @@ export function NewsPage() {
     <section aria-label="Danh sách tin tức" className="overflow-hidden rounded-xl border bg-white">
       {newsQuery.isPending ? <p className="p-6">Đang tải tin tức...</p> : null}
       {!newsQuery.isPending && !queryError && items.length === 0 ? <p className="p-8 text-center text-slate-500">Chưa có tin tức phù hợp.</p> : null}
-      {items.length > 0 ? <div className="divide-y">{items.map((item) => <NewsRow key={item.id} item={item} canManage={canManage} canPublish={canPublish} pending={actionMutation.isPending} onPreview={setPreview} onEdit={openEdit} onAction={(action, value) => actionMutation.mutate({ item, action, value })} />)}</div> : null}
+      {items.length > 0 ? <div className="divide-y">{items.map((item) => <NewsRow key={item.id} item={item} canManage={canManage} canPublish={canPublish} pending={actionMutation.isPending} onPreview={setPreview} onEdit={openEdit} onDelete={handleDelete} onAction={(action, value) => actionMutation.mutate({ item, action, value })} />)}</div> : null}
     </section>
 
     {preview ? <Preview item={preview} onClose={() => setPreview(null)} /> : null}
   </AdminShell>;
 }
 
-function NewsRow({ item, canManage, canPublish, pending, onPreview, onEdit, onAction }: { item: NewsItem; canManage: boolean; canPublish: boolean; pending: boolean; onPreview: (item: NewsItem) => void; onEdit: (item: NewsItem) => void; onAction: (action: "publish" | "hide" | "pin" | "reorder", value?: boolean | number) => void }) {
+function NewsRow({ item, canManage, canPublish, pending, onPreview, onEdit, onDelete, onAction }: { item: NewsItem; canManage: boolean; canPublish: boolean; pending: boolean; onPreview: (item: NewsItem) => void; onEdit: (item: NewsItem) => void; onDelete: (id: string) => void; onAction: (action: "publish" | "hide" | "pin" | "reorder", value?: boolean | number) => void }) {
   const status = item.status;
   return <article className="grid gap-4 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
     <div>
@@ -156,6 +175,7 @@ function NewsRow({ item, canManage, canPublish, pending, onPreview, onEdit, onAc
       <button type="button" onClick={() => onPreview(item)} className="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-slate-50">Xem trước</button>
       {canManage ? <>
         <button type="button" onClick={() => onEdit(item)} className="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-slate-50">Chỉnh sửa</button>
+        <button type="button" disabled={pending} onClick={() => onDelete(item.id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50">Xóa</button>
         <button type="button" disabled={pending} onClick={() => onAction("pin", !item.is_pinned)} className="rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50">{item.is_pinned ? "Bỏ ghim" : "Ghim tin"}</button>
         <button type="button" disabled={pending || item.sort_order === 0} aria-label="Đưa tin lên" onClick={() => onAction("reorder", Math.max(0, item.sort_order - 1))} className="rounded-lg border px-3 py-2 text-sm font-semibold disabled:opacity-50">↑</button>
         <button type="button" disabled={pending} aria-label="Đưa tin xuống" onClick={() => onAction("reorder", item.sort_order + 1)} className="rounded-lg border px-3 py-2 text-sm font-semibold disabled:opacity-50">↓</button>

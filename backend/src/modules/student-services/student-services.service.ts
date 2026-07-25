@@ -382,4 +382,160 @@ export class StudentServicesService {
       created_at: f.createdAt.toISOString(),
     }));
   }
+
+  async updateAdminFeedbackStatus(id: string, status: string) {
+    const updated = await this.prisma.feedbackItem.update({
+      where: { id },
+      data: { status },
+    });
+    return {
+      id: updated.id,
+      status: updated.status,
+      updated_at: updated.updatedAt.toISOString(),
+    };
+  }
+
+  // Admin Events Management
+  async listAdminEvents(page = 1, pageSize = 20) {
+    const skip = (page - 1) * pageSize;
+    const [items, total] = await Promise.all([
+      this.prisma.schoolEvent.findMany({
+        skip,
+        take: pageSize,
+        orderBy: { startAt: 'desc' },
+        include: { _count: { select: { registrations: true } } },
+      }),
+      this.prisma.schoolEvent.count(),
+    ]);
+
+    return {
+      items: items.map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        start_at: e.startAt.toISOString(),
+        end_at: e.endAt.toISOString(),
+        location: e.location,
+        registration_deadline: e.registrationDeadline?.toISOString() || null,
+        status: e.status,
+        registration_count: e._count.registrations,
+        created_at: e.createdAt.toISOString(),
+      })),
+      page,
+      page_size: pageSize,
+      total,
+      has_next: skip + items.length < total,
+    };
+  }
+
+  async createAdminEvent(body: {
+    title: string;
+    description: string;
+    start_at: string;
+    end_at: string;
+    location?: string;
+    registration_deadline?: string;
+    status?: string;
+  }) {
+    const event = await this.prisma.schoolEvent.create({
+      data: {
+        title: body.title,
+        description: body.description,
+        startAt: new Date(body.start_at),
+        endAt: new Date(body.end_at),
+        location: body.location,
+        registrationDeadline: body.registration_deadline
+          ? new Date(body.registration_deadline)
+          : null,
+        status: body.status || 'open',
+      },
+    });
+
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      start_at: event.startAt.toISOString(),
+      end_at: event.endAt.toISOString(),
+      location: event.location,
+      registration_deadline: event.registrationDeadline?.toISOString() || null,
+      status: event.status,
+      created_at: event.createdAt.toISOString(),
+    };
+  }
+
+  async getAdminEventDetail(id: string) {
+    const event = await this.prisma.schoolEvent.findUnique({
+      where: { id },
+      include: {
+        registrations: true,
+      },
+    });
+    if (!event) throw new Error('Event not found');
+
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      start_at: event.startAt.toISOString(),
+      end_at: event.endAt.toISOString(),
+      location: event.location,
+      registration_deadline: event.registrationDeadline?.toISOString() || null,
+      status: event.status,
+      registrations: event.registrations.map((r) => ({
+        id: r.id,
+        student_id: r.studentId,
+        note: r.note,
+        registered_at: r.registeredAt.toISOString(),
+      })),
+      created_at: event.createdAt.toISOString(),
+    };
+  }
+
+  async updateAdminEvent(
+    id: string,
+    body: {
+      title?: string;
+      description?: string;
+      start_at?: string;
+      end_at?: string;
+      location?: string;
+      registration_deadline?: string;
+      status?: string;
+    },
+  ) {
+    const updated = await this.prisma.schoolEvent.update({
+      where: { id },
+      data: {
+        ...(body.title && { title: body.title }),
+        ...(body.description && { description: body.description }),
+        ...(body.start_at && { startAt: new Date(body.start_at) }),
+        ...(body.end_at && { endAt: new Date(body.end_at) }),
+        ...(body.location !== undefined && { location: body.location }),
+        ...(body.registration_deadline !== undefined && {
+          registrationDeadline: body.registration_deadline
+            ? new Date(body.registration_deadline)
+            : null,
+        }),
+        ...(body.status && { status: body.status }),
+      },
+    });
+
+    return {
+      id: updated.id,
+      title: updated.title,
+      description: updated.description,
+      start_at: updated.startAt.toISOString(),
+      end_at: updated.endAt.toISOString(),
+      location: updated.location,
+      registration_deadline:
+        updated.registrationDeadline?.toISOString() || null,
+      status: updated.status,
+    };
+  }
+
+  async deleteAdminEvent(id: string) {
+    await this.prisma.schoolEvent.delete({ where: { id } });
+    return { deleted: true };
+  }
 }

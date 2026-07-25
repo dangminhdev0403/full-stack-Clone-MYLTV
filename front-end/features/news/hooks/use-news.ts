@@ -22,6 +22,10 @@ export function useUpdateNewsMutation() {
   return useMutation(news.mutations.update.options());
 }
 
+export function useDeleteNewsMutation() {
+  return useMutation(news.mutations.delete.options());
+}
+
 export function usePublishNewsMutation() {
   return useMutation(news.mutations.publish.options());
 }

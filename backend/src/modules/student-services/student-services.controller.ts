@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import { RequireRole } from '../../common/auth/require-role.decorator';
@@ -151,5 +144,67 @@ export class AdminFeedbackController {
   @Get()
   list() {
     return this.services.listAdminFeedback();
+  }
+
+  @Patch(':id')
+  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
+    return this.services.updateAdminFeedbackStatus(id, body.status);
+  }
+}
+
+@Controller('api/v1/admin/events')
+@RequireRole('admin', 'super_admin')
+export class AdminEventsController {
+  constructor(private readonly services: StudentServicesService) {}
+
+  @Get()
+  list(@Query('page') page?: string, @Query('page_size') pageSize?: string) {
+    return this.services.listAdminEvents(
+      page ? parseInt(page, 10) : 1,
+      pageSize ? parseInt(pageSize, 10) : 20,
+    );
+  }
+
+  @Post()
+  create(
+    @Body()
+    body: {
+      title: string;
+      description: string;
+      start_at: string;
+      end_at: string;
+      location?: string;
+      registration_deadline?: string;
+      status?: string;
+    },
+  ) {
+    return this.services.createAdminEvent(body);
+  }
+
+  @Get(':id')
+  detail(@Param('id') id: string) {
+    return this.services.getAdminEventDetail(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      title?: string;
+      description?: string;
+      start_at?: string;
+      end_at?: string;
+      location?: string;
+      registration_deadline?: string;
+      status?: string;
+    },
+  ) {
+    return this.services.updateAdminEvent(id, body);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.services.deleteAdminEvent(id);
   }
 }

@@ -5,6 +5,7 @@ import {
 } from "@dangminhdev04032005/query-resource";
 import {
   createNews,
+  deleteNews,
   getNews,
   hideNews,
   listNews,
@@ -45,6 +46,11 @@ export const newsResource = createResource<void>()({
         { type: "query", operation: "list" },
         { type: "query", operation: "detail" },
       ],
+    }),
+    delete: defineMutation({
+      mutationFn: ({ variables }: { variables: { id: string } }) =>
+        deleteNews(variables.id),
+      invalidates: [{ type: "query", operation: "list" }],
     }),
     publish: defineMutation({
       mutationFn: ({ variables }: { variables: { id: string } }) =>

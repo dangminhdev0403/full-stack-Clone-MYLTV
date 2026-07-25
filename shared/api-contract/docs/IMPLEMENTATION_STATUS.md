@@ -17,14 +17,15 @@ This file tracks backend availability for the draft v1 OpenAPI contract. It is c
 
 | Bounded context | Contract status | Backend implementation status | Frontend guidance |
 | --- | --- | --- | --- |
-| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, and linked-student context are the live scope. |
-| User Management | `contracted` | `implemented` at `/users` | Admin dashboard uses the real `/api/v1/users` controller; `/admin/users` is not advertised as implemented. |
-| Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account replacement are live controller surfaces. Migration files exist, but this document does not claim they were applied to any database. |
-| Communication | `contracted` | `planned` | Visible UI is an explicit backend-not-implemented surface and makes no generic API call. |
-| Academics | `contracted` | `planned` | No backend implementation in the current scope. |
-| Billing | `contracted` | `planned` | No backend implementation in the current scope. |
-| Student Services | `contracted` | `planned` | No backend implementation in the current scope. |
-| Uploads | `contracted` | `planned` | No backend implementation in the current scope. |
+| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, and linked-student context are live scope. |
+| User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
+| Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
+| Communication (News, Notifications, Feedback) | `contracted` | `implemented` | News, notifications, and feedback administrative CRUD & status updates are live. |
+| Academics (Attendance, Scores, Timetable, Homework) | `contracted` | `implemented` | Attendance session marking, score entries, timetable, and homework assignments are live. |
+| Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
+| Student Services (Events) | `contracted` | `implemented` at `/admin/events` | Admin events CRUD and registration tracking are live. Mobile endpoints exist under `/services/events`. |
+| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | `blocked` (for Admin CRUD) | Mobile app endpoints are live. Admin management surfaces display PlannedSurface until full admin API contracts are finalized. |
+| Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
 
 ## Status Change Rule
 

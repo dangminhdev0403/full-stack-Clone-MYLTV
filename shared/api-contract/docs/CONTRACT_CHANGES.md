@@ -1,5 +1,15 @@
 # Contract Changes
 
+## Unreleased - 2026-07-25
+
+- Extended Next.js BFF router (`/api/admin/[resource]/[[...segments]]`) to proxy GET, POST, PUT, PATCH, and DELETE with query parameters, headers, and authentication tokens.
+- Implemented DELETE `/api/v1/admin/news/:id` and integrated confirmation dialog with permission handling and cache invalidation on news management UI.
+- Implemented Admin Events vertical slice (`/api/v1/admin/events`) with CRUD endpoints, pagination, DTO validation, and registration counters.
+- Implemented Admin Feedback status update endpoint (`PATCH /api/v1/admin/feedback/:id`).
+- Converted Notifications, Feedback, Events, and News frontend modules to `@dangminhdev04032005/query-resource` architecture without raw TanStack Query keys or mock data fallbacks.
+- Normalized Admin Dashboard (`/admin`) to fetch real server counts via lightweight GET queries.
+- Replaced un-contracted static mock pages (Meals, Surveys, Clubs, Bus, Uniforms, Reports, System) with `PlannedSurface` to prevent fake button interactions.
+
 ## Unreleased - 2026-07-16
 
 - Implemented the first Academics Attendance vertical slice for administrators:
