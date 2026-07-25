@@ -7,7 +7,7 @@ export const feedbackResource = createResource<void>()({
   scopeKey: () => ["admin"],
   queries: {
     list: defineQuery({
-      inputKey: () => [""],
+      inputKey: (_?: void) => [""],
       queryFn: () => listFeedback(),
     }),
   },

@@ -5,7 +5,7 @@ const academicContext = academicContextResource.bind();
 
 export function useAcademicContextQuery(options?: { enabled?: boolean }) {
   return useQuery({
-    ...academicContext.queries.current.options(undefined),
+    ...academicContext.queries.current.options(),
     enabled: options?.enabled ?? true,
   });
 }

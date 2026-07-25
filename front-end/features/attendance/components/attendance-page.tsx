@@ -142,7 +142,7 @@ export function AttendancePage() {
             period={filters.period}
             created={async () => {
               setFeedback("Đã tạo buổi điểm danh.");
-              await queryClient.invalidateQueries({ queryKey: ["attendance"] });
+              await query.refetch();
             }}
           />
         ) : (

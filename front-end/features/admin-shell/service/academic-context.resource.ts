@@ -10,7 +10,7 @@ export const academicContextResource = createResource<void>()({
   scopeKey: () => ["admin"],
   queries: {
     current: defineQuery({
-      inputKey: () => ["current"],
+      inputKey: (_?: void) => ["current"],
       queryFn: () => getCurrentAcademicContext(),
     }),
   },
