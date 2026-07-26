@@ -19,7 +19,7 @@ export function AdminDashboard() {
   const tuitionQuery = useTuitionListQuery(SUMMARY_QUERY);
   const newsQuery = useNewsQuery("?page=1&page_size=3");
   const notificationsQuery = useNotificationsQuery(SUMMARY_QUERY);
-  const feedbackQuery = useFeedbackQuery();
+  const feedbackQuery = useFeedbackQuery({ page: 1, page_size: 1 });
 
   return (
     <AdminShell
@@ -98,7 +98,7 @@ export function AdminDashboard() {
           title="Phản hồi"
           icon="rate_review"
           href="/admin/feedback"
-          value={feedbackQuery.data?.length}
+          value={feedbackQuery.data?.total}
           isPending={feedbackQuery.isPending}
           isError={feedbackQuery.isError}
           errorMessage="Không thể tải số phản hồi."

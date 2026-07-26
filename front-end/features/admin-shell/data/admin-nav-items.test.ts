@@ -43,6 +43,7 @@ const expectedImplemented = [
   "/admin/tuition",
   "/admin/news",
   "/admin/notifications",
+  "/admin/feedback",
 ];
 const expectedUnavailable = [
   "/admin/grades",
@@ -54,7 +55,6 @@ const expectedUnavailable = [
   "/admin/services/clubs",
   "/admin/services/bus",
   "/admin/services/uniforms",
-  "/admin/feedback",
   "/admin/reports",
   "/admin/system",
 ];
@@ -107,7 +107,6 @@ describe("admin shell navigation metadata", () => {
       "Câu lạc bộ",
       "Xe buýt",
       "Đồng phục",
-      "Phản hồi",
       "Báo cáo",
       "Hệ thống",
     ]);
@@ -153,6 +152,23 @@ describe("admin shell navigation metadata", () => {
       { href: "/admin", label: "Tổng quan" },
       { label: "Báo cáo" },
     ]);
+  });
+
+  it("requires communication feedback read permission for implemented feedback nav", () => {
+    expect(getAdminNavItemByHref("/admin/feedback")).toMatchObject({
+      readiness: "implemented",
+      permission: "communication.feedback.read",
+    });
+    expect(
+      getVisibleAdminNavGroups([], "admin")
+        .flatMap(({ items }) => items)
+        .some(({ href }) => href === "/admin/feedback"),
+    ).toBe(false);
+    expect(
+      getVisibleAdminNavGroups(["communication.feedback.read"], "admin")
+        .flatMap(({ items }) => items)
+        .some(({ href }) => href === "/admin/feedback"),
+    ).toBe(true);
   });
 
   it("resolves nav metadata for every unavailable route", () => {

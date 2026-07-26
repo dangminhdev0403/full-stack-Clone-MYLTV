@@ -59,7 +59,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | --- | --- | --- |
 | `/admin/news` | `GET /home/news` | Publish and display school news. |
 | `GET/POST /admin/notifications`, `GET/PATCH /admin/notifications/{id}` | `GET /notifications`, `GET /notifications/{id}`, `PATCH /notifications/{id}/read` | Validated, permission-protected admin list/detail/create/update and app consumption. |
-| `/admin/feedback` | `POST /feedback` | Review and submit feedback. |
+| `GET /admin/feedback`, `GET/PATCH /admin/feedback/{id}` | `POST /feedback` | Validated, permission-protected admin list/detail/status processing with search, status filter, pagination, and atomic audit. Admin create is planned; app submit remains legacy/partial. |
 
 ### Academics
 

@@ -4,6 +4,8 @@ import { IdentityAccessModule } from '../identity-access/identity-access.module'
 import { StudentAdministrationModule } from '../student-administration/student-administration.module';
 import { AdminNewsController, AppNewsController } from './news/news.controller';
 import { NewsService } from './news/news.service';
+import { AdminFeedbackController } from './feedback/feedback.controller';
+import { FeedbackService } from './feedback/feedback.service';
 import {
   AdminNotificationsController,
   AppNotificationsController,
@@ -15,10 +17,11 @@ import { NotificationsService } from './notifications/notifications.service';
   controllers: [
     AdminNewsController,
     AppNewsController,
+    AdminFeedbackController,
     AdminNotificationsController,
     AppNotificationsController,
   ],
-  providers: [NewsService, NotificationsService],
-  exports: [NewsService, NotificationsService],
+  providers: [NewsService, FeedbackService, NotificationsService],
+  exports: [NewsService, FeedbackService, NotificationsService],
 })
 export class CommunicationModule {}

@@ -314,7 +314,7 @@
       "path": "/admin/feedback",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "communication",
@@ -323,7 +323,7 @@
       "path": "/admin/feedback/{id}",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "communication",
@@ -332,7 +332,7 @@
       "path": "/admin/feedback/{id}",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
@@ -929,7 +929,7 @@
       "path": "/feedback",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",

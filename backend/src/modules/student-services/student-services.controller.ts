@@ -12,7 +12,10 @@ import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import { RequireRole } from '../../common/auth/require-role.decorator';
 import { SkipAuthorization } from '../../common/auth/skip-authorization.decorator';
-import { StudentServicesService } from './student-services.service';
+import {
+  StudentServicesService,
+  type SubmitFeedbackDto,
+} from './student-services.service';
 
 @SkipAuthorization()
 @Controller('api/v1')
@@ -138,26 +141,10 @@ export class StudentServicesController {
   // Feedback
   @Post('feedback')
   submitFeedback(
-    @Body() body: any,
+    @Body() body: SubmitFeedbackDto,
     @CurrentUser() actor: AuthenticatedUser | undefined,
   ) {
     return this.services.submitFeedback(body, actor?.id);
-  }
-}
-
-@Controller('api/v1/admin/feedback')
-@RequireRole('admin', 'super_admin')
-export class AdminFeedbackController {
-  constructor(private readonly services: StudentServicesService) {}
-
-  @Get()
-  list() {
-    return this.services.listAdminFeedback();
-  }
-
-  @Patch(':id')
-  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
-    return this.services.updateAdminFeedbackStatus(id, body.status);
   }
 }
 

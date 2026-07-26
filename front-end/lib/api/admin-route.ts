@@ -32,7 +32,7 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   }
   if (resource === "feedback") {
     if (segments.length === 0 && method === "GET") return "/api/v1/admin/feedback";
-    if (segments.length === 1 && id && method === "PATCH") return `/api/v1/admin/feedback/${id}`;
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/feedback/${id}`;
   }
   if (resource === "events") {
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/events";

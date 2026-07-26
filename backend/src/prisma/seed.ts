@@ -382,7 +382,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       content:
         'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
       category: 'Bán trú',
-      status: 'received',
+      status: 'new',
     },
     create: {
       id: 'feedback-sample-1',
@@ -390,7 +390,7 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
       content:
         'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
       category: 'Bán trú',
-      status: 'received',
+      status: 'new',
     },
   });
 }

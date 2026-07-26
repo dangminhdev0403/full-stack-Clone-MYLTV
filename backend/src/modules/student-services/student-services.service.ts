@@ -367,35 +367,6 @@ export class StudentServicesService {
     };
   }
 
-  async listAdminFeedback() {
-    const items = await this.prisma.feedbackItem.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return items.map((f) => ({
-      id: f.id,
-      student_id: f.studentId,
-      account_id: f.accountId,
-      title: f.title,
-      content: f.content,
-      category: f.category,
-      status: f.status,
-      created_at: f.createdAt.toISOString(),
-    }));
-  }
-
-  async updateAdminFeedbackStatus(id: string, status: string) {
-    const updated = await this.prisma.feedbackItem.update({
-      where: { id },
-      data: { status },
-    });
-    return {
-      id: updated.id,
-      status: updated.status,
-      updated_at: updated.updatedAt.toISOString(),
-    };
-  }
-
-  // Admin Events Management
   async listAdminEvents(page = 1, pageSize = 20) {
     const skip = (page - 1) * pageSize;
     const [items, total] = await Promise.all([

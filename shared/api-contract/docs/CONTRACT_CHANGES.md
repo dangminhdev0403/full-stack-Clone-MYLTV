@@ -2,6 +2,8 @@
 
 ## Unreleased - 2026-07-26
 
+- Completed Feedback admin list/detail/status update with validated DTOs, dedicated read/manage permissions, atomic status-update audit, search/status filtering, pagination, BFF routes, permission-aware management UI, and backend/frontend tests. Admin create is explicitly planned; app submit remains legacy/partial.
+- Added dedicated `AdminFeedbackItem`, `AdminFeedbackList`, and `AdminFeedbackStatusUpdate` schemas; removed the untrusted `student_id` admin-list query, normalized legacy `received`/`closed` data to `new`/`resolved`, and synchronized canonical JSON/YAML plus root/frontend mirrors.
 - Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
 - Added `x-required-permission` metadata for admin/app Notifications operations; app reads derive linked-student scope only from the authenticated actor, admin mutations write their audit event in the same transaction, and canonical JSON/YAML plus root/frontend mirrors stay synchronized.
 

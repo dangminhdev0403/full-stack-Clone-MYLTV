@@ -2452,8 +2452,10 @@
             "name": "page",
             "in": "query",
             "required": false,
+            "description": "Page number.",
             "schema": {
               "type": "integer",
+              "minimum": 1,
               "default": 1
             }
           },
@@ -2461,8 +2463,11 @@
             "name": "page_size",
             "in": "query",
             "required": false,
+            "description": "Items per page.",
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
               "default": 20
             }
           },
@@ -2470,16 +2475,23 @@
             "name": "q",
             "in": "query",
             "required": false,
+            "description": "Search title, content, or category.",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "student_id",
+            "name": "status",
             "in": "query",
             "required": false,
+            "description": "Filter by processing status.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "new",
+                "in_progress",
+                "resolved"
+              ]
             }
           }
         ],
@@ -2497,25 +2509,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/Feedback"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/AdminFeedbackList"
                         }
                       },
                       "required": [
@@ -2546,12 +2540,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "implemented"
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.feedback.read"
       },
       "post": {
         "tags": [
@@ -2620,12 +2614,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned",
+        "x-required-permission": "communication.feedback.manage"
       }
     },
     "/admin/feedback/{id}": {
@@ -2665,7 +2659,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/Feedback"
+                          "$ref": "#/components/schemas/AdminFeedbackItem"
                         }
                       },
                       "required": [
@@ -2696,12 +2690,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.feedback.read"
       },
       "patch": {
         "tags": [
@@ -2730,7 +2724,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Feedback"
+                "$ref": "#/components/schemas/AdminFeedbackStatusUpdate"
               }
             }
           }
@@ -2749,7 +2743,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/Feedback"
+                          "$ref": "#/components/schemas/AdminFeedbackItem"
                         }
                       },
                       "required": [
@@ -2780,12 +2774,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.feedback.manage"
       }
     },
     "/admin/academic-context/current": {
@@ -8708,7 +8702,7 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       }
     },
     "/home/attendance/today": {
@@ -14113,6 +14107,114 @@
             }
           }
         }
+      },
+      "AdminFeedbackItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "account_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "resolved"
+            ]
+          },
+          "attachments": {
+            "type": "array",
+            "items": {}
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "student_id",
+          "account_id",
+          "title",
+          "content",
+          "category",
+          "status",
+          "attachments",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "AdminFeedbackList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminFeedbackItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total",
+          "has_next"
+        ]
+      },
+      "AdminFeedbackStatusUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "resolved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
       }
     }
   }

@@ -19,7 +19,7 @@ const roleSeeds: Array<{
   },
   {
     username: 'uat-admin',
-    displayName: 'UAT Billing Admin',
+    displayName: 'UAT Admin',
     role: 'admin',
     permissionKeys: [
       'identity.me.read',
@@ -27,6 +27,8 @@ const roleSeeds: Array<{
       'students.read',
       'billing.tuition.read',
       'billing.tuition.manage',
+      'communication.feedback.read',
+      'communication.feedback.manage',
     ],
   },
   {

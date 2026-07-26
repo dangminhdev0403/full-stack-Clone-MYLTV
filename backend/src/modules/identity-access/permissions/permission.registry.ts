@@ -132,6 +132,20 @@ export const PERMISSIONS = [
     risk: 'critical',
   },
   {
+    key: 'communication.feedback.read',
+    label: 'Read feedback',
+    description: 'Read administrative feedback views.',
+    boundedContext: 'Communication',
+    risk: 'medium',
+  },
+  {
+    key: 'communication.feedback.manage',
+    label: 'Manage feedback',
+    description: 'Update feedback workflow status.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
+  {
     key: 'communication.notifications.read',
     label: 'Read notifications',
     description: 'Read app and administrative notification views.',

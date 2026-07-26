@@ -15,12 +15,21 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("notifications", ["notification-1"], "PATCH")).toBe("/api/v1/admin/notifications/notification-1");
   });
 
-  it("allows attendance and tuition domain routes", () => {
+  it("allows attendance, tuition and feedback domain routes", () => {
     expect(resolveAdminEndpoint("attendance", [], "GET")).toBe("/api/v1/admin/attendance");
     expect(resolveAdminEndpoint("tuition", [], "GET")).toBe("/api/v1/admin/tuition");
     expect(resolveAdminEndpoint("tuition", [], "POST")).toBe("/api/v1/admin/tuition");
     expect(resolveAdminEndpoint("tuition", ["charge-1"], "GET")).toBe("/api/v1/admin/tuition/charge-1");
     expect(resolveAdminEndpoint("tuition", ["charge-1"], "PATCH")).toBe("/api/v1/admin/tuition/charge-1");
+    expect(resolveAdminEndpoint("feedback", [], "GET")).toBe("/api/v1/admin/feedback");
+    expect(resolveAdminEndpoint("feedback", ["feedback-1"], "GET")).toBe("/api/v1/admin/feedback/feedback-1");
+    expect(resolveAdminEndpoint("feedback", ["feedback-1"], "PATCH")).toBe("/api/v1/admin/feedback/feedback-1");
+  });
+
+  it("rejects unsupported feedback methods and nested segments", () => {
+    expect(() => resolveAdminEndpoint("feedback", [], "POST")).toThrow();
+    expect(() => resolveAdminEndpoint("feedback", ["feedback-1"], "DELETE")).toThrow();
+    expect(() => resolveAdminEndpoint("feedback", ["feedback-1", "status"], "PATCH")).toThrow();
   });
 
   it("rejects traversal, unsupported methods and app/student endpoint aliases", () => {

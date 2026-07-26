@@ -37,7 +37,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
     { href: "/admin/notifications", label: "Thông báo", icon: "notifications", permission: "communication.notifications.read", readiness: "implemented", description: "Gửi thông báo đến phụ huynh, học sinh và nhân sự." },
   ] },
   { label: "Phản hồi", items: [
-    { href: "/admin/feedback", label: "Phản hồi", icon: "forum", readiness: "planned", description: "Tiếp nhận và xử lý phản hồi từ cộng đồng nhà trường." },
+    { href: "/admin/feedback", label: "Phản hồi", icon: "forum", permission: "communication.feedback.read", readiness: "implemented", description: "Tiếp nhận và xử lý phản hồi từ cộng đồng nhà trường." },
   ] },
   { label: "Báo cáo", items: [
     { href: "/admin/reports", label: "Báo cáo", icon: "analytics", readiness: "planned", description: "Tổng hợp báo cáo vận hành, học tập và dịch vụ." },

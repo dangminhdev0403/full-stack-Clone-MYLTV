@@ -67,6 +67,12 @@ describe('TuitionService', () => {
         }),
       }),
     );
+    expect(result.data.items[0]).toMatchObject({
+      semester_id: 'semester-1',
+      semester_name: 'Học kỳ 1',
+      academic_year_id: 'year-1',
+      academic_year_name: '2026-2027',
+    });
     expect(result.data.items.map((item) => item.status)).toEqual([
       'partial',
       'paid',

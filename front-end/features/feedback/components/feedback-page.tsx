@@ -1,95 +1,193 @@
 "use client";
 
-import { AdminShell, Icon } from "@/features/admin-shell";
-import { useFeedbackQuery, useUpdateFeedbackStatusMutation } from "../hooks/use-feedback";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell } from "@/features/admin-shell";
+import {
+  useFeedbackDetailQuery,
+  useFeedbackQuery,
+  useUpdateFeedbackStatusMutation,
+} from "../hooks/use-feedback";
+import type { FeedbackStatus } from "../service/feedback.client";
 
 export function FeedbackPage() {
-  const feedbackQuery = useFeedbackQuery();
-  const updateStatusMutation = useUpdateFeedbackStatusMutation();
+  const { data: session } = useSession();
+  const permissions = session?.user?.permissions ?? [];
+  const canManage =
+    session?.user?.role === "super_admin" ||
+    permissions.includes("communication.feedback.manage");
+  const [searchInput, setSearchInput] = useState("");
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const [selectedId, setSelectedId] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [updateError, setUpdateError] = useState("");
 
-  const handleUpdateStatus = (id: string, status: "new" | "in_progress" | "resolved") => {
-    updateStatusMutation.mutate({ id, status });
+  const listQuery = useFeedbackQuery({
+    page,
+    page_size: 10,
+    ...(query ? { q: query } : {}),
+    ...(status ? { status: status as FeedbackStatus } : {}),
+  });
+  const detailQuery = useFeedbackDetailQuery(selectedId, {
+    enabled: Boolean(selectedId),
+  });
+  const updateMutation = useUpdateFeedbackStatusMutation();
+  const items = listQuery.data?.items ?? [];
+
+  const updateStatus = (id: string, nextStatus: FeedbackStatus) => {
+    setFeedback("");
+    setUpdateError("");
+    updateMutation.mutate(
+      { id, status: nextStatus },
+      {
+        onSuccess: () => setFeedback("Đã cập nhật trạng thái phản hồi."),
+        onError: () =>
+          setUpdateError("Không thể cập nhật trạng thái phản hồi."),
+      },
+    );
   };
 
   return (
     <AdminShell
       title="Phản hồi"
-      subtitle="Tiếp nhận và xử lý ý kiến đóng góp từ phụ huynh và học sinh qua BFF /api/admin/feedback."
+      subtitle="Tiếp nhận và xử lý phản hồi từ phụ huynh, học sinh."
       activeHref="/admin/feedback"
     >
-      <section className="relative overflow-hidden rounded-2xl bg-[var(--primary)] p-6 text-white shadow-sm sm:p-7">
-        <div className="absolute -right-16 -top-20 size-56 rounded-full border-[32px] border-white/10" />
-        <div className="relative max-w-2xl">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/70">
-            Communication · Phản Hồi
-          </p>
-          <h2 className="mt-2 text-2xl font-black sm:text-3xl">
-            Tiếp nhận & Xử lý phản hồi
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-white/80">
-            Tổng hợp góp ý về học tập, dịch vụ bán trú, tài khoản và hoạt động từ phụ huynh, học sinh.
-          </p>
-        </div>
-      </section>
-
-      {feedbackQuery.isPending ? (
-        <div role="status" className="rounded-2xl border border-[var(--outline-variant)] bg-white p-8 text-center text-sm text-[var(--secondary)]">
-          <div className="mx-auto size-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent mb-3" />
-          Đang tải danh sách phản hồi từ server...
-        </div>
-      ) : feedbackQuery.isError ? (
-        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-800">
-          <p className="font-bold">Không thể tải danh sách phản hồi.</p>
-          <button
-            type="button"
-            onClick={() => void feedbackQuery.refetch()}
-            className="mt-3 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
+      <form
+        className="flex flex-wrap gap-3 rounded-2xl border bg-white p-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setPage(1);
+          setQuery(searchInput.trim());
+        }}
+      >
+        <label className="flex-1">
+          Tìm phản hồi
+          <input
+            aria-label="Tìm phản hồi"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            className="ml-2 rounded-lg border px-3 py-2"
+          />
+        </label>
+        <label>
+          Lọc trạng thái
+          <select
+            aria-label="Lọc trạng thái"
+            value={status}
+            onChange={(event) => {
+              setPage(1);
+              setStatus(event.target.value);
+            }}
+            className="ml-2 rounded-lg border px-3 py-2"
           >
-            Thử tải lại
+            <option value="">Tất cả</option>
+            <option value="new">Mới</option>
+            <option value="in_progress">Đang xử lý</option>
+            <option value="resolved">Đã giải quyết</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-white"
+        >
+          Tìm kiếm
+        </button>
+      </form>
+
+      {feedback ? (
+        <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-800">
+          {feedback}
+        </p>
+      ) : null}
+      {updateError ? (
+        <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-800">
+          {updateError}
+        </p>
+      ) : null}
+
+      {listQuery.isPending ? (
+        <p role="status">Đang tải phản hồi...</p>
+      ) : listQuery.isError ? (
+        <div role="alert">
+          Không thể tải phản hồi.
+          <button type="button" onClick={() => void listQuery.refetch()}>
+            Thử lại
           </button>
         </div>
-      ) : feedbackQuery.data?.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--outline-variant)] bg-white p-8 text-center text-sm text-[var(--secondary)]">
-          Chưa có phản hồi nào được gửi tới hệ thống.
-        </div>
+      ) : items.length === 0 ? (
+        <p>Chưa có phản hồi phù hợp.</p>
       ) : (
-        <div className="space-y-4">
-          {feedbackQuery.data?.map((fb) => (
-            <div key={fb.id} className="bg-white border border-[var(--outline-variant)] rounded-2xl p-6 shadow-sm space-y-3">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="inline-block px-3 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-200 mb-2 uppercase">
-                    {fb.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-[var(--foreground)]">{fb.title}</h3>
-                </div>
-                <span className="text-xs text-[var(--secondary)] font-mono whitespace-nowrap">
-                  {new Date(fb.created_at).toLocaleString("vi-VN")}
-                </span>
-              </div>
-              <p className="text-sm text-[var(--secondary)] leading-relaxed">{fb.content}</p>
-
-              <div className="pt-3 text-xs text-[var(--secondary)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[var(--outline-variant)]">
-                <span>Học sinh / Phụ huynh ID: <strong className="text-[var(--foreground)]">{fb.student_id || fb.account_id || "Khách"}</strong></span>
-
-                <div className="flex items-center gap-2">
-                  <span className="font-bold">Trạng thái:</span>
+        <div className="space-y-3">
+          {items.map((item) => (
+            <article key={item.id} className="rounded-2xl border bg-white p-5">
+              <h2 className="font-bold">{item.title}</h2>
+              <p>{item.content}</p>
+              <button
+                type="button"
+                aria-label={`Xem chi tiết ${item.title}`}
+                onClick={() => setSelectedId(item.id)}
+              >
+                Xem chi tiết
+              </button>
+              {canManage ? (
+                <label className="ml-4">
+                  Trạng thái
                   <select
-                    value={fb.status}
-                    disabled={updateStatusMutation.isPending}
-                    onChange={(e) => handleUpdateStatus(fb.id, e.target.value as "new" | "in_progress" | "resolved")}
-                    className="bg-white border border-[var(--outline-variant)] rounded-lg text-xs font-bold px-2.5 py-1 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
+                    aria-label="Cập nhật trạng thái"
+                    value={item.status}
+                    disabled={updateMutation.isPending}
+                    onChange={(event) =>
+                      updateStatus(item.id, event.target.value as FeedbackStatus)
+                    }
                   >
-                    <option value="new">🆕 Mới</option>
-                    <option value="in_progress">⏳ Đang xử lý</option>
-                    <option value="resolved">✅ Đã giải quyết</option>
+                    <option value="new">Mới</option>
+                    <option value="in_progress">Đang xử lý</option>
+                    <option value="resolved">Đã giải quyết</option>
                   </select>
-                </div>
-              </div>
-            </div>
+                </label>
+              ) : null}
+            </article>
           ))}
         </div>
       )}
+
+      {selectedId ? (
+        <aside className="rounded-2xl border bg-white p-5">
+          {detailQuery.isPending ? (
+            <p role="status">Đang tải chi tiết...</p>
+          ) : detailQuery.isError ? (
+            <p role="alert">Không thể tải chi tiết.</p>
+          ) : detailQuery.data ? (
+            <>
+              <h2>{detailQuery.data.title}</h2>
+              <p>{detailQuery.data.content}</p>
+            </>
+          ) : null}
+        </aside>
+      ) : null}
+
+      {listQuery.data ? (
+        <nav aria-label="Phân trang phản hồi" className="flex gap-3">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Trang trước
+          </button>
+          <span>Trang {page}</span>
+          <button
+            type="button"
+            disabled={!listQuery.data.has_next}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Trang sau
+          </button>
+        </nav>
+      ) : null}
     </AdminShell>
   );
 }
