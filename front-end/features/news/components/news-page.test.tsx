@@ -9,6 +9,7 @@ import { listNews, publishNews } from "../service/news.client";
 vi.mock("next-auth/react", () => ({ useSession: vi.fn() }));
 vi.mock("@/features/admin-shell", () => ({
   AdminShell: ({ children, title }: { children: React.ReactNode; title: string }) => <main><h1>{title}</h1>{children}</main>,
+  Icon: ({ name }: { name: string }) => <span aria-hidden="true" data-testid={`icon-${name}`}>{name}</span>,
 }));
 vi.mock("../service/news.client", () => ({
   createNews: vi.fn(),
@@ -47,6 +48,26 @@ describe("NewsPage", () => {
     expect(await screen.findByText("Thông báo hè")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Tạo tin" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Xuất bản" })).not.toBeInTheDocument();
+  });
+
+  it("filters accented backend categories and labels icon-only controls", async () => {
+    useSessionMock.mockReturnValue(session(["communication.news.read", "communication.news.manage"]));
+    listNewsMock.mockResolvedValue({
+      items: [news({ category: "Thông báo" }), news({ id: "news-2", title: "Ngày hội", category: "Sự kiện" })],
+      page: 1,
+      page_size: 20,
+      total: 2,
+      has_next: false,
+    });
+
+    renderPage();
+    fireEvent.change(screen.getByLabelText("Tìm tin tức"), { target: { value: "hè" } });
+    expect(screen.getByRole("button", { name: "Xóa tìm kiếm" })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "Thông báo" }));
+    expect(screen.getByText("Thông báo hè")).toBeInTheDocument();
+    expect(screen.queryByText("Ngày hội")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tạo tin" }));
+    expect(screen.getByRole("button", { name: "Đóng biểu mẫu" })).toBeInTheDocument();
   });
 
   it("allows a manager to publish and pin an item", async () => {

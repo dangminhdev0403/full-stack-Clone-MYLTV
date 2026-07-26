@@ -216,15 +216,17 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
   const admin = await prisma.account.findFirst({ select: { id: true } });
   if (!admin) return;
 
-  // News
+  // News 1: Event Announcement
   await prisma.newsItem.upsert({
     where: { id: 'news-sample-1' },
     update: {
-      title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
+      title: 'Lễ Khai Giảng Trọng Thể Năm Học Mới 2026-2027',
       summary:
-        'Sổ Liên Lạc Điện Tử trang trọng tổ chức lễ khai giảng năm học mới.',
+        'Trường Trung Học phổ thông trọng thể tổ chức Lễ Khai Giảng Năm Học 2026-2027 dành cho toàn thể học sinh và phụ huynh.',
       content:
-        'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
+        'Nhà trường trân trọng kính mời Quý phụ huynh, các thầy cô giáo cùng toàn thể các em học sinh tới tham dự Lễ Khai Giảng Năm Học Mới 2026-2027.\n\n⏰ Thời gian: 07h30 - 10h30, Thứ Sáu ngày 05/09/2026.\n📍 Địa điểm: Sân trường chính - Khuôn viên nhà trường.\n👗 Trang phục: Học sinh mặc đồng phục chính thức (áo sơ mi trắng, quần/chân váy tối màu, đeo khăn quàng/cà vạt).\n\nChương trình gồm các hoạt động:\n- Lễ chào cờ & Hát Quốc ca trọng thể\n- Đọc thư mừng năm học mới của Chủ tịch nước\n- Tiếng trống khai trường chào đón năm học mới\n- Văn nghệ chào mừng đặc sắc từ các câu lạc bộ học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
       category: 'Sự kiện',
       status: 'published',
       isPinned: true,
@@ -233,11 +235,13 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     },
     create: {
       id: 'news-sample-1',
-      title: 'Lễ Khai Giảng Năm Học Mới 2026-2027',
+      title: 'Lễ Khai Giảng Trọng Thể Năm Học Mới 2026-2027',
       summary:
-        'Sổ Liên Lạc Điện Tử trang trọng tổ chức lễ khai giảng năm học mới.',
+        'Trường Trung Học phổ thông trọng thể tổ chức Lễ Khai Giảng Năm Học 2026-2027 dành cho toàn thể học sinh và phụ huynh.',
       content:
-        'Nhà trường trân trọng kính mời quý phụ huynh và toàn thể học sinh tham dự lễ khai giảng năm học 2026-2027 vào lúc 7h30 sáng ngày 05/09/2026.',
+        'Nhà trường trân trọng kính mời Quý phụ huynh, các thầy cô giáo cùng toàn thể các em học sinh tới tham dự Lễ Khai Giảng Năm Học Mới 2026-2027.\n\n⏰ Thời gian: 07h30 - 10h30, Thứ Sáu ngày 05/09/2026.\n📍 Địa điểm: Sân trường chính - Khuôn viên nhà trường.\n👗 Trang phục: Học sinh mặc đồng phục chính thức (áo sơ mi trắng, quần/chân váy tối màu, đeo khăn quàng/cà vạt).\n\nChương trình gồm các hoạt động:\n- Lễ chào cờ & Hát Quốc ca trọng thể\n- Đọc thư mừng năm học mới của Chủ tịch nước\n- Tiếng trống khai trường chào đón năm học mới\n- Văn nghệ chào mừng đặc sắc từ các câu lạc bộ học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
       category: 'Sự kiện',
       status: 'published',
       isPinned: true,
@@ -246,13 +250,17 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     },
   });
 
+  // News 2: Academic Timetable Announcement
   await prisma.newsItem.upsert({
     where: { id: 'news-sample-2' },
     update: {
-      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
-      summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
+      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu Chính Thức',
+      summary:
+        'Lịch học chính thức và thời khóa biểu toàn bộ các khối lớp áp dụng từ tuần thứ nhất của năm học mới.',
       content:
-        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng Sổ Liên Lạc Điện Tử.',
+        'Ban Giám hiệu nhà trường xin thông báo thời khóa biểu chính thức Kỳ 1 Năm học 2026-2027 đã được hoàn tất và cập nhật trên Sổ Liên Lạc Điện Tử.\n\n📌 Quý phụ huynh và các em học sinh có thể theo dõi thời khóa biểu chi tiết từng ngày tại mục "Thời khóa biểu" trên ứng dụng.\n📌 Thời gian học sinh có mặt tại trường: Buổi sáng từ 07h15, Buổi chiều từ 13h45.\n📌 Trường hợp học sinh nghỉ học có lý do, Quý phụ huynh vui lòng gửi đơn xin nghỉ phép qua ứng dụng trước 07h30 sáng cùng ngày.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
@@ -261,14 +269,87 @@ async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
     },
     create: {
       id: 'news-sample-2',
-      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu',
-      summary: 'Lịch học chính thức và thời khóa biểu áp dụng từ tuần tới.',
+      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu Chính Thức',
+      summary:
+        'Lịch học chính thức và thời khóa biểu toàn bộ các khối lớp áp dụng từ tuần thứ nhất của năm học mới.',
       content:
-        'Chi tiết thời khóa biểu các lớp khối 6 đến khối 12 đã được cập nhật trên ứng dụng Sổ Liên Lạc Điện Tử.',
+        'Ban Giám hiệu nhà trường xin thông báo thời khóa biểu chính thức Kỳ 1 Năm học 2026-2027 đã được hoàn tất và cập nhật trên Sổ Liên Lạc Điện Tử.\n\n📌 Quý phụ huynh và các em học sinh có thể theo dõi thời khóa biểu chi tiết từng ngày tại mục "Thời khóa biểu" trên ứng dụng.\n📌 Thời gian học sinh có mặt tại trường: Buổi sáng từ 07h15, Buổi chiều từ 13h45.\n📌 Trường hợp học sinh nghỉ học có lý do, Quý phụ huynh vui lòng gửi đơn xin nghỉ phép qua ứng dụng trước 07h30 sáng cùng ngày.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
       category: 'Thông báo',
       status: 'published',
       isPinned: false,
       publishedAt: new Date('2026-07-22T09:30:00Z'),
+      createdById: admin.id,
+    },
+  });
+
+  // News 3: Extracurricular & Sports Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-3' },
+    update: {
+      title: 'Đăng Ký Câu Lạc Bộ Ngoại Khóa & Hội Thao Thể Dục Thể Thao 2026',
+      summary:
+        'Mở đơn đăng ký tham gia các CLB kỹ năng, nghệ thuật, thể thao và Hội thao chào mừng mùa thu năm 2026.',
+      content:
+        'Nhằm tạo sân chơi lành mạnh, phát triển toàn diện thể chất và năng khiếu cho học sinh, nhà trường chính thức mở cổng đăng ký tham gia các Câu lạc bộ ngoại khóa và Hội thao học sinh 2026.\n\n🏆 Danh sách Câu lạc bộ mở tuyển sinh mùa thu:\n- CLB STEM & Robotics (Lập trình & Mô hình sáng tạo)\n- CLB Bóng Đá, Bóng Rổ & Cầu Lông\n- CLB Nghệ Thuật & Âm Nhạc\n\n📅 Thời gian đăng ký: Từ 26/07/2026 đến hết 15/08/2026.\nLink đăng ký và thông tin lệ phí xin xem chi tiết tại mục "Dịch vụ học sinh > Câu lạc bộ" trên hệ thống.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop',
+      category: 'Tin tức',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-25T14:00:00Z'),
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-3',
+      title: 'Đăng Ký Câu Lạc Bộ Ngoại Khóa & Hội Thao Thể Dục Thể Thao 2026',
+      summary:
+        'Mở đơn đăng ký tham gia các CLB kỹ năng, nghệ thuật, thể thao và Hội thao chào mừng mùa thu năm 2026.',
+      content:
+        'Nhằm tạo sân chơi lành mạnh, phát triển toàn diện thể chất và năng khiếu cho học sinh, nhà trường chính thức mở cổng đăng ký tham gia các Câu lạc bộ ngoại khóa và Hội thao học sinh 2026.\n\n🏆 Danh sách Câu lạc bộ mở tuyển sinh mùa thu:\n- CLB STEM & Robotics (Lập trình & Mô hình sáng tạo)\n- CLB Bóng Đá, Bóng Rổ & Cầu Lông\n- CLB Nghệ Thuật & Âm Nhạc\n\n📅 Thời gian đăng ký: Từ 26/07/2026 đến hết 15/08/2026.\nLink đăng ký và thông tin lệ phí xin xem chi tiết tại mục "Dịch vụ học sinh > Câu lạc bộ" trên hệ thống.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop',
+      category: 'Tin tức',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-25T14:00:00Z'),
+      createdById: admin.id,
+    },
+  });
+
+  // News 4: Draft Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-4' },
+    update: {
+      title:
+        'Dự Thảo Quy Định Sử Dụng Thiết Bị Điện Tử & Điện Thoại Trong Lớp Học',
+      summary:
+        'Bản thảo lấy ý kiến phụ huynh và giáo viên về quy định quản lý thiết bị công nghệ trong giờ học.',
+      content:
+        'Nhà trường đang xây dựng dự thảo quy chế sử dụng điện thoại thông minh và máy tính bảng trong khuôn viên trường học nhằm nâng cao mức độ tập trung cho học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'draft',
+      isPinned: false,
+      publishedAt: null,
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-4',
+      title:
+        'Dự Thảo Quy Định Sử Dụng Thiết Bị Điện Tử & Điện Thoại Trong Lớp Học',
+      summary:
+        'Bản thảo lấy ý kiến phụ huynh và giáo viên về quy định quản lý thiết bị công nghệ trong giờ học.',
+      content:
+        'Nhà trường đang xây dựng dự thảo quy chế sử dụng điện thoại thông minh và máy tính bảng trong khuôn viên trường học nhằm nâng cao mức độ tập trung cho học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'draft',
+      isPinned: false,
+      publishedAt: null,
       createdById: admin.id,
     },
   });

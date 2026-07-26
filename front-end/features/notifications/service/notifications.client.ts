@@ -8,12 +8,14 @@ export const notificationItemSchema = z.object({
   sent_at: z.string(),
   content: z.string(),
   tag: z.string(),
+  is_read: z.boolean().optional(),
   created_at: z.string().optional(),
 });
 
 const notificationListSchema = successSchema(
   z.object({
     items: z.array(notificationItemSchema),
+    pagination: z.object({ page: z.number(), limit: z.number(), total: z.number() }).optional(),
     total: z.number().optional(),
     page: z.number().optional(),
     page_size: z.number().optional(),
@@ -33,7 +35,7 @@ export async function listNotifications(query = ""): Promise<{ items: Notificati
   const parsed = await parseApiResponse(response, notificationListSchema);
   return {
     items: parsed.data.items,
-    total: parsed.data.total ?? parsed.data.items.length,
+    total: parsed.data.pagination?.total ?? parsed.data.total ?? parsed.data.items.length,
   };
 }
 

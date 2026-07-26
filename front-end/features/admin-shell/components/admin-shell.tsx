@@ -11,7 +11,7 @@ import { useAcademicContextQuery } from "../hooks/use-academic-context";
 import { getCurrentAcademicContext } from "../service/academic-context.client";
 
 export function Icon({ name, className = "" }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined leading-none ${className}`}>{name}</span>;
+  return <span aria-hidden="true" className={`material-symbols-outlined leading-none ${className}`}>{name}</span>;
 }
 
 export function AdminShell({ activeHref, title, subtitle, children }: { activeHref: string; title: string; subtitle?: string; children: React.ReactNode }) {
