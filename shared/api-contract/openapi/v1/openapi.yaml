@@ -3344,7 +3344,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       },
       "post": {
         "tags": [
@@ -3418,7 +3418,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       }
     },
     "/admin/timetable/{id}": {
@@ -3697,7 +3697,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       },
       "post": {
         "tags": [
@@ -3771,7 +3771,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       }
     },
     "/admin/scores/{id}": {
@@ -4403,7 +4403,7 @@
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       },
       "post": {
         "tags": [
@@ -4477,7 +4477,7 @@
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "planned"
       }
     },
     "/admin/reward-discipline/{id}": {
@@ -6418,6 +6418,59 @@
         ],
         "x-scope": "fixed_role_policy",
         "x-implementation-status": "planned"
+      },
+      "delete": {
+        "tags": [
+          "Student Services"
+        ],
+        "operationId": "deleteAdminEvent",
+        "summary": "Delete admin event",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "events id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Student Services",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/surveys": {

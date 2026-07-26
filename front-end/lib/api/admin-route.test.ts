@@ -21,8 +21,12 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("tuition", ["charge-1"], "PATCH")).toBe("/api/v1/admin/tuition/charge-1");
   });
 
-  it("rejects traversal and unsupported methods", () => {
+  it("rejects traversal, unsupported methods and app/student endpoint aliases", () => {
     expect(() => resolveAdminEndpoint("users", [".."], "GET")).toThrow();
     expect(() => resolveAdminEndpoint("students", [], "DELETE")).toThrow();
+    expect(() => resolveAdminEndpoint("scores", ["student-1"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("timetable", ["student-1"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("homeworks", ["student-1"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("meals", [], "GET")).toThrow();
   });
 });

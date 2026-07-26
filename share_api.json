@@ -382,7 +382,7 @@
       "path": "/admin/timetable",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -391,7 +391,7 @@
       "path": "/admin/timetable",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -418,7 +418,7 @@
       "path": "/admin/scores",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -427,7 +427,7 @@
       "path": "/admin/scores",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -490,7 +490,7 @@
       "path": "/admin/reward-discipline",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -499,7 +499,7 @@
       "path": "/admin/reward-discipline",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "planned"
     },
     {
       "group": "academics",
@@ -1182,51 +1182,6 @@
       "method": "POST",
       "path": "/admin/news/{id}/reorder",
       "bounded_context": "Communication",
-      "auth_required": true,
-      "implementation_status": "implemented"
-    },
-    {
-      "group": "communication",
-      "name": "Delete news",
-      "method": "DELETE",
-      "path": "/admin/news/{id}",
-      "bounded_context": "Communication",
-      "auth_required": true,
-      "implementation_status": "implemented"
-    },
-    {
-      "group": "communication",
-      "name": "Update admin feedback status",
-      "method": "PATCH",
-      "path": "/admin/feedback/{id}",
-      "bounded_context": "Communication",
-      "auth_required": true,
-      "implementation_status": "implemented"
-    },
-    {
-      "group": "student_services",
-      "name": "List admin events",
-      "method": "GET",
-      "path": "/admin/events",
-      "bounded_context": "Student Services",
-      "auth_required": true,
-      "implementation_status": "implemented"
-    },
-    {
-      "group": "student_services",
-      "name": "Create admin event",
-      "method": "POST",
-      "path": "/admin/events",
-      "bounded_context": "Student Services",
-      "auth_required": true,
-      "implementation_status": "implemented"
-    },
-    {
-      "group": "student_services",
-      "name": "Update admin event",
-      "method": "PATCH",
-      "path": "/admin/events/{id}",
-      "bounded_context": "Student Services",
       "auth_required": true,
       "implementation_status": "implemented"
     },

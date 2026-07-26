@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, "..");
 const jsonPath = path.join(root, "openapi", "v1", "openapi.json");
 const yamlPath = path.join(root, "openapi", "v1", "openapi.yaml");
 const mirrorPath = path.resolve(root, "..", "..", "share_api.json");
+const frontendMirrorPath = path.resolve(root, "..", "..", "front-end", "config", "share_api.json");
 
 if (!fs.existsSync(jsonPath)) {
   console.error(`[contract] Missing file: ${jsonPath}`);
@@ -56,4 +57,10 @@ for (const endpoint of mirror.endpoints) {
   }
 }
 
-console.log(`[contract] OK: ${pathCount} paths verified; JSON/YAML and status mirror synchronized.`);
+const frontendMirror = JSON.parse(fs.readFileSync(frontendMirrorPath, "utf8"));
+if (JSON.stringify(frontendMirror) !== JSON.stringify(mirror)) {
+  console.error("[contract] front-end/config/share_api.json is not synchronized with root share_api.json.");
+  process.exit(1);
+}
+
+console.log(`[contract] OK: ${pathCount} paths verified; JSON/YAML and both status mirrors synchronized.`);

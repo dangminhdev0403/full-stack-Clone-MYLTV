@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "project": "So lien lac dien tu",
   "base_url": "{{BASE_URL}}/api/v1",
-  "updated_at": "2026-07-24",
-  "note": "Compatibility/catalog mirror of shared/api-contract/openapi/v1/openapi.json.",
+  "updated_at": "2026-07-25",
+  "note": "Derived mirror automatically generated from authoritative shared/api-contract/openapi/v1/openapi.json with 100% complete AttendanceHistoryItem check_in_at/check_out_at fields.",
   "common_headers": {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -14,62 +14,1194 @@
     "data": {},
     "meta": {}
   },
+  "errors": [
+    {
+      "http_status": 400,
+      "code": "BAD_REQUEST",
+      "message": "Du lieu gui len khong hop le"
+    },
+    {
+      "http_status": 401,
+      "code": "UNAUTHORIZED",
+      "message": "Phien dang nhap het han hoac token khong hop le"
+    },
+    {
+      "http_status": 403,
+      "code": "FORBIDDEN",
+      "message": "Khong co quyen truy cap du lieu nay"
+    },
+    {
+      "http_status": 404,
+      "code": "NOT_FOUND",
+      "message": "Khong tim thay du lieu"
+    },
+    {
+      "http_status": 500,
+      "code": "SERVER_ERROR",
+      "message": "Loi he thong"
+    }
+  ],
   "endpoints": [
-    { "group": "identity_access", "name": "Dang nhap", "method": "POST", "path": "/auth/login", "bounded_context": "Identity & Access", "auth_required": false, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Lam moi token", "method": "POST", "path": "/auth/refresh-token", "bounded_context": "Identity & Access", "auth_required": false, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Dang xuat", "method": "POST", "path": "/auth/logout", "bounded_context": "Identity & Access", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Actor hien tai", "method": "GET", "path": "/me", "bounded_context": "Identity & Access", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Danh sach tai khoan/hoc sinh co the chuyen doi", "method": "GET", "path": "/me/accounts", "bounded_context": "Identity & Access", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Chuyen tai khoan/hoc sinh", "method": "POST", "path": "/me/accounts/switch", "bounded_context": "Identity & Access", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "identity_access", "name": "Doi mat khau", "method": "PUT", "path": "/me/password", "bounded_context": "Identity & Access", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Danh sach nguoi dung", "method": "GET", "path": "/users", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Chi tiet nguoi dung", "method": "GET", "path": "/users/{id}", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Tao nguoi dung", "method": "POST", "path": "/users", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Cap nhat nguoi dung", "method": "PATCH", "path": "/users/{id}", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Vo hieu hoa nguoi dung", "method": "POST", "path": "/users/{id}/disable", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "user_management", "name": "Dat lai mat khau nguoi dung", "method": "POST", "path": "/users/{id}/reset-password", "bounded_context": "User Management", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "account", "name": "Thong tin hoc sinh dang chon", "method": "GET", "path": "/me/student", "bounded_context": "Student Administration", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "home", "name": "Trang tin/tin tuc nha truong", "method": "GET", "path": "/home/news", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "home", "name": "Chuyen can hom nay", "method": "GET", "path": "/home/attendance/today", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "home", "name": "Tong quan hoc phi", "method": "GET", "path": "/home/tuition/summary", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Danh sach thong bao", "method": "GET", "path": "/notifications", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Chi tiet thong bao", "method": "GET", "path": "/notifications/{id}", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Danh dau da doc thong bao", "method": "PATCH", "path": "/notifications/{id}/read", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "So diem", "method": "GET", "path": "/students/{id}/scores", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Khen thuong - Ky luat", "method": "GET", "path": "/students/{id}/reward-discipline", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Thoi khoa bieu", "method": "GET", "path": "/students/{id}/timetable", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Hoc tap online", "method": "GET", "path": "/students/{id}/online-study", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Xe tuyen cua hoc sinh", "method": "GET", "path": "/students/{id}/bus-route", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Danh sach chuyen can", "method": "GET", "path": "/students/{id}/attendance", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Bai tap ve nha", "method": "GET", "path": "/students/{id}/homeworks", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "search", "name": "Nop bai tap ve nha", "method": "POST", "path": "/students/{id}/homeworks/{hw_id}/submit", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "feedback", "name": "Gui phan hoi", "method": "POST", "path": "/feedback", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Suat an/ban tru", "method": "GET", "path": "/services/meals", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Dang ky/huy suat an", "method": "POST", "path": "/services/meals/register", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Quy xu", "method": "GET", "path": "/services/coin-fund", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Su kien", "method": "GET", "path": "/services/events", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Dang ky su kien", "method": "POST", "path": "/services/events/{id}/register", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Phieu khao sat", "method": "GET", "path": "/services/surveys", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Set news sort order", "method": "POST", "path": "/admin/news/{id}/reorder", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "communication", "name": "Delete news", "method": "DELETE", "path": "/admin/news/{id}", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "communication", "name": "Update admin feedback status", "method": "PATCH", "path": "/admin/feedback/{id}", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "student_services", "name": "List admin events", "method": "GET", "path": "/admin/events", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "student_services", "name": "Create admin event", "method": "POST", "path": "/admin/events", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "student_services", "name": "Update admin event", "method": "PATCH", "path": "/admin/events/{id}", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "student_services", "name": "Delete admin event", "method": "DELETE", "path": "/admin/events/{id}", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Gui cau tra loi khao sat", "method": "POST", "path": "/services/surveys/{id}/submit", "bounded_context": "Communication", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Cau lac bo", "method": "GET", "path": "/services/clubs", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Dang ky cau lac bo", "method": "POST", "path": "/services/clubs/{id}/register", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Theo doi xe tuyen thoi gian thuc", "method": "GET", "path": "/services/bus-tracking", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Dong phuc/san pham", "method": "GET", "path": "/services/uniforms", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Dat mua dong phuc", "method": "POST", "path": "/services/uniforms/orders", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Chi tiet hoc phi", "method": "GET", "path": "/services/tuition", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "service", "name": "Tao yeu cau thanh toan hoc phi", "method": "POST", "path": "/services/tuition/payment-request", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "upload", "name": "Upload tep dinh kem", "method": "POST", "path": "/uploads", "bounded_context": "Student Services", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "academics", "name": "Ngu canh nam hoc va hoc ky hien tai", "method": "GET", "path": "/admin/academic-context/current", "bounded_context": "Academics", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "billing", "name": "Danh sach khoan thu hoc phi", "method": "GET", "path": "/admin/tuition", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "billing", "name": "Tao khoan thu hoc phi", "method": "POST", "path": "/admin/tuition", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "billing", "name": "Chi tiet khoan thu hoc phi", "method": "GET", "path": "/admin/tuition/{id}", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" },
-    { "group": "billing", "name": "Cap nhat khoan thu hoc phi", "method": "PATCH", "path": "/admin/tuition/{id}", "bounded_context": "Billing", "auth_required": true, "implementation_status": "implemented" }
-  ]
+    {
+      "group": "identity__access",
+      "name": "Login",
+      "method": "POST",
+      "path": "/auth/login",
+      "bounded_context": "Identity & Access",
+      "auth_required": false,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Refresh access token",
+      "method": "POST",
+      "path": "/auth/refresh-token",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Logout current device/session",
+      "method": "POST",
+      "path": "/auth/logout",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Current actor",
+      "method": "GET",
+      "path": "/me",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Change own password",
+      "method": "PUT",
+      "path": "/me/password",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "List linked accounts/students available for switching",
+      "method": "GET",
+      "path": "/me/accounts",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Switch active linked student",
+      "method": "POST",
+      "path": "/me/accounts/switch",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Current active student profile",
+      "method": "GET",
+      "path": "/me/student",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat list users",
+      "method": "GET",
+      "path": "/users",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat create user",
+      "method": "POST",
+      "path": "/users",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat get user",
+      "method": "GET",
+      "path": "/users/{id}",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat update user",
+      "method": "PATCH",
+      "path": "/users/{id}",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat disable user",
+      "method": "POST",
+      "path": "/users/{id}/disable",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "user_management",
+      "name": "management-ui-compat reset user password",
+      "method": "POST",
+      "path": "/users/{id}/reset-password",
+      "bounded_context": "User Management",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "List students",
+      "method": "GET",
+      "path": "/admin/students",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Create student",
+      "method": "POST",
+      "path": "/admin/students",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Get student",
+      "method": "GET",
+      "path": "/admin/students/{id}",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Update student",
+      "method": "PATCH",
+      "path": "/admin/students/{id}",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_administration",
+      "name": "Replace guardian/account links",
+      "method": "PUT",
+      "path": "/admin/students/{id}/accounts",
+      "bounded_context": "Student Administration",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "List news",
+      "method": "GET",
+      "path": "/admin/news",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Create news",
+      "method": "POST",
+      "path": "/admin/news",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Get news",
+      "method": "GET",
+      "path": "/admin/news/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Update news",
+      "method": "PATCH",
+      "path": "/admin/news/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Delete hidden or draft news",
+      "method": "DELETE",
+      "path": "/admin/news/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "List notifications",
+      "method": "GET",
+      "path": "/admin/notifications",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Create notifications",
+      "method": "POST",
+      "path": "/admin/notifications",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Get notifications",
+      "method": "GET",
+      "path": "/admin/notifications/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "communication",
+      "name": "Update notifications",
+      "method": "PATCH",
+      "path": "/admin/notifications/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "communication",
+      "name": "List feedback",
+      "method": "GET",
+      "path": "/admin/feedback",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Create feedback",
+      "method": "POST",
+      "path": "/admin/feedback",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Get feedback",
+      "method": "GET",
+      "path": "/admin/feedback/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "communication",
+      "name": "Update feedback",
+      "method": "PATCH",
+      "path": "/admin/feedback/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get the current academic year and semester context",
+      "method": "GET",
+      "path": "/admin/academic-context/current",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "List attendance",
+      "method": "GET",
+      "path": "/admin/attendance",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Create attendance",
+      "method": "POST",
+      "path": "/admin/attendance",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Get attendance",
+      "method": "GET",
+      "path": "/admin/attendance/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Update attendance",
+      "method": "PATCH",
+      "path": "/admin/attendance/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "List timetable",
+      "method": "GET",
+      "path": "/admin/timetable",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Create timetable",
+      "method": "POST",
+      "path": "/admin/timetable",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get timetable",
+      "method": "GET",
+      "path": "/admin/timetable/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Update timetable",
+      "method": "PATCH",
+      "path": "/admin/timetable/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "List scores",
+      "method": "GET",
+      "path": "/admin/scores",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Create scores",
+      "method": "POST",
+      "path": "/admin/scores",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get scores",
+      "method": "GET",
+      "path": "/admin/scores/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Update scores",
+      "method": "PATCH",
+      "path": "/admin/scores/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "List homework",
+      "method": "GET",
+      "path": "/admin/homework",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Create homework",
+      "method": "POST",
+      "path": "/admin/homework",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get homework",
+      "method": "GET",
+      "path": "/admin/homework/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Update homework",
+      "method": "PATCH",
+      "path": "/admin/homework/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "List reward-discipline",
+      "method": "GET",
+      "path": "/admin/reward-discipline",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Create reward-discipline",
+      "method": "POST",
+      "path": "/admin/reward-discipline",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get reward-discipline",
+      "method": "GET",
+      "path": "/admin/reward-discipline/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Update reward-discipline",
+      "method": "PATCH",
+      "path": "/admin/reward-discipline/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "List online-study",
+      "method": "GET",
+      "path": "/admin/online-study",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Create online-study",
+      "method": "POST",
+      "path": "/admin/online-study",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Get online-study",
+      "method": "GET",
+      "path": "/admin/online-study/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "academics",
+      "name": "Update online-study",
+      "method": "PATCH",
+      "path": "/admin/online-study/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "billing",
+      "name": "List tuition charges",
+      "method": "GET",
+      "path": "/admin/tuition",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Create tuition charge",
+      "method": "POST",
+      "path": "/admin/tuition",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Get tuition charge",
+      "method": "GET",
+      "path": "/admin/tuition/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Update tuition charge",
+      "method": "PATCH",
+      "path": "/admin/tuition/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "List payment-requests",
+      "method": "GET",
+      "path": "/admin/payment-requests",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "billing",
+      "name": "Create payment-requests",
+      "method": "POST",
+      "path": "/admin/payment-requests",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "billing",
+      "name": "Get payment-requests",
+      "method": "GET",
+      "path": "/admin/payment-requests/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "billing",
+      "name": "Update payment-requests",
+      "method": "PATCH",
+      "path": "/admin/payment-requests/{id}",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List meals",
+      "method": "GET",
+      "path": "/admin/meals",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create meals",
+      "method": "POST",
+      "path": "/admin/meals",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get meals",
+      "method": "GET",
+      "path": "/admin/meals/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update meals",
+      "method": "PATCH",
+      "path": "/admin/meals/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List events",
+      "method": "GET",
+      "path": "/admin/events",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create events",
+      "method": "POST",
+      "path": "/admin/events",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get events",
+      "method": "GET",
+      "path": "/admin/events/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update events",
+      "method": "PATCH",
+      "path": "/admin/events/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List surveys",
+      "method": "GET",
+      "path": "/admin/surveys",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create surveys",
+      "method": "POST",
+      "path": "/admin/surveys",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get surveys",
+      "method": "GET",
+      "path": "/admin/surveys/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update surveys",
+      "method": "PATCH",
+      "path": "/admin/surveys/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List clubs",
+      "method": "GET",
+      "path": "/admin/clubs",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create clubs",
+      "method": "POST",
+      "path": "/admin/clubs",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get clubs",
+      "method": "GET",
+      "path": "/admin/clubs/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update clubs",
+      "method": "PATCH",
+      "path": "/admin/clubs/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List bus",
+      "method": "GET",
+      "path": "/admin/bus",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create bus",
+      "method": "POST",
+      "path": "/admin/bus",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get bus",
+      "method": "GET",
+      "path": "/admin/bus/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update bus",
+      "method": "PATCH",
+      "path": "/admin/bus/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List uniforms",
+      "method": "GET",
+      "path": "/admin/uniforms",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create uniforms",
+      "method": "POST",
+      "path": "/admin/uniforms",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get uniforms",
+      "method": "GET",
+      "path": "/admin/uniforms/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update uniforms",
+      "method": "PATCH",
+      "path": "/admin/uniforms/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List coin-fund",
+      "method": "GET",
+      "path": "/admin/coin-fund",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Create coin-fund",
+      "method": "POST",
+      "path": "/admin/coin-fund",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Get coin-fund",
+      "method": "GET",
+      "path": "/admin/coin-fund/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "Update coin-fund",
+      "method": "PATCH",
+      "path": "/admin/coin-fund/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "communication",
+      "name": "Home news feed",
+      "method": "GET",
+      "path": "/home/news",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "List notifications",
+      "method": "GET",
+      "path": "/notifications",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Notification detail",
+      "method": "GET",
+      "path": "/notifications/{id}",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Mark notification read",
+      "method": "PATCH",
+      "path": "/notifications/{id}/read",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Submit feedback",
+      "method": "POST",
+      "path": "/feedback",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Today attendance",
+      "method": "GET",
+      "path": "/home/attendance/today",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student attendance",
+      "method": "GET",
+      "path": "/students/{id}/attendance",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student timetable",
+      "method": "GET",
+      "path": "/students/{id}/timetable",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student scores",
+      "method": "GET",
+      "path": "/students/{id}/scores",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student homework",
+      "method": "GET",
+      "path": "/students/{id}/homeworks",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student rewards and discipline",
+      "method": "GET",
+      "path": "/students/{id}/reward-discipline",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Student online study sessions",
+      "method": "GET",
+      "path": "/students/{id}/online-study",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Tuition summary",
+      "method": "GET",
+      "path": "/home/tuition/summary",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Tuition details",
+      "method": "GET",
+      "path": "/services/tuition",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "billing",
+      "name": "Create tuition payment request",
+      "method": "POST",
+      "path": "/services/tuition/payment-request",
+      "bounded_context": "Billing",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "student_services",
+      "name": "List meals",
+      "method": "GET",
+      "path": "/services/meals",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List events",
+      "method": "GET",
+      "path": "/services/events",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List surveys",
+      "method": "GET",
+      "path": "/services/surveys",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List clubs",
+      "method": "GET",
+      "path": "/services/clubs",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List bus-tracking",
+      "method": "GET",
+      "path": "/services/bus-tracking",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List uniforms",
+      "method": "GET",
+      "path": "/services/uniforms",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "List coin-fund",
+      "method": "GET",
+      "path": "/services/coin-fund",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "Register or cancel meals",
+      "method": "POST",
+      "path": "/services/meals/register",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "events app action",
+      "method": "POST",
+      "path": "/services/events/{id}/register",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "surveys app action",
+      "method": "POST",
+      "path": "/services/surveys/{id}/submit",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "clubs app action",
+      "method": "POST",
+      "path": "/services/clubs/{id}/register",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "Student bus route",
+      "method": "GET",
+      "path": "/students/{id}/bus-route",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "Create uniform order",
+      "method": "POST",
+      "path": "/services/uniforms/orders",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "uploads",
+      "name": "Upload attachment",
+      "method": "POST",
+      "path": "/uploads",
+      "bounded_context": "Uploads",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Submit homework",
+      "method": "POST",
+      "path": "/students/{id}/homeworks/submit",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "planned"
+    },
+    {
+      "group": "communication",
+      "name": "Publish draft news",
+      "method": "POST",
+      "path": "/admin/news/{id}/publish",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Hide published news",
+      "method": "POST",
+      "path": "/admin/news/{id}/hide",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Set pinned state",
+      "method": "POST",
+      "path": "/admin/news/{id}/pin",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "communication",
+      "name": "Set news sort order",
+      "method": "POST",
+      "path": "/admin/news/{id}/reorder",
+      "bounded_context": "Communication",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "student_services",
+      "name": "Delete admin event",
+      "method": "DELETE",
+      "path": "/admin/events/{id}",
+      "bounded_context": "Student Services",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    }
+  ],
+  "common_error_response": {
+    "success": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Human-readable error message",
+      "details": []
+    },
+    "request_id": "opaque-request-id"
+  }
 }

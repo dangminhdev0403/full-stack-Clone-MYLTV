@@ -66,10 +66,10 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | Management UI | App/mobile | Purpose |
 | --- | --- | --- |
 | `/admin/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management and student display. |
-| `/admin/timetable` | `GET /students/{id}/timetable` | Timetable management and display. |
-| `/admin/scores` | `GET /students/{id}/scores` | Scorebook management and display. |
-| `/admin/homework` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Homework assignment and submission. |
-| `/admin/reward-discipline` | `GET /students/{id}/reward-discipline` | Rewards and discipline. |
+| `/admin/timetable` | `GET /students/{id}/timetable` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `/admin/scores` | `GET /students/{id}/scores` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `/admin/homework` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Admin list/detail/update/delete remains planned; student assignment/submission routes are separate. |
+| `/admin/reward-discipline` | `GET /students/{id}/reward-discipline` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
 | `/admin/online-study` | `GET /students/{id}/online-study` | Online study sessions. |
 
 ### Billing

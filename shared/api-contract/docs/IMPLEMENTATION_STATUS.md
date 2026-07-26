@@ -20,10 +20,10 @@ This file tracks backend availability for the draft v1 OpenAPI contract. It is c
 | Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, and linked-student context are live scope. |
 | User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
 | Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
-| Communication (News, Notifications, Feedback) | `contracted` | `implemented` | News, notifications, and feedback administrative CRUD & status updates are live. |
-| Academics (Attendance, Scores, Timetable, Homework) | `contracted` | `implemented` | Attendance session marking, score entries, timetable, and homework assignments are live. |
+| Communication (News, Notifications, Feedback) | `contracted` | News `implemented`; Notifications/Feedback `partial` | News CRUD is live. Notifications/Feedback have persisted routes but still need complete admin detail/update DTO, permission, pagination, and negative-test coverage. |
+| Academics (Attendance, Scores, Timetable, Homework) | `contracted` | Attendance `implemented`; Scores/Timetable/Homework `partial` | Attendance is live. Other admin routes are mutation-only or still reuse app/student reads; admin list/filter/detail contracts remain planned. |
 | Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
-| Student Services (Events) | `contracted` | `implemented` at `/admin/events` | Admin events CRUD and registration tracking are live. Mobile endpoints exist under `/services/events`. |
+| Student Services (Events) | `contracted` | `partial` at `/admin/events` | Persistent CRUD routes exist, but DTO validation, dedicated permission/audit, registration-list contract, migrations, and negative tests remain incomplete. |
 | Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | `blocked` (for Admin CRUD) | Mobile app endpoints are live. Admin management surfaces display PlannedSurface until full admin API contracts are finalized. |
 | Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
 

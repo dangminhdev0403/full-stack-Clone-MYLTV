@@ -45,7 +45,27 @@ describe("AdminDashboard", () => {
     listStudentsMock.mockResolvedValue({ items: [], page: 1, page_size: 1, total: 125, has_next: true });
     listAttendanceMock.mockResolvedValue({ items: [], page: 1, page_size: 1, total: 42 });
     listTuitionMock.mockResolvedValue({ items: [], page: 1, page_size: 1, total: 18 });
-    listNewsMock.mockResolvedValue({ items: [], page: 1, page_size: 1, total: 10 });
+    listNewsMock.mockResolvedValue({
+      items: [{
+        id: "news-1",
+        title: "Thông báo năm học mới",
+        summary: "Lịch tựu trường đã cập nhật",
+        content: "Nội dung",
+        image_url: null,
+        category: "school",
+        is_pinned: false,
+        sort_order: 0,
+        published_at: "2026-07-26T08:00:00.000Z",
+        status: "published",
+        audiences: [{ type: "all", value: null }],
+        created_at: "2026-07-26T08:00:00.000Z",
+        updated_at: "2026-07-26T08:00:00.000Z",
+      }],
+      page: 1,
+      page_size: 3,
+      total: 10,
+      has_next: true,
+    });
     listNotificationsMock.mockResolvedValue({ items: [], page: 1, page_size: 1, total: 15 });
     listFeedbackMock.mockResolvedValue([]);
 
@@ -57,6 +77,7 @@ describe("AdminDashboard", () => {
     expect(screen.getByText("18")).toBeInTheDocument();
     expect(screen.getByText("10")).toBeInTheDocument();
     expect(screen.getByText("15")).toBeInTheDocument();
+    expect(screen.getByText("Thông báo năm học mới")).toBeInTheDocument();
   });
 
   it("keeps the students total available when the users request fails", async () => {

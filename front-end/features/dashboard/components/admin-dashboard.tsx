@@ -17,7 +17,7 @@ export function AdminDashboard() {
   const studentsQuery = useStudentsQuery(SUMMARY_QUERY);
   const attendanceQuery = useAttendanceQuery(SUMMARY_QUERY);
   const tuitionQuery = useTuitionListQuery(SUMMARY_QUERY);
-  const newsQuery = useNewsQuery(SUMMARY_QUERY);
+  const newsQuery = useNewsQuery("?page=1&page_size=3");
   const notificationsQuery = useNotificationsQuery(SUMMARY_QUERY);
   const feedbackQuery = useFeedbackQuery();
 
@@ -105,6 +105,25 @@ export function AdminDashboard() {
           retryLabel="Thử lại"
           onRetry={() => void feedbackQuery.refetch()}
         />
+      </section>
+
+      <section aria-labelledby="recent-activity-title" className="rounded-xl border border-[var(--outline-variant)] bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.05)] sm:p-6">
+        <h2 id="recent-activity-title" className="text-xl font-semibold">Hoạt động gần đây</h2>
+        <p className="mt-1 text-sm text-[var(--secondary)]">Tin tức cập nhật mới nhất từ dữ liệu quản trị.</p>
+        {newsQuery.isPending ? (
+          <div role="status" className="mt-5 h-20 animate-pulse rounded-lg bg-[var(--surface-container)]"><span className="sr-only">Đang tải hoạt động gần đây...</span></div>
+        ) : newsQuery.isError ? (
+          <div className="mt-5"><p role="alert" className="text-sm font-semibold text-[var(--error)]">Không thể tải hoạt động gần đây.</p><button type="button" onClick={() => void newsQuery.refetch()} className="mt-3 min-h-11 rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm font-semibold">Thử lại</button></div>
+        ) : newsQuery.data?.items.length ? (
+          <ul className="mt-5 divide-y divide-[var(--outline-variant)]">
+            {newsQuery.data.items.map((news) => (
+              <li key={news.id} className="flex flex-col gap-1 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                <div><Link href={`/admin/news?news_id=${encodeURIComponent(news.id)}`} className="font-semibold text-[var(--primary)] hover:underline">{news.title}</Link><p className="mt-1 text-sm text-[var(--secondary)]">{news.summary}</p></div>
+                <time className="text-sm text-[var(--secondary)]" dateTime={news.updated_at}>{new Date(news.updated_at).toLocaleString("vi-VN")}</time>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="mt-5 text-sm text-[var(--secondary)]">Chưa có hoạt động gần đây.</p>}
       </section>
 
       {/* Active Modules Overview */}

@@ -41,31 +41,12 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   if (resource === "scores") {
     if (segments.length === 0 && method === "POST") return "/api/v1/admin/scores";
     if (segments.length === 1 && id === "reward-discipline" && method === "POST") return "/api/v1/admin/reward-discipline";
-    if (segments.length === 1 && id && method === "GET") return `/api/v1/students/${id}/scores`;
-    if (segments.length === 2 && id && segments[1] === "reward-discipline" && method === "GET") return `/api/v1/students/${id}/reward-discipline`;
   }
-  if (resource === "timetable") {
-    if (segments.length === 0 && method === "POST") return "/api/v1/admin/timetable";
-    if (segments.length === 1 && id && method === "GET") return `/api/v1/students/${id}/timetable`;
+  if (resource === "timetable" && segments.length === 0 && method === "POST") {
+    return "/api/v1/admin/timetable";
   }
-  if (resource === "homeworks") {
-    if (segments.length === 0 && method === "POST") return "/api/v1/admin/homeworks";
-    if (segments.length === 1 && id && method === "GET") return `/api/v1/students/${id}/homeworks`;
-  }
-  if (resource === "meals" && segments.length === 0 && method === "GET") {
-    return "/api/v1/services/meals";
-  }
-  if (resource === "surveys" && segments.length === 0 && method === "GET") {
-    return "/api/v1/services/surveys";
-  }
-  if (resource === "clubs" && segments.length === 0 && method === "GET") {
-    return "/api/v1/services/clubs";
-  }
-  if (resource === "bus" && segments.length === 0 && method === "GET") {
-    return "/api/v1/services/bus-tracking";
-  }
-  if (resource === "uniforms" && segments.length === 0 && method === "GET") {
-    return "/api/v1/services/uniforms";
+  if (resource === "homeworks" && segments.length === 0 && method === "POST") {
+    return "/api/v1/admin/homeworks";
   }
   if (resource === "academic-context" && segments.length === 1 && segments[0] === "current" && method === "GET") {
     return "/api/v1/admin/academic-context/current";
