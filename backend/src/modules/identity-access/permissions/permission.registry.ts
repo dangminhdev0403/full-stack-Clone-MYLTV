@@ -131,6 +131,20 @@ export const PERMISSIONS = [
     boundedContext: 'Communication',
     risk: 'critical',
   },
+  {
+    key: 'communication.notifications.read',
+    label: 'Read notifications',
+    description: 'Read app and administrative notification views.',
+    boundedContext: 'Communication',
+    risk: 'low',
+  },
+  {
+    key: 'communication.notifications.manage',
+    label: 'Manage notifications',
+    description: 'Create and update school notifications.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]['key'];

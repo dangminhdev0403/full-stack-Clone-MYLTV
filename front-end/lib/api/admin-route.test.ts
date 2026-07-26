@@ -11,6 +11,8 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("news", ["news-1", "publish"], "POST")).toBe("/api/v1/admin/news/news-1/publish");
     expect(resolveAdminEndpoint("news", ["news-1", "reorder"], "POST")).toBe("/api/v1/admin/news/news-1/reorder");
     expect(resolveAdminEndpoint("academic-context", ["current"], "GET")).toBe("/api/v1/admin/academic-context/current");
+    expect(resolveAdminEndpoint("notifications", ["notification-1"], "GET")).toBe("/api/v1/admin/notifications/notification-1");
+    expect(resolveAdminEndpoint("notifications", ["notification-1"], "PATCH")).toBe("/api/v1/admin/notifications/notification-1");
   });
 
   it("allows attendance and tuition domain routes", () => {

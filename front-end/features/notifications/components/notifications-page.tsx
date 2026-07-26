@@ -2,193 +2,56 @@
 
 import { useState } from "react";
 import { AdminShell, Icon } from "@/features/admin-shell";
-import { useCreateNotificationMutation, useNotificationsQuery } from "../hooks/use-notifications";
+import { useCreateNotificationMutation, useNotificationsQuery, useUpdateNotificationMutation } from "../hooks/use-notifications";
+import type { NotificationItem } from "../service/notifications.client";
+
+const emptyForm = { title: "", sender: "Ban giám hiệu", content: "", tag: "Quan trong" };
 
 export function NotificationsPage() {
-  const notificationsQuery = useNotificationsQuery();
+  const [searchInput, setSearchInput] = useState("");
+  const [query, setQuery] = useState("");
+  const [tag, setTag] = useState("");
+  const [page, setPage] = useState(1);
+  const [editing, setEditing] = useState<NotificationItem | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [feedback, setFeedback] = useState("");
+  const params = new URLSearchParams({ page: String(page), page_size: "10" });
+  if (query) params.set("q", query);
+  if (tag) params.set("tag", tag);
+  const notificationsQuery = useNotificationsQuery(`?${params.toString()}`);
   const createMutation = useCreateNotificationMutation();
+  const updateMutation = useUpdateNotificationMutation();
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [formData, setFormData] = useState({ title: "", sender: "Ban giám hiệu", content: "", tag: "Quan trong" });
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  function openCreate() { setEditing(null); setForm(emptyForm); setShowForm(true); }
+  function openEdit(item: NotificationItem) { setEditing(item); setForm({ title: item.title, sender: item.sender, content: item.content, tag: item.tag }); setShowForm(true); }
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    const onSuccess = () => { setFeedback(editing ? "Đã cập nhật thông báo." : "Đã phát hành thông báo."); setShowForm(false); };
+    if (editing) updateMutation.mutate({ id: editing.id, payload: form }, { onSuccess });
+    else createMutation.mutate(form, { onSuccess });
+  }
 
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim()) return;
-    setFeedback(null);
-    createMutation.mutate(
-      { title: formData.title, sender: formData.sender, content: formData.content, tag: formData.tag },
-      {
-        onSuccess: () => {
-          setFeedback({ type: "success", message: "Phát hành thông báo thành công!" });
-          setShowCreateModal(false);
-          setFormData({ title: "", sender: "Ban giám hiệu", content: "", tag: "Quan trong" });
-        },
-        onError: (err: Error) => {
-          setFeedback({ type: "error", message: err.message || "Không thể tạo thông báo." });
-        },
-      }
-    );
-  };
+  return <AdminShell title="Thông báo" subtitle="Quản lý thông báo nhà trường qua BFF admin." activeHref="/admin/notifications">
+    <section className="rounded-2xl bg-[var(--primary)] p-6 text-white">
+      <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-widest text-white/70">Communication · Notifications</p><h2 className="mt-2 text-2xl font-black">Thông báo nhà trường</h2></div>
+      <button type="button" onClick={openCreate} className="rounded-lg bg-white px-5 py-2.5 font-bold text-[var(--primary)]"><Icon name="add_alert" /> Tạo thông báo mới</button></div>
+    </section>
 
-  return (
-    <AdminShell
-      title="Thông báo"
-      subtitle="Gửi và phát hành thông báo đến toàn bộ phụ huynh, học sinh và nhân sự."
-      activeHref="/admin/notifications"
-    >
-      <section className="relative overflow-hidden rounded-2xl bg-[var(--primary)] p-6 text-white shadow-sm sm:p-7">
-        <div className="absolute -right-16 -top-20 size-56 rounded-full border-[32px] border-white/10" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/70">
-              Communication · Notifications
-            </p>
-            <h2 className="mt-2 text-2xl font-black sm:text-3xl">
-              Quản lý thông báo nhà trường
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-white/80">
-              Thông báo được gửi trực tiếp qua BFF /api/admin/notifications.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 font-bold text-[var(--primary)] shadow-sm hover:bg-slate-50 transition-colors whitespace-nowrap"
-          >
-            <Icon name="add_alert" />
-            Tạo thông báo mới
-          </button>
-        </div>
-      </section>
+    <form onSubmit={(event) => { event.preventDefault(); setPage(1); setQuery(searchInput.trim()); }} className="flex flex-wrap gap-3 rounded-2xl border bg-white p-4">
+      <input aria-label="Tìm thông báo" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Tìm tiêu đề hoặc nội dung" className="min-w-64 flex-1 rounded-lg border p-2.5" />
+      <select aria-label="Lọc phân loại" value={tag} onChange={(event) => { setPage(1); setTag(event.target.value); }} className="rounded-lg border p-2.5"><option value="">Tất cả phân loại</option><option value="Quan trong">Quan trọng</option><option value="Hoc tap">Học tập</option><option value="Dich vu">Dịch vụ</option><option value="Su kien">Sự kiện</option></select>
+      <button type="submit" className="rounded-lg bg-slate-900 px-5 py-2.5 font-bold text-white">Tìm kiếm</button>
+    </form>
 
-      {feedback && (
-        <div className={`p-4 rounded-xl border font-semibold text-sm ${feedback.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-red-50 text-red-800 border-red-200"}`}>
-          {feedback.message}
-        </div>
-      )}
+    {feedback ? <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-800">{feedback}</p> : null}
+    {notificationsQuery.isPending ? <p role="status" className="rounded-2xl border bg-white p-8 text-center">Đang tải thông báo...</p>
+      : notificationsQuery.isError ? <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center"><p>Không thể tải thông báo.</p><button type="button" onClick={() => void notificationsQuery.refetch()}>Thử tải lại</button></div>
+      : notificationsQuery.data?.items.length === 0 ? <p className="rounded-2xl border bg-white p-8 text-center">Chưa có thông báo phù hợp.</p>
+      : <section aria-label="Danh sách thông báo" className="grid gap-4">{notificationsQuery.data?.items.map((item) => <article key={item.id} className="rounded-2xl border bg-white p-6 shadow-sm"><div className="flex items-start justify-between gap-4"><div><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{item.tag}</span><h3 className="mt-2 text-lg font-bold">{item.title}</h3></div><button type="button" onClick={() => openEdit(item)} aria-label={`Sửa ${item.title}`} className="rounded-lg border px-3 py-2">Sửa</button></div><p className="mt-3 text-sm text-[var(--secondary)]">{item.content}</p><p className="mt-3 border-t pt-3 text-xs">Người gửi: <strong>{item.sender}</strong></p></article>)}</section>}
 
-      {notificationsQuery.isPending ? (
-        <div role="status" className="rounded-2xl border border-[var(--outline-variant)] bg-white p-8 text-center text-sm text-[var(--secondary)]">
-          <div className="mx-auto size-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent mb-3" />
-          Đang tải danh sách thông báo từ hệ thống...
-        </div>
-      ) : notificationsQuery.isError ? (
-        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-800">
-          <p className="font-bold">Không thể tải thông báo từ server.</p>
-          <button
-            type="button"
-            onClick={() => void notificationsQuery.refetch()}
-            className="mt-3 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
-          >
-            Thử tải lại
-          </button>
-        </div>
-      ) : notificationsQuery.data?.items.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--outline-variant)] bg-white p-8 text-center text-sm text-[var(--secondary)]">
-          Chưa có thông báo nào trong hệ thống.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {notificationsQuery.data?.items.map((item) => (
-            <div key={item.id} className="bg-white border border-[var(--outline-variant)] rounded-2xl p-6 shadow-sm space-y-3">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="inline-block px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                    {item.tag}
-                  </span>
-                  <h3 className="text-lg font-bold text-[var(--foreground)]">{item.title}</h3>
-                </div>
-                <span className="text-xs text-[var(--secondary)] font-mono whitespace-nowrap">
-                  {item.sent_at ? new Date(item.sent_at).toLocaleString("vi-VN") : "Gần đây"}
-                </span>
-              </div>
-              <p className="text-sm text-[var(--secondary)] leading-relaxed">{item.content}</p>
-              <div className="pt-3 text-xs text-[var(--secondary)] flex items-center justify-between border-t border-[var(--outline-variant)]">
-                <span>Người gửi: <strong className="text-[var(--foreground)]">{item.sender}</strong></span>
-                <span className="font-mono">ID: {item.id}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    {notificationsQuery.data && notificationsQuery.data.total > notificationsQuery.data.page_size ? <nav aria-label="Phân trang thông báo" className="flex justify-end gap-2"><button type="button" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Trang trước</button><span>Trang {page}</span><button type="button" disabled={!notificationsQuery.data.has_next} onClick={() => setPage((value) => value + 1)}>Trang sau</button></nav> : null}
 
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[var(--outline-variant)] rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
-            <h2 className="text-xl font-bold text-[var(--foreground)]">Gửi Thông Báo Mới</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[var(--secondary)] mb-1">Tiêu đề thông báo</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Nhập tiêu đề..."
-                  className="w-full bg-white border border-[var(--outline-variant)] text-sm rounded-lg p-2.5 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--secondary)] mb-1">Người gửi</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.sender}
-                    onChange={(e) => setFormData({ ...formData, sender: e.target.value })}
-                    className="w-full bg-white border border-[var(--outline-variant)] text-sm rounded-lg p-2.5 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--secondary)] mb-1">Phân loại (Tag)</label>
-                  <select
-                    value={formData.tag}
-                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                    className="w-full bg-white border border-[var(--outline-variant)] text-sm rounded-lg p-2.5 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
-                  >
-                    <option value="Quan trong">Quan trong</option>
-                    <option value="Hoc tap">Hoc tap</option>
-                    <option value="Dich vu">Dich vu</option>
-                    <option value="Su kien">Su kien</option>
-                    <option value="Hanh chinh">Hanh chinh</option>
-                    <option value="He thong">He thong</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[var(--secondary)] mb-1">Nội dung chi tiết</label>
-                <textarea
-                  rows={4}
-                  required
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Nội dung thông báo..."
-                  className="w-full bg-white border border-[var(--outline-variant)] text-sm rounded-lg p-2.5 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
-                ></textarea>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-sm text-[var(--secondary)] hover:text-[var(--foreground)]"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending}
-                  className="px-5 py-2 text-sm bg-[var(--primary)] text-white font-bold rounded-lg disabled:opacity-50"
-                >
-                  {createMutation.isPending ? "Đang phát hành..." : "Phát Hành Thông Báo"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </AdminShell>
-  );
+    {showForm ? <div role="dialog" aria-modal="true" aria-labelledby="notification-form-title" className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><div className="w-full max-w-lg rounded-2xl bg-white p-6"><h2 id="notification-form-title" className="text-xl font-bold">{editing ? "Chỉnh sửa thông báo" : "Tạo thông báo"}</h2><form onSubmit={submit} className="mt-4 space-y-4"><label className="block">Tiêu đề thông báo<input aria-label="Tiêu đề thông báo" required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="mt-1 w-full rounded-lg border p-2.5" /></label><label className="block">Người gửi<input required value={form.sender} onChange={(event) => setForm({ ...form, sender: event.target.value })} className="mt-1 w-full rounded-lg border p-2.5" /></label><label className="block">Nội dung<textarea required value={form.content} onChange={(event) => setForm({ ...form, content: event.target.value })} className="mt-1 w-full rounded-lg border p-2.5" /></label><div className="flex justify-end gap-3"><button type="button" onClick={() => setShowForm(false)}>Hủy</button><button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="rounded-lg bg-[var(--primary)] px-5 py-2 text-white">{editing ? "Lưu thay đổi" : "Phát hành"}</button></div></form></div></div> : null}
+  </AdminShell>;
 }

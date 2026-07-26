@@ -265,7 +265,8 @@
       "path": "/admin/notifications",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.read"
     },
     {
       "group": "communication",
@@ -274,7 +275,8 @@
       "path": "/admin/notifications",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.manage"
     },
     {
       "group": "communication",
@@ -283,7 +285,8 @@
       "path": "/admin/notifications/{id}",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.read"
     },
     {
       "group": "communication",
@@ -292,7 +295,8 @@
       "path": "/admin/notifications/{id}",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.manage"
     },
     {
       "group": "communication",
@@ -895,7 +899,8 @@
       "path": "/notifications",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.read"
     },
     {
       "group": "communication",
@@ -904,7 +909,8 @@
       "path": "/notifications/{id}",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.read"
     },
     {
       "group": "communication",
@@ -913,7 +919,8 @@
       "path": "/notifications/{id}/read",
       "bounded_context": "Communication",
       "auth_required": true,
-      "implementation_status": "implemented"
+      "implementation_status": "implemented",
+      "required_permission": "communication.notifications.read"
     },
     {
       "group": "communication",

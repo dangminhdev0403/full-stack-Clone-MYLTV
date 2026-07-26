@@ -42,6 +42,7 @@ const expectedImplemented = [
   "/admin/attendance",
   "/admin/tuition",
   "/admin/news",
+  "/admin/notifications",
 ];
 const expectedUnavailable = [
   "/admin/grades",
@@ -53,7 +54,6 @@ const expectedUnavailable = [
   "/admin/services/clubs",
   "/admin/services/bus",
   "/admin/services/uniforms",
-  "/admin/notifications",
   "/admin/feedback",
   "/admin/reports",
   "/admin/system",
@@ -107,7 +107,6 @@ describe("admin shell navigation metadata", () => {
       "Câu lạc bộ",
       "Xe buýt",
       "Đồng phục",
-      "Thông báo",
       "Phản hồi",
       "Báo cáo",
       "Hệ thống",
@@ -119,6 +118,14 @@ describe("admin shell navigation metadata", () => {
       )
         .flatMap(({ items }) => items)
         .some(({ label }) => label === "Học phí"),
+    ).toBe(true);
+    expect(
+      getVisibleAdminNavGroups(
+        ["students.read", "communication.notifications.read"],
+        "admin",
+      )
+        .flatMap(({ items }) => items)
+        .some(({ label }) => label === "Thông báo"),
     ).toBe(true);
     expect(
       getVisibleAdminNavGroups([], "super_admin").flatMap(({ items }) => items),

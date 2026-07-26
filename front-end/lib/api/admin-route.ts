@@ -28,7 +28,7 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   }
   if (resource === "notifications") {
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/notifications";
-    if (segments.length === 1 && id && method === "GET") return `/api/v1/notifications/${id}`;
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/notifications/${id}`;
   }
   if (resource === "feedback") {
     if (segments.length === 0 && method === "GET") return "/api/v1/admin/feedback";

@@ -15,8 +15,11 @@ export type RecordAuditEvent = {
 export class AuditService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async record(event: RecordAuditEvent): Promise<void> {
-    await this.prisma.auditEvent.create({
+  async record(
+    event: RecordAuditEvent,
+    client: Pick<PrismaService, 'auditEvent'> = this.prisma,
+  ): Promise<void> {
+    await client.auditEvent.create({
       data: {
         actorId: event.actorId,
         action: event.action,

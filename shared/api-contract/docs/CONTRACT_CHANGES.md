@@ -1,5 +1,10 @@
 # Contract Changes
 
+## Unreleased - 2026-07-26
+
+- Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
+- Added `x-required-permission` metadata for admin/app Notifications operations; app reads derive linked-student scope only from the authenticated actor, admin mutations write their audit event in the same transaction, and canonical JSON/YAML plus root/frontend mirrors stay synchronized.
+
 ## Unreleased - 2026-07-25
 
 - Extended Next.js BFF router (`/api/admin/[resource]/[[...segments]]`) to proxy GET, POST, PUT, PATCH, and DELETE with query parameters, headers, and authentication tokens.

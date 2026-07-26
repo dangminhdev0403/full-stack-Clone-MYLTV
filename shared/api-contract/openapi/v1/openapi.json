@@ -2128,14 +2128,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "student_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2201,12 +2193,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.read"
       },
       "post": {
         "tags": [
@@ -2275,12 +2267,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.manage"
       }
     },
     "/admin/notifications/{id}": {
@@ -2351,12 +2343,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.read"
       },
       "patch": {
         "tags": [
@@ -2435,12 +2427,12 @@
         "x-bounded-context": "Communication",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
         "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.manage"
       }
     },
     "/admin/feedback": {
@@ -8392,27 +8384,11 @@
             }
           },
           {
-            "name": "student_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "tag",
             "in": "query",
             "required": false,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "is_read",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
             }
           }
         ],
@@ -8486,7 +8462,8 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.read"
       }
     },
     "/notifications/{id}": {
@@ -8564,7 +8541,8 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.read"
       }
     },
     "/notifications/{id}/read": {
@@ -8651,7 +8629,8 @@
           "super_admin"
         ],
         "x-scope": "linked_student",
-        "x-implementation-status": "implemented"
+        "x-implementation-status": "implemented",
+        "x-required-permission": "communication.notifications.read"
       }
     },
     "/feedback": {
