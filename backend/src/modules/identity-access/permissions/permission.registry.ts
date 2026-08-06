@@ -135,6 +135,20 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'academics.homework.read',
+    label: 'Read homework assignments',
+    description: 'Read homework assignments and submission progress.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.homework.manage',
+    label: 'Manage homework assignments',
+    description: 'Create, update, and archive homework assignments.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
     key: 'billing.tuition.read',
     label: 'Read tuition charges',
     description: 'Read student tuition charges and outstanding balances.',

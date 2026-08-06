@@ -743,26 +743,43 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
   });
 
   // HomeworkAssignment
-  await prisma.homeworkAssignment.upsert({
-    where: { id: 'hw-sample-1' },
+  const homework = await prisma.homeworkAssignment.upsert({
+    where: { id: 'uat-homework-math-1' },
     update: {
       studentId: student.id,
-      title: 'Bài tập Đại số Tuần 1',
+      targetType: 'students',
+      studentIds: [student.id],
+      title: 'Bài tập Đại số tuần 1',
+      subject: 'Toán Học',
+      content: 'Làm bài 1 đến 5 trang 24 sách bài tập.',
+      teacher: 'Cô Mai',
+      deadline: new Date('2026-09-20T23:59:59Z'),
+      status: 'pending',
+      archivedAt: null,
+    },
+    create: {
+      id: 'uat-homework-math-1',
+      studentId: student.id,
+      targetType: 'students',
+      studentIds: [student.id],
+      title: 'Bài tập Đại số tuần 1',
       subject: 'Toán Học',
       content: 'Làm bài 1 đến 5 trang 24 sách bài tập.',
       teacher: 'Cô Mai',
       deadline: new Date('2026-09-20T23:59:59Z'),
       status: 'pending',
     },
+  });
+  await prisma.homeworkSubmission.upsert({
+    where: {
+      homeworkId_studentId: { homeworkId: homework.id, studentId: student.id },
+    },
+    update: { content: 'Bài làm UAT đã nộp.', status: 'submitted' },
     create: {
-      id: 'hw-sample-1',
+      homeworkId: homework.id,
       studentId: student.id,
-      title: 'Bài tập Đại số Tuần 1',
-      subject: 'Toán Học',
-      content: 'Làm bài 1 đến 5 trang 24 sách bài tập.',
-      teacher: 'Cô Mai',
-      deadline: new Date('2026-09-20T23:59:59Z'),
-      status: 'pending',
+      content: 'Bài làm UAT đã nộp.',
+      status: 'submitted',
     },
   });
 

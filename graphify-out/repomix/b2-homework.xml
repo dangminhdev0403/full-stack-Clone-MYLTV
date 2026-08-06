@@ -1,0 +1,2326 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: backend/src/modules/academics/timetable-homework/**, backend/prisma/schema.prisma, backend/prisma/migrations/20260806143000_normalize_homework_assignments/**, front-end/features/homeworks/**, front-end/app/admin/homeworks/page.tsx, shared/api-contract/docs/**
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  prisma/
+    migrations/
+      20260806143000_normalize_homework_assignments/
+        migration.sql
+    schema.prisma
+  src/
+    modules/
+      academics/
+        timetable-homework/
+          timetable-homework.controller.ts
+          timetable-homework.service.ts
+          timetable-homework.spec.ts
+          timetable-homework.validation.ts
+front-end/
+  app/
+    admin/
+      homeworks/
+        page.tsx
+  features/
+    homeworks/
+      components/
+        homework-statistics.test.ts
+        homework-statistics.ts
+        homeworks-page.tsx
+      hooks/
+        use-homeworks.ts
+      service/
+        homeworks.client.test.ts
+        homeworks.client.ts
+        homeworks.resource.ts
+shared/
+  api-contract/
+    docs/
+      API_CATALOG.md
+      CONTRACT_CHANGES.md
+      FRONTEND_HANDOFF.md
+      IMPLEMENTATION_STATUS.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/prisma/migrations/20260806143000_normalize_homework_assignments/migration.sql">
+ALTER TABLE "homework_assignments"
+  ALTER COLUMN "student_id" DROP NOT NULL,
+  ADD COLUMN "target_type" TEXT NOT NULL DEFAULT 'students',
+  ADD COLUMN "class_id" TEXT,
+  ADD COLUMN "student_ids" JSONB,
+  ADD COLUMN "archived_at" TIMESTAMP(3);
+
+UPDATE "homework_assignments" SET "student_ids" = jsonb_build_array("student_id") WHERE "student_id" IS NOT NULL;
+
+ALTER TABLE "homework_submissions" ADD COLUMN "student_id" TEXT;
+UPDATE "homework_submissions" AS submission SET "student_id" = assignment."student_id"
+FROM "homework_assignments" AS assignment WHERE submission."homework_id" = assignment."id";
+DELETE FROM "homework_submissions" WHERE "student_id" IS NULL;
+ALTER TABLE "homework_submissions" ALTER COLUMN "student_id" SET NOT NULL;
+
+CREATE INDEX "homework_assignments_class_id_archived_at_idx" ON "homework_assignments"("class_id", "archived_at");
+CREATE UNIQUE INDEX "homework_submissions_homework_id_student_id_key" ON "homework_submissions"("homework_id", "student_id");
+CREATE INDEX "homework_submissions_student_id_idx" ON "homework_submissions"("student_id");
+</file>
+
+<file path="backend/src/modules/academics/timetable-homework/timetable-homework.spec.ts">
+import 'reflect-metadata';
+import { BadRequestException } from '@nestjs/common';
+import { REQUIRED_PERMISSIONS_KEY } from '../../../common/auth/auth.constants';
+import { AdminTimetableHomeworkController } from './timetable-homework.controller';
+import {
+  validateCreateHomework,
+  validateListHomeworks,
+  validateUpdateHomework,
+} from './timetable-homework.validation';
+
+describe('Homework administration', () => {
+  it('validates class and selected-student targets', () => {
+    expect(
+      validateCreateHomework({
+        target_type: 'class',
+        class_id: 'class-1',
+        subject: 'Toán',
+        title: 'Bài 1',
+        content: 'Làm bài 1',
+        teacher: 'Cô Mai',
+        deadline: '2026-09-20T10:00:00.000Z',
+      }).class_id,
+    ).toBe('class-1');
+    expect(
+      validateCreateHomework({
+        target_type: 'students',
+        student_ids: ['student-1'],
+        subject: 'Toán',
+        title: 'Bài 1',
+        content: 'Làm bài 1',
+        teacher: 'Cô Mai',
+        deadline: '2026-09-20T10:00:00.000Z',
+      }).student_ids,
+    ).toEqual(['student-1']);
+    expect(() =>
+      validateCreateHomework({
+        target_type: 'class',
+        student_ids: ['student-1'],
+        subject: 'Toán',
+        title: 'Bài 1',
+        content: 'Làm bài 1',
+        teacher: 'Cô Mai',
+        deadline: 'bad',
+      }),
+    ).toThrow(BadRequestException);
+  });
+
+  it('validates bounded list and non-empty updates', () => {
+    expect(validateListHomeworks({ page: '2', page_size: '10' })).toMatchObject(
+      { page: 2, page_size: 10 },
+    );
+    expect(() => validateListHomeworks({ page_size: '101' })).toThrow(
+      BadRequestException,
+    );
+    expect(() => validateUpdateHomework({})).toThrow(BadRequestException);
+  });
+
+  it('requires explicit read/manage permissions', () => {
+    const permission = (name: keyof AdminTimetableHomeworkController) =>
+      Reflect.getMetadata(
+        REQUIRED_PERMISSIONS_KEY,
+        Object.getOwnPropertyDescriptor(
+          AdminTimetableHomeworkController.prototype,
+          name,
+        )?.value as object,
+      ) as string[];
+    expect(permission('listHomeworks')).toEqual(['academics.homework.read']);
+    for (const name of [
+      'createHomework',
+      'updateHomework',
+      'archiveHomework',
+    ] as const) {
+      expect(permission(name)).toEqual(['academics.homework.manage']);
+    }
+  });
+});
+</file>
+
+<file path="backend/src/modules/academics/timetable-homework/timetable-homework.validation.ts">
+import { BadRequestException } from '@nestjs/common';
+import { z } from 'zod';
+
+const text = z.string().trim().min(1);
+const deadline = z.string().datetime();
+
+export class ListHomeworksQueryDto {
+  page?: number;
+  page_size?: number;
+  q?: string;
+  class_id?: string;
+  student_id?: string;
+  status?: string;
+  include_archived?: boolean;
+}
+
+export class CreateHomeworkDto {
+  target_type!: 'class' | 'students';
+  class_id?: string;
+  student_ids?: string[];
+  subject_id?: string;
+  subject!: string;
+  title!: string;
+  content!: string;
+  teacher!: string;
+  deadline!: string;
+}
+
+export class UpdateHomeworkDto {
+  subject_id?: string | null;
+  subject?: string;
+  title?: string;
+  content?: string;
+  teacher?: string;
+  deadline?: string;
+}
+
+const listSchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  page_size: z.coerce.number().int().min(1).max(100).default(20),
+  q: z.string().trim().optional(),
+  class_id: z.string().trim().optional(),
+  student_id: z.string().trim().optional(),
+  status: z.enum(['pending', 'active', 'archived']).optional(),
+  include_archived: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .or(z.boolean())
+    .optional(),
+});
+
+const createSchema = z
+  .object({
+    target_type: z.enum(['class', 'students']),
+    class_id: text.optional(),
+    student_ids: z.array(text).min(1).max(200).optional(),
+    subject_id: text.optional(),
+    subject: text.max(255),
+    title: text.max(255),
+    content: text.max(5000),
+    teacher: text.max(255),
+    deadline,
+  })
+  .superRefine((value, context) => {
+    if (value.target_type === 'class' && (!value.class_id || value.student_ids))
+      context.addIssue({
+        code: 'custom',
+        message: 'class target requires class_id only',
+      });
+    if (
+      value.target_type === 'students' &&
+      (!value.student_ids || value.class_id)
+    )
+      context.addIssue({
+        code: 'custom',
+        message: 'students target requires student_ids only',
+      });
+  });
+
+const updateSchema = z
+  .object({
+    subject_id: text.nullable().optional(),
+    subject: text.max(255).optional(),
+    title: text.max(255).optional(),
+    content: text.max(5000).optional(),
+    teacher: text.max(255).optional(),
+    deadline: deadline.optional(),
+  })
+  .refine(
+    (value) => Object.keys(value).length > 0,
+    'At least one field is required',
+  );
+
+function parse<T>(schema: z.ZodType<T>, value: unknown): T {
+  const result = schema.safeParse(value);
+  if (!result.success)
+    throw new BadRequestException({
+      message: 'Validation failed',
+      issues: result.error.issues,
+    });
+  return result.data;
+}
+
+export const validateListHomeworks = (value: unknown) =>
+  parse(listSchema, value);
+export const validateCreateHomework = (value: unknown) =>
+  parse(createSchema, value);
+export const validateUpdateHomework = (value: unknown) =>
+  parse(updateSchema, value);
+</file>
+
+<file path="front-end/features/homeworks/components/homework-statistics.test.ts">
+import { describe, expect, it } from "vitest";
+import { summarizeHomeworks } from "./homework-statistics";
+
+describe("summarizeHomeworks", () => {
+  it("separates overdue, upcoming and completed work", () => {
+    expect(summarizeHomeworks([
+      { deadline: "2026-07-26T00:00:00.000Z", status: "pending", subject: "Toán" },
+      { deadline: "2026-07-29T00:00:00.000Z", status: "pending", subject: "Văn" },
+      { deadline: "2026-07-20T00:00:00.000Z", status: "submitted", subject: "Toán" },
+    ], new Date("2026-07-27T00:00:00.000Z"))).toEqual({ total: 3, overdue: 1, upcoming: 1, completed: 1, subjects: 2 });
+  });
+});
+</file>
+
+<file path="front-end/features/homeworks/components/homework-statistics.ts">
+type HomeworkStatInput = { deadline: string; status: string; subject: string };
+
+export function summarizeHomeworks(items: HomeworkStatInput[], now = new Date()) {
+  const completed = items.filter((item) => item.status === "submitted").length;
+  const overdue = items.filter((item) => item.status !== "submitted" && new Date(item.deadline) < now).length;
+  return { total: items.length, overdue, upcoming: items.length - completed - overdue, completed, subjects: new Set(items.map((item) => item.subject)).size };
+}
+</file>
+
+<file path="front-end/features/homeworks/service/homeworks.client.test.ts">
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { listHomeworks } from "./homeworks.client";
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("homeworks client", () => {
+  it("uses admin BFF and surfaces API errors", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              items: [],
+              page: 1,
+              page_size: 20,
+              total: 0,
+              has_next: false,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(listHomeworks({ class_id: "class-1" })).resolves.toMatchObject(
+      { items: [] },
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/admin/homeworks?class_id=class-1",
+      { cache: "no-store" },
+    );
+  });
+});
+</file>
+
+<file path="front-end/features/homeworks/components/homeworks-page.tsx">
+"use client";
+
+import { useState } from "react";
+import { AdminShell } from "@/features/admin-shell";
+import { useClassesQuery } from "@/features/academic-structure/hooks/use-academic-structure";
+import {
+  useArchiveHomeworkMutation,
+  useCreateHomeworkMutation,
+  useHomeworksQuery,
+} from "../hooks/use-homeworks";
+
+export function HomeworksPage() {
+  const [classId, setClassId] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const classes = useClassesQuery({ is_active: true });
+  const homeworks = useHomeworksQuery({
+    class_id: classId || undefined,
+    include_archived: showArchived,
+  });
+  const create = useCreateHomeworkMutation();
+  const archive = useArchiveHomeworkMutation();
+  const [form, setForm] = useState({
+    subject: "",
+    title: "",
+    content: "",
+    teacher: "",
+    deadline: "",
+  });
+
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!classId) return;
+    create.mutate(
+      {
+        target_type: "class",
+        class_id: classId,
+        ...form,
+        deadline: new Date(form.deadline).toISOString(),
+      },
+      {
+        onSuccess: () => {
+          setFormOpen(false);
+          setForm({
+            subject: "",
+            title: "",
+            content: "",
+            teacher: "",
+            deadline: "",
+          });
+        },
+      },
+    );
+  }
+
+  return (
+    <AdminShell
+      title="Bài tập"
+      subtitle="Giao bài và theo dõi tiến độ nộp thực tế."
+      activeHref="/admin/homeworks"
+    >
+      <section className="rounded-2xl bg-[var(--primary)] p-6 text-white">
+        <h2 className="text-2xl font-black">Quản lý bài tập</h2>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <label className="grid gap-1 text-sm font-bold">
+            Lớp
+            <select
+              value={classId}
+              onChange={(event) => setClassId(event.target.value)}
+              className="rounded-lg bg-white px-3 py-2 text-slate-900"
+            >
+              <option value="">Tất cả lớp</option>
+              {classes.data?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.display_name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-end gap-2 pb-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(event) => setShowArchived(event.target.checked)}
+            />{" "}
+            Hiện bài đã lưu trữ
+          </label>
+          <button
+            type="button"
+            disabled={!classId}
+            onClick={() => setFormOpen(true)}
+            className="ml-auto self-end rounded-lg bg-white px-4 py-2 font-bold text-[var(--primary)] disabled:opacity-50"
+          >
+            Giao bài mới
+          </button>
+        </div>
+      </section>
+
+      {homeworks.isPending ? (
+        <p role="status" className="rounded-xl border bg-white p-6">
+          Đang tải bài tập...
+        </p>
+      ) : homeworks.isError ? (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-800"
+        >
+          Không thể tải bài tập.{" "}
+          <button
+            type="button"
+            onClick={() => void homeworks.refetch()}
+            className="underline"
+          >
+            Thử lại
+          </button>
+        </div>
+      ) : !homeworks.data?.items.length ? (
+        <p className="rounded-xl border bg-white p-6">
+          Chưa có bài tập phù hợp.
+        </p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {homeworks.data.items.map((item) => (
+            <article key={item.id} className="rounded-2xl border bg-white p-5">
+              <div className="flex justify-between gap-3">
+                <strong>{item.subject}</strong>
+                <span>{new Date(item.deadline).toLocaleString("vi-VN")}</span>
+              </div>
+              <h3 className="mt-2 text-lg font-black">{item.title}</h3>
+              <p className="mt-2 text-sm">{item.content}</p>
+              <p className="mt-3 text-sm">
+                Đã nộp {item.progress.submitted}/{item.progress.assigned}; còn{" "}
+                {item.progress.pending}
+              </p>
+              {!item.archived_at && (
+                <button
+                  type="button"
+                  disabled={archive.isPending}
+                  onClick={() => archive.mutate(item.id)}
+                  className="mt-3 rounded-lg border px-3 py-2 text-sm"
+                >
+                  Lưu trữ
+                </button>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+
+      {formOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="homework-form-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+        >
+          <form
+            onSubmit={submit}
+            className="w-full max-w-lg space-y-3 rounded-2xl bg-white p-6"
+          >
+            <h2 id="homework-form-title" className="text-xl font-black">
+              Giao bài cho lớp
+            </h2>
+            {(["subject", "title", "teacher", "deadline"] as const).map(
+              (field) => (
+                <label key={field} className="grid gap-1 text-sm font-bold">
+                  {
+                    {
+                      subject: "Môn học",
+                      title: "Tiêu đề",
+                      teacher: "Giáo viên",
+                      deadline: "Hạn nộp",
+                    }[field]
+                  }
+                  <input
+                    required
+                    type={field === "deadline" ? "datetime-local" : "text"}
+                    value={form[field]}
+                    onChange={(event) =>
+                      setForm({ ...form, [field]: event.target.value })
+                    }
+                    className="rounded-lg border p-2"
+                  />
+                </label>
+              ),
+            )}
+            <label className="grid gap-1 text-sm font-bold">
+              Nội dung
+              <textarea
+                required
+                value={form.content}
+                onChange={(event) =>
+                  setForm({ ...form, content: event.target.value })
+                }
+                className="rounded-lg border p-2"
+              />
+            </label>
+            {create.isError && (
+              <p role="alert" className="text-sm text-red-700">
+                Không thể giao bài. Kiểm tra dữ liệu rồi thử lại.
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="rounded-lg border px-4 py-2"
+              >
+                Hủy
+              </button>
+              <button
+                disabled={create.isPending}
+                className="rounded-lg bg-[var(--primary)] px-4 py-2 text-white"
+              >
+                {create.isPending ? "Đang giao..." : "Giao bài"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </AdminShell>
+  );
+}
+</file>
+
+<file path="front-end/features/homeworks/hooks/use-homeworks.ts">
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { homeworksResource } from "../service/homeworks.resource";
+import type { HomeworkQuery } from "../service/homeworks.client";
+const homeworks = homeworksResource.bind();
+export function useHomeworksQuery(query: HomeworkQuery = {}) {
+  return useQuery(homeworks.queries.list.options(query));
+}
+export function useCreateHomeworkMutation() {
+  return useMutation(homeworks.mutations.create.options());
+}
+export function useUpdateHomeworkMutation() {
+  return useMutation(homeworks.mutations.update.options());
+}
+export function useArchiveHomeworkMutation() {
+  return useMutation(homeworks.mutations.archive.options());
+}
+</file>
+
+<file path="front-end/features/homeworks/service/homeworks.client.ts">
+import { z } from "zod";
+import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+
+export const homeworkItemSchema = z.object({
+  id: z.string(),
+  subject: z.string(),
+  title: z.string(),
+  content: z.string(),
+  teacher: z.string(),
+  assigned_at: z.string(),
+  deadline: z.string(),
+  status: z.string(),
+  target_type: z.enum(["class", "students"]),
+  class_id: z.string().nullable(),
+  student_ids: z.array(z.string()),
+  archived_at: z.string().nullable(),
+  progress: z.object({
+    assigned: z.number(),
+    submitted: z.number(),
+    pending: z.number(),
+  }),
+});
+const homeworkListSchema = successSchema(
+  z.object({
+    items: z.array(homeworkItemSchema),
+    page: z.number(),
+    page_size: z.number(),
+    total: z.number(),
+    has_next: z.boolean(),
+  }),
+);
+export type HomeworkItem = z.infer<typeof homeworkItemSchema>;
+export type HomeworkQuery = {
+  q?: string;
+  class_id?: string;
+  include_archived?: boolean;
+};
+export type CreateHomeworkPayload = {
+  target_type: "class" | "students";
+  class_id?: string;
+  student_ids?: string[];
+  subject: string;
+  title: string;
+  content: string;
+  teacher: string;
+  deadline: string;
+};
+export type UpdateHomeworkPayload = Partial<
+  Pick<
+    CreateHomeworkPayload,
+    "subject" | "title" | "content" | "teacher" | "deadline"
+  >
+>;
+
+export async function listHomeworks(query: HomeworkQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.q) params.set("q", query.q);
+  if (query.class_id) params.set("class_id", query.class_id);
+  if (query.include_archived) params.set("include_archived", "true");
+  const response = await fetch(`/api/admin/homeworks?${params}`, {
+    cache: "no-store",
+  });
+  return (await parseApiResponse(response, homeworkListSchema)).data;
+}
+export async function createHomework(payload: CreateHomeworkPayload) {
+  const response = await fetch("/api/admin/homeworks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return (await parseApiResponse(response, successSchema(homeworkItemSchema)))
+    .data;
+}
+export async function updateHomework(
+  id: string,
+  payload: UpdateHomeworkPayload,
+) {
+  const response = await fetch(
+    `/api/admin/homeworks/${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
+  return (await parseApiResponse(response, successSchema(homeworkItemSchema)))
+    .data;
+}
+export async function archiveHomework(id: string) {
+  const response = await fetch(
+    `/api/admin/homeworks/${encodeURIComponent(id)}/archive`,
+    { method: "POST" },
+  );
+  return (await parseApiResponse(response, successSchema(homeworkItemSchema)))
+    .data;
+}
+</file>
+
+<file path="front-end/features/homeworks/service/homeworks.resource.ts">
+import {
+  createResource,
+  defineMutation,
+  defineQuery,
+} from "@dangminhdev04032005/query-resource";
+import {
+  archiveHomework,
+  createHomework,
+  listHomeworks,
+  updateHomework,
+  type CreateHomeworkPayload,
+  type HomeworkQuery,
+  type UpdateHomeworkPayload,
+} from "./homeworks.client";
+const list = { type: "query" as const, operation: "list" as const };
+export const homeworksResource = createResource<void>()({
+  namespace: ["clone-myltv"],
+  name: "homeworks",
+  scopeKey: () => ["admin"],
+  queries: {
+    list: defineQuery({
+      inputKey: (input: HomeworkQuery) => [input],
+      queryFn: ({ input }) => listHomeworks(input),
+    }),
+  },
+  mutations: {
+    create: defineMutation({
+      mutationFn: ({ variables }: { variables: CreateHomeworkPayload }) =>
+        createHomework(variables),
+      invalidates: [list],
+    }),
+    update: defineMutation({
+      mutationFn: ({
+        variables,
+      }: {
+        variables: { id: string; payload: UpdateHomeworkPayload };
+      }) => updateHomework(variables.id, variables.payload),
+      invalidates: [list],
+    }),
+    archive: defineMutation({
+      mutationFn: ({ variables }: { variables: string }) =>
+        archiveHomework(variables),
+      invalidates: [list],
+    }),
+  },
+});
+</file>
+
+<file path="shared/api-contract/docs/FRONTEND_HANDOFF.md">
+# Frontend API Contract Handoff
+
+## Status
+
+This contract is a draft v1 for frontend review, type/client generation, and mock integration.
+
+It is not proof that all backend endpoints are implemented or live today. Backend implementation is delivered module-by-module as bounded-context vertical slices, so frontend teams must check `docs/IMPLEMENTATION_STATUS.md` before wiring a screen to the live backend.
+
+## Source Files
+
+- Machine-readable source: `openapi/v1/openapi.json`
+- YAML mirror: `openapi/v1/openapi.yaml`
+- Human endpoint catalog: `docs/API_CATALOG.md`
+- Backend availability tracker: `docs/IMPLEMENTATION_STATUS.md`
+
+Use `openapi/v1/openapi.json` for generated types, generated clients, schema validation, and mock server setup.
+
+## Consumer Filtering
+
+Each operation carries an `x-consumer` extension. Filter operations by the consumer surface being built:
+
+| `x-consumer` | Meaning |
+| --- | --- |
+| `app` | App/mobile endpoints only. |
+| `management-ui` | Management UI endpoints only. |
+| `app,management-ui` | Shared endpoints used by both app/mobile and Management UI. |
+| `management-ui-compat` | Temporary Management UI compatibility endpoints. Prefer the matching `/admin/...` route for new work. |
+
+Generated clients may include all operations, but feature code should import only the operations for its consumer and bounded context.
+
+## Frontend Client Organization
+
+Use `x-bounded-context` to organize feature API clients instead of building one large API module.
+
+Recommended mapping:
+
+```txt
+features/auth/api
+features/users/api
+features/students/api
+features/communication/api
+features/academics/api
+features/billing/api
+features/student-services/api
+features/uploads/api
+```
+
+Keep generated transport/types separate from feature-level API wrappers. Feature wrappers should own UI-friendly mapping, request defaults, and mock swapping, while the generated contract stays close to OpenAPI.
+
+## Path And ID Convention
+
+Use `{id}` for the primary resource when the resource segment already identifies the resource:
+
+```txt
+/students/{id}
+/notifications/{id}
+/services/events/{id}/register
+```
+
+Do not put multiple IDs in one path. Put secondary or action target IDs in the request body or query.
+
+Preferred:
+
+```txt
+POST /students/{id}/homeworks/submit
+body: {
+  "homework_id": "homework_123",
+  "content": "...",
+  "attachments": []
+}
+```
+
+Avoid:
+
+```txt
+POST /students/{id}/homeworks/{homework_id}/submit
+```
+
+## Auth, Roles, And Scope
+
+Authorization remains fixed-role policy plus linked-student/class/resource scope.
+
+Frontend may use `x-allowed-roles` and `x-scope` for UI affordances only, such as hiding unavailable navigation items or disabling actions before submission. The backend is the source of truth for authorization and must still reject unauthorized requests.
+
+Do not build a full RBAC administration UI from this contract. App/mobile student-scoped endpoints should assume an active linked-student context, and backend ownership checks remain mandatory.
+
+## Mock Strategy
+
+Before a backend module exists, frontend should mock from the OpenAPI schemas and operation shapes.
+
+- Keep mock data isolated from feature UI and easy to replace with API-backed services.
+- Mock success and error envelopes, pagination, empty states, validation errors, and forbidden responses.
+- Use `docs/IMPLEMENTATION_STATUS.md` to decide whether an endpoint is live, partial, or mock-only.
+- For app/mobile student-scoped APIs, include a mock active student context.
+- Do not encode final business authorization logic in frontend mocks beyond UI visibility.
+- For compatibility endpoints marked `management-ui-compat`, mock the preferred `/admin/...` route for new screens unless a legacy screen still requires compatibility behavior.
+
+## Frontend Acceptance Checklist
+
+- Generated types/client come from `openapi/v1/openapi.json`.
+- Endpoint imports are filtered by `x-consumer`.
+- Feature API wrappers are organized by `x-bounded-context`.
+- Management UI new work uses preferred `/admin/...` endpoints instead of `/users` compatibility routes.
+- App/mobile code handles active linked-student scope.
+- UI uses `x-allowed-roles` and `x-scope` only for affordances, not final authorization.
+- Mock data is isolated and replaceable by live API services.
+- Screens relying on live backend routes are checked against `docs/IMPLEMENTATION_STATUS.md`.
+- API calls and mocks use the standard success/error envelopes.
+- Path usage follows the `{id}` primary-resource convention and keeps secondary IDs in body/query.
+</file>
+
+<file path="backend/src/modules/academics/timetable-homework/timetable-homework.service.ts">
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { ok } from '../../../common/http/api-response';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { AuditService } from '../../identity-access/audit/audit.service';
+import type {
+  CreateHomeworkDto,
+  ListHomeworksQueryDto,
+  UpdateHomeworkDto,
+} from './timetable-homework.validation';
+
+export class SubmitHomeworkDto {
+  content?: string;
+  attachments?: string[];
+}
+export class SaveTimetableDto {
+  student_id!: string;
+  week_start!: string;
+  days!: unknown[];
+}
+
+type HomeworkRow = Prisma.HomeworkAssignmentGetPayload<{
+  include: { submissions: true };
+}>;
+
+@Injectable()
+export class TimetableHomeworkService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
+
+  async getTimetable(studentId: string, weekStart?: string) {
+    const start = weekStart ? new Date(weekStart) : new Date('2026-06-22');
+    const schedule = await this.prisma.timetableSchedule.findFirst({
+      where: { studentId, weekStart: start },
+    });
+    return {
+      week_start: start.toISOString().slice(0, 10),
+      days: schedule ? schedule.daysJson : [],
+    };
+  }
+
+  async saveTimetable(body: SaveTimetableDto) {
+    const weekStart = new Date(body.week_start);
+    return this.prisma.timetableSchedule.upsert({
+      where: { studentId_weekStart: { studentId: body.student_id, weekStart } },
+      create: {
+        studentId: body.student_id,
+        weekStart,
+        daysJson: body.days as Prisma.InputJsonValue,
+      },
+      update: { daysJson: body.days as Prisma.InputJsonValue },
+    });
+  }
+
+  async getHomeworks(studentId: string, page = 1, limit = 20, status?: string) {
+    const where: Prisma.HomeworkAssignmentWhereInput = {
+      archivedAt: null,
+      OR: [{ studentId }, { studentIds: { array_contains: studentId } }],
+      ...(status ? { status } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prisma.homeworkAssignment.findMany({
+        where,
+        orderBy: { assignedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: { submissions: { where: { studentId } } },
+      }),
+      this.prisma.homeworkAssignment.count({ where }),
+    ]);
+    const completed = items.filter(
+      (item) => item.submissions.length > 0,
+    ).length;
+    return {
+      progress: { completed, total },
+      items: items.map((item) => this.serialize(item)),
+      pagination: { page, limit, total },
+    };
+  }
+
+  async submitHomework(
+    studentId: string,
+    homeworkId: string,
+    body: SubmitHomeworkDto,
+  ) {
+    const homework = await this.prisma.homeworkAssignment.findFirst({
+      where: {
+        id: homeworkId,
+        archivedAt: null,
+        OR: [{ studentId }, { studentIds: { array_contains: studentId } }],
+      },
+    });
+    if (!homework) throw new NotFoundException('Không tìm thấy bài tập');
+    const submission = await this.prisma.homeworkSubmission.upsert({
+      where: { homeworkId_studentId: { homeworkId, studentId } },
+      create: {
+        homeworkId,
+        studentId,
+        content: body.content,
+        attachmentsJson: body.attachments as Prisma.InputJsonValue,
+        status: 'submitted',
+      },
+      update: {
+        content: body.content,
+        attachmentsJson: body.attachments as Prisma.InputJsonValue,
+        status: 'submitted',
+        submittedAt: new Date(),
+      },
+    });
+    return {
+      submitted: true,
+      submitted_at: submission.submittedAt.toISOString(),
+      status: submission.status,
+    };
+  }
+
+  async listHomeworks(query: ListHomeworksQueryDto) {
+    const page = query.page ?? 1;
+    const pageSize = query.page_size ?? 20;
+    const where: Prisma.HomeworkAssignmentWhereInput = {
+      ...(query.include_archived ? {} : { archivedAt: null }),
+      ...(query.status === 'archived' ? { archivedAt: { not: null } } : {}),
+      ...(query.class_id ? { classId: query.class_id } : {}),
+      AND: [
+        ...(query.student_id
+          ? [
+              {
+                OR: [
+                  { studentId: query.student_id },
+                  { studentIds: { array_contains: query.student_id } },
+                ],
+              },
+            ]
+          : []),
+        ...(query.q
+          ? [
+              {
+                OR: [
+                  {
+                    title: { contains: query.q, mode: 'insensitive' as const },
+                  },
+                  {
+                    subject: {
+                      contains: query.q,
+                      mode: 'insensitive' as const,
+                    },
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
+    };
+    const [items, total] = await Promise.all([
+      this.prisma.homeworkAssignment.findMany({
+        where,
+        include: { submissions: true },
+        orderBy: { assignedAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.homeworkAssignment.count({ where }),
+    ]);
+    return ok({
+      items: items.map((item) => this.serializeAdmin(item)),
+      page,
+      page_size: pageSize,
+      total,
+      has_next: page * pageSize < total,
+    });
+  }
+
+  async getHomework(id: string) {
+    const item = await this.prisma.homeworkAssignment.findUnique({
+      where: { id },
+      include: { submissions: true },
+    });
+    if (!item) throw new NotFoundException('Không tìm thấy bài tập');
+    return ok(this.serializeAdmin(item));
+  }
+
+  async createHomework(body: CreateHomeworkDto, actor?: AuthenticatedUser) {
+    const studentIds = await this.resolveTargets(body);
+    const item = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.homeworkAssignment.create({
+        data: {
+          studentId:
+            body.target_type === 'students' && studentIds.length === 1
+              ? studentIds[0]
+              : null,
+          targetType: body.target_type,
+          classId: body.class_id,
+          studentIds,
+          subjectId: body.subject_id,
+          subject: body.subject,
+          title: body.title,
+          content: body.content,
+          teacher: body.teacher,
+          deadline: new Date(body.deadline),
+          status: 'pending',
+        },
+        include: { submissions: true },
+      });
+      await this.audit.record(
+        {
+          actorId: this.actorId(actor),
+          action: 'academics.homework.create',
+          boundedContext: 'Academics',
+          resourceType: 'HomeworkAssignment',
+          resourceId: created.id,
+          metadata: {
+            target_type: body.target_type,
+            target_count: studentIds.length,
+          },
+        },
+        tx,
+      );
+      return created;
+    });
+    return ok(this.serializeAdmin(item));
+  }
+
+  async updateHomework(
+    id: string,
+    body: UpdateHomeworkDto,
+    actor?: AuthenticatedUser,
+  ) {
+    await this.requireHomework(id);
+    const item = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.homeworkAssignment.update({
+        where: { id },
+        data: {
+          ...(body.subject_id !== undefined
+            ? { subjectId: body.subject_id }
+            : {}),
+          ...(body.subject ? { subject: body.subject } : {}),
+          ...(body.title ? { title: body.title } : {}),
+          ...(body.content ? { content: body.content } : {}),
+          ...(body.teacher ? { teacher: body.teacher } : {}),
+          ...(body.deadline ? { deadline: new Date(body.deadline) } : {}),
+        },
+        include: { submissions: true },
+      });
+      await this.audit.record(
+        {
+          actorId: this.actorId(actor),
+          action: 'academics.homework.update',
+          boundedContext: 'Academics',
+          resourceType: 'HomeworkAssignment',
+          resourceId: id,
+          metadata: { fields: Object.keys(body) },
+        },
+        tx,
+      );
+      return updated;
+    });
+    return ok(this.serializeAdmin(item));
+  }
+
+  async archiveHomework(id: string, actor?: AuthenticatedUser) {
+    await this.requireHomework(id);
+    const item = await this.prisma.$transaction(async (tx) => {
+      const archived = await tx.homeworkAssignment.update({
+        where: { id },
+        data: { archivedAt: new Date(), status: 'archived' },
+        include: { submissions: true },
+      });
+      await this.audit.record(
+        {
+          actorId: this.actorId(actor),
+          action: 'academics.homework.archive',
+          boundedContext: 'Academics',
+          resourceType: 'HomeworkAssignment',
+          resourceId: id,
+        },
+        tx,
+      );
+      return archived;
+    });
+    return ok(this.serializeAdmin(item));
+  }
+
+  async getOnlineStudy(studentId: string) {
+    const items = await this.prisma.onlineStudySession.findMany({
+      where: { studentId },
+      orderBy: { startAt: 'asc' },
+    });
+    return {
+      items: items.map((item) => ({
+        id: item.id,
+        subject: item.subject,
+        teacher_name: item.teacher,
+        starts_at: item.startAt.toISOString(),
+        ends_at: item.endAt.toISOString(),
+        platform: 'Google Meet',
+        join_url: item.meetingUrl,
+        material_urls: [],
+        progress: 0,
+        status: item.status,
+      })),
+      pagination: { page: 1, limit: 20, total: items.length },
+    };
+  }
+
+  private async resolveTargets(body: CreateHomeworkDto) {
+    if (body.target_type === 'students') {
+      const students = await this.prisma.student.findMany({
+        where: { id: { in: body.student_ids }, isActive: true },
+        select: { id: true },
+      });
+      if (students.length !== body.student_ids?.length)
+        throw new NotFoundException(
+          'Có học sinh không tồn tại hoặc đã ngừng hoạt động',
+        );
+      return students.map((student) => student.id);
+    }
+    const schoolClass = await this.prisma.schoolClass.findUnique({
+      where: { id: body.class_id },
+      include: {
+        enrollments: { where: { isActive: true }, select: { studentId: true } },
+      },
+    });
+    if (!schoolClass) throw new NotFoundException('Không tìm thấy lớp học');
+    return schoolClass.enrollments.map((enrollment) => enrollment.studentId);
+  }
+
+  private async requireHomework(id: string) {
+    if (
+      !(await this.prisma.homeworkAssignment.findUnique({
+        where: { id },
+        select: { id: true },
+      }))
+    )
+      throw new NotFoundException('Không tìm thấy bài tập');
+  }
+  private actorId(actor?: AuthenticatedUser) {
+    if (!actor?.id)
+      throw new UnauthorizedException('Authenticated actor is required');
+    return actor.id;
+  }
+  private targetIds(item: HomeworkRow) {
+    return Array.isArray(item.studentIds)
+      ? item.studentIds.filter((id): id is string => typeof id === 'string')
+      : item.studentId
+        ? [item.studentId]
+        : [];
+  }
+  private serialize(item: HomeworkRow) {
+    const submission = item.submissions[0];
+    return {
+      id: item.id,
+      subject: item.subject,
+      title: item.title,
+      content: item.content,
+      teacher: item.teacher,
+      assigned_at: item.assignedAt.toISOString(),
+      deadline: item.deadline.toISOString(),
+      status: submission ? 'submitted' : item.status,
+      submission_url: Array.isArray(submission?.attachmentsJson)
+        ? (submission.attachmentsJson[0] ?? null)
+        : null,
+      submitted_at: submission?.submittedAt.toISOString() ?? null,
+    };
+  }
+  private serializeAdmin(item: HomeworkRow) {
+    const targetIds = this.targetIds(item);
+    const submitted = new Set(
+      item.submissions.map((submission) => submission.studentId),
+    ).size;
+    return {
+      ...this.serialize(item),
+      target_type: item.targetType,
+      class_id: item.classId,
+      student_ids: targetIds,
+      archived_at: item.archivedAt?.toISOString() ?? null,
+      progress: {
+        assigned: targetIds.length,
+        submitted,
+        pending: Math.max(0, targetIds.length - submitted),
+      },
+    };
+  }
+}
+</file>
+
+<file path="backend/src/modules/academics/timetable-homework/timetable-homework.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
+import {
+  SaveTimetableDto,
+  SubmitHomeworkDto,
+  TimetableHomeworkService,
+} from './timetable-homework.service';
+import {
+  CreateHomeworkDto,
+  ListHomeworksQueryDto,
+  UpdateHomeworkDto,
+  validateCreateHomework,
+  validateListHomeworks,
+  validateUpdateHomework,
+} from './timetable-homework.validation';
+
+@SkipAuthorization()
+@Controller('api/v1/students')
+export class AppTimetableHomeworkController {
+  constructor(private readonly service: TimetableHomeworkService) {}
+  @Get(':student_id/timetable') getTimetable(
+    @Param('student_id') studentId: string,
+    @Query('week_start') weekStart?: string,
+  ) {
+    return this.service.getTimetable(studentId, weekStart);
+  }
+  @Get(':student_id/homeworks') getHomeworks(
+    @Param('student_id') studentId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.service.getHomeworks(
+      studentId,
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      status,
+    );
+  }
+  @Post(':student_id/homeworks/:homework_id/submit') submitHomework(
+    @Param('student_id') studentId: string,
+    @Param('homework_id') homeworkId: string,
+    @Body() body: SubmitHomeworkDto,
+  ) {
+    return this.service.submitHomework(studentId, homeworkId, body);
+  }
+  @Get(':student_id/online-study') getOnlineStudy(
+    @Param('student_id') studentId: string,
+  ) {
+    return this.service.getOnlineStudy(studentId);
+  }
+}
+
+@Controller('api/v1/admin')
+@RequireRole('admin', 'super_admin')
+export class AdminTimetableHomeworkController {
+  constructor(private readonly service: TimetableHomeworkService) {}
+  @Post('timetable') saveTimetable(@Body() body: SaveTimetableDto) {
+    return this.service.saveTimetable(body);
+  }
+  @Get('homeworks') @RequirePermission('academics.homework.read') listHomeworks(
+    @Query() query: ListHomeworksQueryDto,
+  ) {
+    return this.service.listHomeworks(validateListHomeworks(query));
+  }
+  @Get('homeworks/:id')
+  @RequirePermission('academics.homework.read')
+  getHomework(@Param('id') id: string) {
+    return this.service.getHomework(id);
+  }
+  @Post('homeworks')
+  @RequirePermission('academics.homework.manage')
+  createHomework(
+    @Body() body: CreateHomeworkDto,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.service.createHomework(validateCreateHomework(body), actor);
+  }
+  @Patch('homeworks/:id')
+  @RequirePermission('academics.homework.manage')
+  updateHomework(
+    @Param('id') id: string,
+    @Body() body: UpdateHomeworkDto,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.service.updateHomework(id, validateUpdateHomework(body), actor);
+  }
+  @Post('homeworks/:id/archive')
+  @RequirePermission('academics.homework.manage')
+  archiveHomework(
+    @Param('id') id: string,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.service.archiveHomework(id, actor);
+  }
+}
+</file>
+
+<file path="front-end/app/admin/homeworks/page.tsx">
+import { HomeworksPage } from "@/features/homeworks/components/homeworks-page";
+
+export default function Page() {
+  return <HomeworksPage />;
+}
+</file>
+
+<file path="backend/prisma/schema.prisma">
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountRole {
+  parent
+  student
+  teacher
+  admin
+  super_admin
+}
+
+enum PermissionRisk {
+  low
+  medium
+  high
+  critical
+}
+
+enum StudentAccountRelationship {
+  guardian
+  student
+  teacher
+}
+
+enum StudentGender {
+  male
+  female
+  other
+}
+
+enum StudentGuardianRelationship {
+  father
+  mother
+  grandfather
+  grandmother
+  guardian
+  other
+}
+
+enum AttendancePeriod {
+  morning
+  afternoon
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+enum TuitionChargeStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
+enum NewsPublicationStatus {
+  draft
+  published
+  hidden
+}
+
+enum NewsAudienceType {
+  all
+  grade
+  class
+  student
+}
+
+model Account {
+  id                 String               @id @default(uuid())
+  username           String               @unique
+  passwordHash       String               @map("password_hash")
+  displayName        String               @map("display_name")
+  role               AccountRole          @default(admin)
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  permissions        AccountPermission[]
+  refreshSessions    RefreshSession[]
+  studentLinks       StudentAccountLink[]
+  createdNews        NewsItem[]
+  auditEvents        AuditEvent[]
+  attendanceSessions AttendanceSession[]  @relation("AttendanceSessionCreator")
+  attendanceRecords  AttendanceRecord[]   @relation("AttendanceRecordMarker")
+  tuitionCharges     TuitionCharge[]      @relation("TuitionChargeCreator")
+  homeroomClasses    SchoolClass[]        @relation("ClassHomeroomTeacher")
+
+  @@map("accounts")
+}
+
+model Permission {
+  id             String              @id @default(uuid())
+  key            String              @unique
+  label          String
+  description    String
+  boundedContext String              @map("bounded_context")
+  risk           PermissionRisk      @default(low)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  accounts       AccountPermission[]
+
+  @@map("permissions")
+}
+
+model AccountPermission {
+  accountId     String     @map("account_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  account       Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([accountId, permissionKey])
+  @@map("account_permissions")
+}
+
+model RefreshSession {
+  id        String    @id @default(uuid())
+  accountId String    @map("account_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@map("refresh_sessions")
+}
+
+model AuditEvent {
+  id             String   @id @default(uuid())
+  actorId        String   @map("actor_id")
+  action         String
+  boundedContext String   @map("bounded_context")
+  resourceType   String   @map("resource_type")
+  resourceId     String   @map("resource_id")
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  actor          Account  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId, createdAt])
+  @@index([boundedContext, resourceType, resourceId])
+  @@map("audit_events")
+}
+
+model Student {
+  id                String                   @id @default(uuid())
+  code              String                   @unique
+  fullName          String                   @map("full_name")
+  avatarUrl         String?                  @map("avatar_url")
+  grade             String?
+  className         String                   @map("class_name")
+  schoolName        String                   @default("Sổ Liên Lạc Điện Tử") @map("school_name")
+  isActive          Boolean                  @default(true) @map("is_active")
+  dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
+  gender            StudentGender?
+  ethnicity         String?
+  birthPlace        String?                  @map("birth_place")
+  permanentAddress  String?                  @map("permanent_address")
+  cohortStartYear   Int?                     @map("cohort_start_year")
+  cohortEndYear     Int?                     @map("cohort_end_year")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  accountLinks      StudentAccountLink[]
+  guardianContacts  StudentGuardianContact[]
+  attendanceRecords AttendanceRecord[]
+  tuitionCharges    TuitionCharge[]
+  enrollments       ClassEnrollment[]
+
+  @@index([className])
+  @@index([grade])
+  @@index([isActive])
+  @@map("students")
+}
+
+model StudentGuardianContact {
+  id                 String                      @id @default(uuid())
+  studentId          String                      @map("student_id")
+  relationship       StudentGuardianRelationship
+  relationshipLabel  String?                     @map("relationship_label")
+  fullName           String                      @map("full_name")
+  phone              String
+  isEmergencyContact Boolean                     @default(false) @map("is_emergency_contact")
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  student            Student                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([studentId, isEmergencyContact])
+  @@map("student_guardian_contacts")
+}
+
+model StudentAccountLink {
+  studentId    String                     @map("student_id")
+  accountId    String                     @map("account_id")
+  relationship StudentAccountRelationship @default(guardian)
+  isActive     Boolean                    @default(true) @map("is_active")
+  createdAt    DateTime                   @default(now()) @map("created_at")
+  student      Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  account      Account                    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, accountId, relationship])
+  @@index([accountId])
+  @@index([studentId])
+  @@map("student_account_links")
+}
+
+model NewsItem {
+  id          String                @id @default(uuid())
+  title       String
+  summary     String
+  content     String
+  imageUrl    String?               @map("image_url")
+  category    String
+  status      NewsPublicationStatus @default(draft)
+  isPinned    Boolean               @default(false) @map("is_pinned")
+  sortOrder   Int                   @default(0) @map("sort_order")
+  publishedAt DateTime?             @map("published_at")
+  createdById String                @map("created_by_id")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  createdBy   Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  audiences   NewsAudience[]
+
+  @@index([status, isPinned, sortOrder, publishedAt])
+  @@index([createdById])
+  @@map("news_items")
+}
+
+model NewsAudience {
+  id     String           @id @default(uuid())
+  newsId String           @map("news_id")
+  type   NewsAudienceType
+  value  String?
+  news   NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, type, value])
+  @@index([type, value])
+  @@map("news_audiences")
+}
+
+model AcademicYear {
+  id          String        @id
+  code        String        @unique
+  displayName String        @map("display_name")
+  startsOn    DateTime      @map("starts_on") @db.Date
+  endsOn      DateTime      @map("ends_on") @db.Date
+  isCurrent   Boolean       @default(false) @map("is_current")
+  semesters   Semester[]
+  classes     SchoolClass[]
+
+  @@map("academic_years")
+}
+
+model Semester {
+  id                 String              @id
+  academicYearId     String              @map("academic_year_id")
+  code               String
+  displayName        String              @map("display_name")
+  startsOn           DateTime            @map("starts_on") @db.Date
+  endsOn             DateTime            @map("ends_on") @db.Date
+  sortOrder          Int                 @map("sort_order")
+  isCurrent          Boolean             @default(false) @map("is_current")
+  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  attendanceSessions AttendanceSession[]
+  tuitionCharges     TuitionCharge[]
+
+  @@unique([academicYearId, code])
+  @@unique([academicYearId, sortOrder])
+  @@index([academicYearId])
+  @@map("semesters")
+}
+
+model GradeLevel {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  displayName String        @map("display_name")
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  classes     SchoolClass[]
+
+  @@map("grade_levels")
+}
+
+model SchoolClass {
+  id                String            @id @default(uuid())
+  academicYearId    String            @map("academic_year_id")
+  gradeLevelId      String            @map("grade_level_id")
+  code              String
+  displayName       String            @map("display_name")
+  homeroomTeacherId String?           @map("homeroom_teacher_id")
+  isActive          Boolean           @default(true) @map("is_active")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  academicYear      AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  gradeLevel        GradeLevel        @relation(fields: [gradeLevelId], references: [id], onDelete: Restrict)
+  homeroomTeacher   Account?          @relation("ClassHomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: Restrict)
+  enrollments       ClassEnrollment[]
+
+  @@unique([academicYearId, code])
+  @@index([academicYearId])
+  @@index([gradeLevelId])
+  @@index([homeroomTeacherId])
+  @@map("school_classes")
+}
+
+model ClassEnrollment {
+  id        String      @id @default(uuid())
+  studentId String      @map("student_id")
+  classId   String      @map("class_id")
+  startsOn  DateTime?   @map("starts_on") @db.Date
+  endsOn    DateTime?   @map("ends_on") @db.Date
+  isActive  Boolean     @default(true) @map("is_active")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  student   Student     @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([classId])
+  @@index([isActive])
+  @@map("class_enrollments")
+}
+
+model AttendanceSession {
+  id             String             @id @default(uuid())
+  semesterId     String             @map("semester_id")
+  attendanceDate DateTime           @map("attendance_date") @db.Date
+  period         AttendancePeriod
+  className      String             @map("class_name")
+  createdById    String             @map("created_by_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  semester       Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy      Account            @relation("AttendanceSessionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  records        AttendanceRecord[]
+
+  @@unique([semesterId, attendanceDate, period, className])
+  @@index([attendanceDate, className])
+  @@index([createdById])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id         String            @id @default(uuid())
+  sessionId  String            @map("session_id")
+  studentId  String            @map("student_id")
+  status     AttendanceStatus
+  note       String?
+  markedById String            @map("marked_by_id")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  session    AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  markedBy   Account           @relation("AttendanceRecordMarker", fields: [markedById], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId, createdAt])
+  @@index([markedById])
+  @@map("attendance_records")
+}
+
+model TuitionCharge {
+  id          String              @id @default(uuid())
+  studentId   String              @map("student_id")
+  semesterId  String              @map("semester_id")
+  title       String
+  amountDue   Int                 @map("amount_due")
+  amountPaid  Int                 @default(0) @map("amount_paid")
+  status      TuitionChargeStatus @default(unpaid)
+  dueDate     DateTime?           @map("due_date") @db.Date
+  note        String?
+  isWaived    Boolean             @default(false) @map("is_waived")
+  createdById String              @map("created_by_id")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  semester    Semester            @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy   Account             @relation("TuitionChargeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([studentId, semesterId, title])
+  @@index([semesterId, status])
+  @@index([studentId, status])
+  @@index([dueDate])
+  @@index([createdById])
+  @@map("tuition_charges")
+}
+
+model Notification {
+  id          String             @id @default(uuid())
+  title       String
+  sender      String
+  sentAt      DateTime           @default(now()) @map("sent_at")
+  content     String
+  tag         String             @default("Quan trong")
+  createdById String?            @map("created_by_id")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  reads       NotificationRead[]
+
+  @@index([sentAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             String       @id @default(uuid())
+  notificationId String       @map("notification_id")
+  studentId      String?      @map("student_id")
+  accountId      String?      @map("account_id")
+  readAt         DateTime     @default(now()) @map("read_at")
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId, accountId])
+  @@map("notification_reads")
+}
+
+model FeedbackItem {
+  id              String   @id @default(uuid())
+  studentId       String?  @map("student_id")
+  accountId       String?  @map("account_id")
+  title           String
+  content         String
+  category        String   @default("khac")
+  status          String   @default("new")
+  attachmentsJson Json?    @map("attachments_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("feedback_items")
+}
+
+model StudentScoreRecord {
+  id                   String   @id @default(uuid())
+  studentId            String   @map("student_id")
+  semesterId           String   @map("semester_id")
+  schoolYear           String   @default("2026-2027") @map("school_year")
+  semesterCode         String   @default("1") @map("semester_code")
+  subjectId            String   @map("subject_id")
+  subjectName          String   @map("subject_name")
+  oralScoresJson       Json?    @map("oral_scores_json")
+  fifteenMinScoresJson Json?    @map("fifteen_min_scores_json")
+  midtermScore         Float?   @map("midterm_score")
+  finalScore           Float?   @map("final_score")
+  averageScore         Float?   @map("average_score")
+  teacherComment       String?  @map("teacher_comment")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, semesterId, subjectId])
+  @@map("student_score_records")
+}
+
+model RewardDisciplineRecord {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  semesterId String?  @map("semester_id")
+  schoolYear String?  @map("school_year")
+  type       String   @default("reward")
+  title      String
+  content    String
+  date       DateTime @db.Date
+  issuer     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, type])
+  @@map("reward_discipline_records")
+}
+
+model TimetableSchedule {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  weekStart DateTime @map("week_start") @db.Date
+  daysJson  Json     @map("days_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, weekStart])
+  @@map("timetable_schedules")
+}
+
+model HomeworkAssignment {
+  id          String               @id @default(uuid())
+  studentId   String?              @map("student_id")
+  targetType  String               @default("students") @map("target_type")
+  classId     String?              @map("class_id")
+  studentIds  Json?                @map("student_ids")
+  subjectId   String?              @map("subject_id")
+  subject     String
+  title       String
+  content     String
+  teacher     String
+  assignedAt  DateTime             @default(now()) @map("assigned_at")
+  deadline    DateTime
+  status      String               @default("pending")
+  archivedAt  DateTime?            @map("archived_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  submissions HomeworkSubmission[]
+
+  @@index([studentId, status])
+  @@index([classId, archivedAt])
+  @@map("homework_assignments")
+}
+
+model HomeworkSubmission {
+  id              String             @id @default(uuid())
+  homeworkId      String             @map("homework_id")
+  studentId       String             @map("student_id")
+  content         String?
+  attachmentsJson Json?              @map("attachments_json")
+  submittedAt     DateTime           @default(now()) @map("submitted_at")
+  status          String             @default("submitted")
+  homework        HomeworkAssignment @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@unique([homeworkId, studentId])
+  @@index([studentId])
+  @@map("homework_submissions")
+}
+
+model OnlineStudySession {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  title      String
+  subject    String
+  teacher    String
+  startAt    DateTime @map("start_at")
+  endAt      DateTime @map("end_at")
+  meetingUrl String   @map("meeting_url")
+  status     String   @default("upcoming")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, status])
+  @@map("online_study_sessions")
+}
+
+model MealRegistration {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  date      DateTime @db.Date
+  breakfast String?
+  lunch     String?
+  snack     String?
+  status    String   @default("registered")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, date])
+  @@map("meal_registrations")
+}
+
+model CoinFundTransaction {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  type        String   @default("deposit")
+  amount      Int      @default(0)
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, createdAt])
+  @@map("coin_fund_transactions")
+}
+
+model SchoolEvent {
+  id                   String              @id @default(uuid())
+  title                String
+  description          String
+  startAt              DateTime            @map("start_at")
+  endAt                DateTime            @map("end_at")
+  location             String?
+  registrationDeadline DateTime?           @map("registration_deadline")
+  status               String              @default("open")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  registrations        EventRegistration[]
+
+  @@map("school_events")
+}
+
+model EventRegistration {
+  id           String      @id @default(uuid())
+  eventId      String      @map("event_id")
+  studentId    String      @map("student_id")
+  note         String?
+  registeredAt DateTime    @default(now()) @map("registered_at")
+  event        SchoolEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, studentId])
+  @@map("event_registrations")
+}
+
+model SurveyForm {
+  id          String             @id @default(uuid())
+  title       String
+  description String
+  deadline    DateTime
+  status      String             @default("pending")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  questions   SurveyQuestion[]
+  submissions SurveySubmission[]
+
+  @@map("survey_forms")
+}
+
+model SurveyQuestion {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  type        String     @default("text")
+  content     String
+  optionsJson Json?      @map("options_json")
+  required    Boolean    @default(true)
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_questions")
+}
+
+model SurveySubmission {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  studentId   String     @map("student_id")
+  answersJson Json       @map("answers_json")
+  submittedAt DateTime   @default(now()) @map("submitted_at")
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@unique([surveyId, studentId])
+  @@map("survey_submissions")
+}
+
+model SchoolClub {
+  id            String             @id @default(uuid())
+  name          String
+  description   String
+  teacher       String?
+  schedule      String?
+  location      String?
+  fee           Int                @default(0)
+  status        String             @default("open")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  registrations ClubRegistration[]
+
+  @@map("school_clubs")
+}
+
+model ClubRegistration {
+  id           String     @id @default(uuid())
+  clubId       String     @map("club_id")
+  studentId    String     @map("student_id")
+  note         String?
+  registeredAt DateTime   @default(now()) @map("registered_at")
+  club         SchoolClub @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, studentId])
+  @@map("club_registrations")
+}
+
+model BusRouteInfo {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  routeId       String   @map("route_id")
+  routeName     String   @map("route_name")
+  pickupPoint   String?  @map("pickup_point")
+  dropoffPoint  String?  @map("dropoff_point")
+  pickupTime    String?  @map("pickup_time")
+  dropoffTime   String?  @map("dropoff_time")
+  driverName    String?  @map("driver_name")
+  driverPhone   String?  @map("driver_phone")
+  busPlate      String?  @map("bus_plate")
+  currentLat    Float?   @map("current_lat")
+  currentLng    Float?   @map("current_lng")
+  nextStop      String?  @map("next_stop")
+  estimatedTime String?  @map("estimated_time")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, routeId])
+  @@map("bus_route_infos")
+}
+
+model UniformProduct {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  price     Int      @default(0)
+  sizesJson Json     @map("sizes_json")
+  imageUrl  String?  @map("image_url")
+  stock     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_products")
+}
+
+model UniformOrder {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  itemsJson   Json     @map("items_json")
+  totalAmount Int      @map("total_amount")
+  status      String   @default("pending")
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_orders")
+}
+
+model AttachmentFile {
+  id        String   @id @default(uuid())
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  mimeType  String   @map("mime_type")
+  size      Int      @default(0)
+  folder    String   @default("attachment")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("attachment_files")
+}
+</file>
+
+<file path="shared/api-contract/docs/API_CATALOG.md">
+# API Catalog v1 (School App)
+
+Shared contract for Sổ Liên Lạc Điện Tử. Base path is `/api/v1`; external JSON fields use `snake_case`.
+
+Path parameters use `{id}` for the primary resource when the resource segment already identifies it, such as `/students/{id}`. Do not put multiple IDs in one path; put secondary or action target IDs in the request body or query instead, such as `POST /students/{id}/homeworks/submit` with `homework_id` in the request body.
+
+## Envelope And Authorization
+
+All endpoints return:
+
+```json
+{ "success": true, "data": {}, "meta": {} }
+```
+
+Errors return:
+
+```json
+{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "Human-readable message", "details": [] }, "request_id": "opaque-request-id" }
+```
+
+Authorization is intentionally lean. The contract uses fixed role policy plus student/class ownership scopes through `x-allowed-roles` and `x-scope`; it does not define a full RBAC administration surface.
+
+## Bounded Context Endpoint Map
+
+### Identity & Access
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `POST /auth/login` | `POST /auth/login` | Login with username/password. |
+| `POST /auth/refresh-token` | `POST /auth/refresh-token` | Refresh token. |
+| `POST /auth/logout` | `POST /auth/logout` | Logout current device/session. |
+| `GET /me` | `GET /me` | Current actor and active student id. |
+| `PUT /me/password` | `PUT /me/password` | Change own password. |
+
+### User Management
+
+| Management UI | Compatibility | Purpose |
+| --- | --- | --- |
+| `GET /admin/users` | `GET /users` | List users. |
+| `POST /admin/users` | `POST /users` | Create user. |
+| `GET /admin/users/{id}` | `GET /users/{id}` | Read user detail. |
+| `PATCH /admin/users/{id}` | `PATCH /users/{id}` | Update user. |
+| `POST /admin/users/{id}/disable` | `POST /users/{id}/disable` | Disable user. |
+| `POST /admin/users/{id}/reset-password` | `POST /users/{id}/reset-password` | Reset password with placeholder-only examples. |
+
+### Student Administration
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `GET /admin/students` | `GET /me/student` | Admin list feeds selected student profile display. |
+| `POST /admin/students` | - | Create student. |
+| `GET /admin/students/{id}` | `GET /me/accounts` | Student detail and linked student switcher data. |
+| `PATCH /admin/students/{id}` | - | Update student. |
+| `PUT /admin/students/{id}/accounts` | `POST /me/accounts/switch` | Manage and consume account-student links. |
+
+### Communication
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/news` | `GET /home/news` | Publish and display school news. |
+| `GET/POST /admin/notifications`, `GET/PATCH /admin/notifications/{id}` | `GET /notifications`, `GET /notifications/{id}`, `PATCH /notifications/{id}/read` | Validated, permission-protected admin list/detail/create/update and app consumption. |
+| `GET /admin/feedback`, `GET/PATCH /admin/feedback/{id}` | `POST /feedback` | Validated, permission-protected admin list/detail/status processing with search, status filter, pagination, and atomic audit. Admin create is planned; app submit remains legacy/partial. |
+
+### Academics
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/academic-context/current`, `/admin/academic-context/years`, `/admin/academic-context/semesters`, `/admin/academic-structure/grade-levels`, `/admin/academic-structure/classes` | — | Protected academic context plus grade/class/roster/enrollment administration. |
+| `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
+| `/admin/timetable` | `GET /students/{id}/timetable` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `GET/POST /admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Validated, permission-protected score administration plus student-detail history. |
+| `GET/POST /admin/homeworks`, `GET/PATCH /admin/homeworks/{id}`, `POST /admin/homeworks/{id}/archive` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Validated class/selected-student assignments, persisted submission progress, audited updates/archive. |
+| `/admin/reward-discipline`, `GET /admin/students/{student_id}/reward-discipline` | `GET /students/{id}/reward-discipline` | Protected student-detail reward/discipline history; broad admin list/filter remains planned. |
+| `/admin/online-study` | `GET /students/{id}/online-study` | Online study sessions. |
+
+### Billing
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/tuition` | `GET /home/tuition/summary`, `GET /services/tuition` | Tuition setup and display. |
+| `/admin/payment-requests` | `POST /services/tuition/payment-request` | Payment request review and creation. |
+
+### Student Services
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/meals` | `GET /services/meals`, `POST /services/meals/register` | Meal service registration. |
+| `/admin/events` | `GET /services/events`, `POST /services/events/{id}/register` | Events. |
+| `/admin/surveys` | `GET /services/surveys`, `POST /services/surveys/{id}/submit` | Surveys. |
+| `/admin/clubs` | `GET /services/clubs`, `POST /services/clubs/{id}/register` | Clubs. |
+| `/admin/bus`, `GET /admin/students/{student_id}/bus-route` | `GET /students/{id}/bus-route`, `GET /services/bus-tracking` | Protected student-profile bus assignment; broad management remains planned. |
+| `/admin/uniforms` | `GET /services/uniforms`, `POST /services/uniforms/orders` | Uniform catalog and orders. |
+| `/admin/coin-fund` | `GET /services/coin-fund` | Coin fund balance and transactions. |
+
+### Shared Platform
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `POST /uploads` | `POST /uploads` | Multipart upload for feedback, avatar, and attachments. |
+
+## Notes For Consumers
+
+- Prefer `/admin/...` endpoints for Management UI work.
+- `/users` remains only as a compatibility surface while clients migrate.
+- App/mobile endpoints are scoped to the active linked student unless the path explicitly includes a student `{id}`; the backend must enforce ownership.
+- Generated clients should consume `openapi/v1/openapi.json` as the machine-readable source.
+</file>
+
+<file path="shared/api-contract/docs/IMPLEMENTATION_STATUS.md">
+# Implementation Status
+
+This file tracks backend availability for the draft v1 OpenAPI contract. It is conservative by default: an endpoint appearing in the contract does not mean it is live in the backend.
+
+## Status Legend
+
+| Status | Meaning |
+| --- | --- |
+| `contracted` | Appears in the OpenAPI contract. |
+| `implemented` | Backend route exists, validates DTOs, has tests, and passes contract verification. |
+| `partial` | Backend route or legacy behavior exists, but coverage, validation, or business behavior is incomplete for contract reliance. |
+| `mock-only` | Frontend can mock from the contract; backend module is not ready for live integration. |
+| `deprecated` | Compatibility surface only; use the preferred replacement for new work. |
+| `blocked` | Awaiting schema, ownership, or module decision before implementation can proceed. |
+
+## Bounded-Context Matrix
+
+| Bounded context | Contract status | Backend implementation status | Frontend guidance |
+| --- | --- | --- | --- |
+| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, and linked-student context are live scope. |
+| User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
+| Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
+| Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |
+| Academics (Context, Structure, Attendance, Scores, Timetable, Homework) | `contracted` | Academic context/grade/class/roster administration, Attendance, Scores, and Homework `implemented`; Timetable `partial` | Academic years, semesters, grade levels, classes, enrollment history, score, homework, and student detail reads are live. |
+| Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
+| Student Services (Events) | `contracted` | `partial` at `/admin/events` | Persistent CRUD routes exist, but DTO validation, dedicated permission/audit, registration-list contract, migrations, and negative tests remain incomplete. |
+| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | Protected student bus detail `implemented`; Admin CRUD `blocked` | Student profile bus assignment is live. Broad service management surfaces remain planned until full admin contracts are finalized. |
+| Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
+
+## Status Change Rule
+
+Changing a context or endpoint to `implemented` requires all of these:
+
+1. Backend route exists under the intended versioned API path.
+2. Request DTO validation matches the contract.
+3. Response shape matches the contract envelope and schema.
+4. Authorization behavior matches fixed-role policy plus linked-student/class/resource scope.
+5. Tests cover the implemented route, including relevant negative cases.
+6. Contract verification passes.
+
+If any item is missing, use `partial` or `mock-only` instead of `implemented`.
+</file>
+
+<file path="shared/api-contract/docs/CONTRACT_CHANGES.md">
+# Contract Changes
+
+## Unreleased - 2026-07-26
+
+- Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.
+- Canonicalized Homework admin routes to plural `/admin/homeworks`; added validated class/selected-student assignment, persisted per-student submission progress, audited update/archive, BFF allowlist, and real management UI.
+
+- Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
+- Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.
+- Added protected academic year/semester list, create, update, and set-current operations with coherent transactional current context and audited mutations.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
+- Completed Feedback admin list/detail/status update with validated DTOs, dedicated read/manage permissions, atomic status-update audit, search/status filtering, pagination, BFF routes, permission-aware management UI, and backend/frontend tests. Admin create is explicitly planned; app submit remains legacy/partial.
+- Added dedicated `AdminFeedbackItem`, `AdminFeedbackList`, and `AdminFeedbackStatusUpdate` schemas; removed the untrusted `student_id` admin-list query, normalized legacy `received`/`closed` data to `new`/`resolved`, and synchronized canonical JSON/YAML plus root/frontend mirrors.
+- Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
+- Added `x-required-permission` metadata for admin/app Notifications operations; app reads derive linked-student scope only from the authenticated actor, admin mutations write their audit event in the same transaction, and canonical JSON/YAML plus root/frontend mirrors stay synchronized.
+
+## Unreleased - 2026-07-25
+
+- Extended Next.js BFF router (`/api/admin/[resource]/[[...segments]]`) to proxy GET, POST, PUT, PATCH, and DELETE with query parameters, headers, and authentication tokens.
+- Implemented DELETE `/api/v1/admin/news/:id` and integrated confirmation dialog with permission handling and cache invalidation on news management UI.
+- Added persistent Admin Events routes (`/api/v1/admin/events`) and registration counters; status remains partial/planned until DTO validation, permission/audit, migrations, and negative tests are complete.
+- Added Admin Feedback status update route (`PATCH /api/v1/admin/feedback/:id`); status remains partial/planned until validated admin detail/update contract and negative tests are complete.
+- Converted Notifications, Feedback, Events, and News frontend modules to `@dangminhdev04032005/query-resource` architecture without raw TanStack Query keys or mock data fallbacks.
+- Normalized Admin Dashboard (`/admin`) to fetch real server counts via lightweight GET queries.
+- Replaced un-contracted static mock pages (Meals, Surveys, Clubs, Bus, Uniforms, Reports, System) with `PlannedSurface` to prevent fake button interactions.
+
+## Unreleased - 2026-07-16
+
+- Implemented the first Academics Attendance vertical slice for administrators:
+  persisted class/date/period sessions, explicit per-student statuses, audited
+  create/update operations, and typed management UI list/edit behavior.
+- Added `academics.attendance.read` and `academics.attendance.manage`. Teacher
+  access remains deferred until class-assignment ownership can be enforced.
+- Added the implemented, read-only `GET /admin/academic-context/current` shell
+  bootstrap endpoint for administrators. It returns one coherent current academic
+  year and semester and requires `academics.context.read`.
+- Implemented the Communication News vertical slice: admin CRUD, publish/hide,
+  pin/reorder, and app reads filtered for the active student's all/grade/class/student
+  audience.
+- Added `communication.news.read`, `communication.news.manage`, and
+  `communication.news.publish` authorization metadata and explicit publication
+  lifecycle/audience request schemas.
+
+## Unreleased - 2026-07-13
+
+- Added Zod request/query validation for Student Administration admin routes and active-student switching.
+- Implemented and applied the Student Administration backend database migrations after approved development reset: baseline Identity & Access migration plus Student Administration tables, indexes, enum, and foreign keys.
+- Implemented the backend Student Administration code slice for admin student CRUD, guardian account links, and app active-student context routes.
+- Standardized resource path parameters to `{id}` when the resource segment already provides context, and moved secondary/action target IDs such as `homework_id` into request bodies instead of paths.
+- Added frontend handoff documentation and a conservative implementation status matrix clarifying that the OpenAPI contract is a draft sync surface for review, generation, and mock integration, not proof that all backend endpoints are implemented.
+
+## 1.0.0 - 2026-07-13
+
+- Rewrote the shared OpenAPI contract for the Luong The Vinh school app/backend project.
+- Added Management UI `/admin/...` endpoints and app/mobile display endpoints across Identity & Access, Student Administration, Communication, Academics, Billing, Student Services, and Uploads.
+- Replaced stale hotel/auth-service/RBAC language with fixed role policy plus student/class ownership scopes.
+- Added JSON/YAML mirrors, common envelopes, pagination, shared schemas, and consumer/scope vendor extensions.
+- Marked the old Postman collection as deprecated and non-authoritative.
+
+## 0.1.1
+
+- Added `API_CATALOG.md` with module-level request/response contract for frontend integration.
+- Documented success/error envelopes and public/private route behavior.
+
+## 0.1.0
+
+- Initialized shared API contract package.
+- Added OpenAPI export pipeline from `services/auth-service`.
+- Added verification and SDK preparation scripts.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
+</file>
+
+</files>

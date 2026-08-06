@@ -1,11 +1,5 @@
-import { PlannedSurface } from "@/features/planned/components/planned-surface";
+import { HomeworksPage } from "@/features/homeworks/components/homeworks-page";
 
 export default function Page() {
-  return (
-    <PlannedSurface
-      title="Bài tập"
-      activeHref="/admin/homeworks"
-      description="Blocked: backend hiện chỉ có create admin; list/detail/update/delete và thống kê nộp bài vẫn thiếu contract quản trị."
-    />
-  );
+  return <HomeworksPage />;
 }

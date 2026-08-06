@@ -48,8 +48,10 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   if (resource === "timetable" && segments.length === 0 && method === "POST") {
     return "/api/v1/admin/timetable";
   }
-  if (resource === "homeworks" && segments.length === 0 && method === "POST") {
-    return "/api/v1/admin/homeworks";
+  if (resource === "homeworks") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/homeworks";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/homeworks/${id}`;
+    if (segments.length === 2 && id && segments[1] === "archive" && method === "POST") return `/api/v1/admin/homeworks/${id}/archive`;
   }
   if (resource === "academic-context") {
     if (segments.length === 1 && segments[0] === "current" && method === "GET") {

@@ -52,6 +52,9 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "GET")).toBe("/api/v1/admin/feedback/feedback-1");
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "PATCH")).toBe("/api/v1/admin/feedback/feedback-1");
     expect(resolveAdminEndpoint("scores", [], "GET")).toBe("/api/v1/admin/scores");
+    expect(resolveAdminEndpoint("homeworks", [], "GET")).toBe("/api/v1/admin/homeworks");
+    expect(resolveAdminEndpoint("homeworks", ["homework-1"], "PATCH")).toBe("/api/v1/admin/homeworks/homework-1");
+    expect(resolveAdminEndpoint("homeworks", ["homework-1", "archive"], "POST")).toBe("/api/v1/admin/homeworks/homework-1/archive");
   });
 
   it("rejects unsupported feedback methods and nested segments", () => {
@@ -65,7 +68,7 @@ describe("admin BFF allowlist", () => {
     expect(() => resolveAdminEndpoint("students", [], "DELETE")).toThrow();
     expect(() => resolveAdminEndpoint("scores", ["student-1"], "GET")).toThrow();
     expect(() => resolveAdminEndpoint("timetable", ["student-1"], "GET")).toThrow();
-    expect(() => resolveAdminEndpoint("homeworks", ["student-1"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("homeworks", ["student-1", "submit"], "POST")).toThrow();
     expect(() => resolveAdminEndpoint("meals", [], "GET")).toThrow();
   });
 });

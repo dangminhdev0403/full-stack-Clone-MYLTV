@@ -3959,359 +3959,6 @@
         "x-implementation-status": "planned"
       }
     },
-    "/admin/homework": {
-      "get": {
-        "tags": [
-          "Academics"
-        ],
-        "operationId": "adminListHomework",
-        "summary": "List homework",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "student_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success envelope",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/Homework"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
-      },
-      "post": {
-        "tags": [
-          "Academics"
-        ],
-        "operationId": "adminCreateHomework",
-        "summary": "Create homework",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Homework"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Success envelope",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/Homework"
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
-      }
-    },
-    "/admin/homework/{id}": {
-      "get": {
-        "tags": [
-          "Academics"
-        ],
-        "operationId": "adminGetHomework",
-        "summary": "Get homework",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "homework id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success envelope",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/Homework"
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
-      },
-      "patch": {
-        "tags": [
-          "Academics"
-        ],
-        "operationId": "adminUpdateHomework",
-        "summary": "Update homework",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "homework id"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Homework"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success envelope",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessEnvelope"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/Homework"
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
-      }
-    },
     "/admin/reward-discipline": {
       "get": {
         "tags": [
@@ -13624,6 +13271,440 @@
         "x-scope": "fixed_role_policy",
         "x-implementation-status": "implemented"
       }
+    },
+    "/admin/homeworks": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminListHomework",
+        "summary": "List homework",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "student_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/PaginatedResponse"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "$ref": "#/components/schemas/Homework"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "items"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "class_or_student_scope",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "academics.homework.read"
+      },
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminCreateHomework",
+        "summary": "Create homework",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HomeworkCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Homework"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "academics.homework.manage"
+      }
+    },
+    "/admin/homeworks/{id}": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminGetHomework",
+        "summary": "Get homework",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "homework id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Homework"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "class_or_student_scope",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "academics.homework.read"
+      },
+      "patch": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminUpdateHomework",
+        "summary": "Update homework",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "homework id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HomeworkUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Homework"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "academics.homework.manage"
+      }
+    },
+    "/admin/homeworks/{id}/archive": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminArchiveHomework",
+        "summary": "Archive homework",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "homework id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Homework"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "teacher",
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "class_or_student_scope",
+        "x-implementation-status": "implemented",
+        "x-required-permission": "academics.homework.manage"
+      }
     }
   },
   "components": {
@@ -14397,30 +14478,62 @@
             "format": "date-time"
           },
           "status": {
+            "type": "string"
+          },
+          "target_type": {
             "type": "string",
             "enum": [
-              "pending",
-              "doing",
-              "submitted",
-              "overdue"
+              "class",
+              "students"
             ]
           },
-          "submission_url": {
+          "class_id": {
             "type": "string",
             "nullable": true
           },
-          "submitted_at": {
+          "student_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "archived_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "progress": {
+            "type": "object",
+            "properties": {
+              "assigned": {
+                "type": "integer"
+              },
+              "submitted": {
+                "type": "integer"
+              },
+              "pending": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "assigned",
+              "submitted",
+              "pending"
+            ]
           }
         },
         "required": [
           "id",
           "subject",
           "title",
+          "content",
+          "teacher",
+          "assigned_at",
           "deadline",
-          "status"
+          "status",
+          "target_type",
+          "student_ids",
+          "progress"
         ]
       },
       "TuitionItem": {
@@ -16803,6 +16916,89 @@
           },
           "status": {
             "type": "string"
+          }
+        }
+      },
+      "HomeworkCreate": {
+        "type": "object",
+        "properties": {
+          "target_type": {
+            "type": "string",
+            "enum": [
+              "class",
+              "students"
+            ]
+          },
+          "class_id": {
+            "type": "string"
+          },
+          "student_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 5000
+          },
+          "teacher": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "target_type",
+          "subject",
+          "title",
+          "content",
+          "teacher",
+          "deadline"
+        ]
+      },
+      "HomeworkUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "subject_id": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 5000
+          },
+          "teacher": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

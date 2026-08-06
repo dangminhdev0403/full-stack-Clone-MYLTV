@@ -3,6 +3,7 @@
 ## Unreleased - 2026-07-26
 
 - Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.
+- Canonicalized Homework admin routes to plural `/admin/homeworks`; added validated class/selected-student assignment, persisted per-student submission progress, audited update/archive, BFF allowlist, and real management UI.
 
 - Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
 - Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.

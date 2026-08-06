@@ -446,37 +446,37 @@
       "group": "academics",
       "name": "List homework",
       "method": "GET",
-      "path": "/admin/homework",
+      "path": "/admin/homeworks",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
       "name": "Create homework",
       "method": "POST",
-      "path": "/admin/homework",
+      "path": "/admin/homeworks",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
       "name": "Get homework",
       "method": "GET",
-      "path": "/admin/homework/{id}",
+      "path": "/admin/homeworks/{id}",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
       "name": "Update homework",
       "method": "PATCH",
-      "path": "/admin/homework/{id}",
+      "path": "/admin/homeworks/{id}",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
@@ -1377,6 +1377,15 @@
       "name": "POST /admin/reward-discipline",
       "method": "POST",
       "path": "/admin/reward-discipline",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "Archive homework",
+      "method": "POST",
+      "path": "/admin/homeworks/{id}/archive",
       "bounded_context": "Academics",
       "auth_required": true,
       "implementation_status": "implemented"
