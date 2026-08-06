@@ -1,5 +1,6 @@
 # Contract Changes
 
+- 2026-08-06: Hardened `PUT /admin/accounts/{account_id}/roles`: `role_ids` must be unique; assignments adding or removing critical role-derived permissions require `confirm_critical: true`.
 - 2026-08-06: Added protected `GET /admin/audit-logs` with exact actor/action/context/resource/date filters, validated pagination/range, recursive secret metadata redaction, Next BFF consumption, and permission-aware admin UI.
 - 2026-08-06: Added exact contracts, snake_case envelopes, DTO validation rules, error specs (400/401/403/409), and BFF allowlists for protected role administration (list/detail/create/rename/status/permissions) and account-role assignments.
 - 2026-08-06: Synchronized C3 Academic Structure student transfers (POST /api/v1/admin/academic-structure/transfers) and cohort promotions (POST /api/v1/admin/academic-structure/promotions) contracts with validated snake_case request/response DTOs, academics.structure.manage permission, fixed-role policy, and audited writes.

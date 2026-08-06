@@ -64,7 +64,11 @@ const replaceRolePermissionsSchema = z.object({
 const assignAccountRolesSchema = z.object({
   role_ids: z
     .array(nonEmptyString)
-    .min(1, 'At least one role ID must be assigned'),
+    .min(1, 'At least one role ID must be assigned')
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Role IDs must be unique',
+    }),
+  confirm_critical: z.boolean().optional(),
 });
 
 export type ListRolesQueryDto = z.infer<typeof listRolesQuerySchema>;

@@ -430,7 +430,15 @@ export class RoleService {
           where: { id: accountId },
           include: {
             roleAssignments: {
-              include: { role: true },
+              include: {
+                role: {
+                  include: {
+                    rolePermissions: {
+                      select: { permissionKey: true },
+                    },
+                  },
+                },
+              },
             },
           },
         });
@@ -441,6 +449,11 @@ export class RoleService {
 
         const targetRoles = await tx.role.findMany({
           where: { id: { in: payload.role_ids } },
+          include: {
+            rolePermissions: {
+              select: { permissionKey: true },
+            },
+          },
         });
 
         if (targetRoles.length !== payload.role_ids.length) {
@@ -455,6 +468,36 @@ export class RoleService {
             `Cannot assign inactive role: ${inactiveRole.name}`,
           );
         }
+
+        const currentPermissions = Array.from(
+          new Set(
+            account.roleAssignments.flatMap(
+              (ra) =>
+                ra.role?.rolePermissions?.map((rp) => rp.permissionKey) ?? [],
+            ),
+          ),
+        );
+
+        const targetPermissions = Array.from(
+          new Set(
+            targetRoles.flatMap(
+              (r) => r.rolePermissions?.map((rp) => rp.permissionKey) ?? [],
+            ),
+          ),
+        );
+
+        const addedKeys = targetPermissions.filter(
+          (k) => !currentPermissions.includes(k),
+        );
+        const removedKeys = currentPermissions.filter(
+          (k) => !targetPermissions.includes(k),
+        );
+        const changedKeys = [...addedKeys, ...removedKeys];
+
+        const hasCriticalChange = changedKeys.some((key) => {
+          const def = PERMISSIONS.find((p) => p.key === key);
+          return def && def.risk === 'critical';
+        });
 
         const currentlyIsSuperAdmin =
           account.role === 'super_admin' ||
@@ -488,6 +531,12 @@ export class RoleService {
               'Cannot demote the last super admin account',
             );
           }
+        }
+
+        if (hasCriticalChange && !payload.confirm_critical) {
+          throw new BadRequestException(
+            'Explicit confirmation required for critical permission changes',
+          );
         }
 
         const legacyRole: AccountRole = willBeSuperAdmin

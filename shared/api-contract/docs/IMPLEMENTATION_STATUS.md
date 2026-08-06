@@ -1,5 +1,7 @@
 # Implementation Status
 
+Dynamic role assignment hardening is implemented: duplicate `role_ids` are rejected; critical role-derived permission changes require explicit confirmation.
+
 This file tracks backend availability for the draft v1 OpenAPI contract. It is conservative by default: an endpoint appearing in the contract does not mean it is live in the backend.
 
 ## Status Legend

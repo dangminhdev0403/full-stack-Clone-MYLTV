@@ -172,6 +172,15 @@ describe('RoleController', () => {
       ).toThrow(BadRequestException);
       expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
     });
+
+    it('throws BadRequestException on assign account roles with duplicate role IDs', () => {
+      expect(() =>
+        controller.assignAccountRoles(mockActor, 'account-1', {
+          role_ids: ['role-1', 'role-1'],
+        }),
+      ).toThrow(BadRequestException);
+      expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
+    });
   });
 
   describe('Delegation & Mapping (Positive Cases)', () => {

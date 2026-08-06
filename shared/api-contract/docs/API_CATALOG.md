@@ -1,5 +1,7 @@
 # API Catalog v1 (School App)
 
+Dynamic role assignment: `PUT /admin/accounts/{account_id}/roles` accepts unique `role_ids`; critical role-derived permission changes require explicit `confirm_critical: true`.
+
 Shared contract for Sổ Liên Lạc Điện Tử. Base path is `/api/v1`; external JSON fields use `snake_case`.
 
 Path parameters use `{id}` for the primary resource when the resource segment already identifies it, such as `/students/{id}`. Do not put multiple IDs in one path; put secondary or action target IDs in the request body or query instead, such as `POST /students/{id}/homeworks/submit` with `homework_id` in the request body.

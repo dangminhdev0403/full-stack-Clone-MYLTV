@@ -1,5 +1,4 @@
 This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
-The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
 
 <file_summary>
 This section contains a summary of this file.
@@ -33,10 +32,9 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: backend/prisma/schema.prisma, backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/modules/identity-access/roles/**, backend/src/modules/identity-access/permissions/permission.service*, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/modules/identity-access/auth.service.ts, backend/src/modules/identity-access/account.service.ts, backend/src/modules/identity-access/identity-access.module.ts, front-end/lib/api/admin-route*, shared/api-contract/docs/API_CATALOG.md, shared/api-contract/docs/IMPLEMENTATION_STATUS.md, shared/api-contract/docs/CONTRACT_CHANGES.md
+- Only files matching these patterns are included: backend/prisma/schema.prisma, backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/modules/identity-access/roles/*.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/modules/identity-access/permissions/permission.service.ts, backend/src/modules/identity-access/auth.service.ts, shared/api-contract/docs/API_CATALOG.md, shared/api-contract/docs/IMPLEMENTATION_STATUS.md, shared/api-contract/docs/CONTRACT_CHANGES.md
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
-- Content has been compressed - code blocks are separated by ⋮---- delimiter
 - Files are sorted by Git change count (files with more changes are at the bottom)
 </notes>
 
@@ -54,7 +52,6 @@ backend/
       identity-access/
         permissions/
           permission.registry.ts
-          permission.service.spec.ts
           permission.service.ts
         roles/
           role.controller.spec.ts
@@ -62,14 +59,7 @@ backend/
           role.service.spec.ts
           role.service.ts
           role.validation.ts
-        account.service.ts
         auth.service.ts
-        identity-access.module.ts
-front-end/
-  lib/
-    api/
-      admin-route.test.ts
-      admin-route.ts
 shared/
   api-contract/
     docs/
@@ -185,10 +175,280 @@ import {
 } from '../../../common/auth/auth.constants';
 import { RoleController } from './role.controller';
 import { RoleService } from './role.service';
-⋮----
-/* eslint-disable @typescript-eslint/unbound-method */
-⋮----
-/* eslint-enable @typescript-eslint/unbound-method */
+
+describe('RoleController', () => {
+  let controller: RoleController;
+  let roleService: jest.Mocked<Partial<RoleService>>;
+  let reflector: Reflector;
+
+  const mockActor: AuthenticatedUser = {
+    id: 'account-admin-1',
+    username: 'admin',
+    role: 'admin',
+  };
+
+  beforeEach(async () => {
+    roleService = {
+      listRoles: jest.fn().mockResolvedValue({ data: { roles: [] } }),
+      getRoleById: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
+      createRole: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
+      updateRole: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
+      updateRoleStatus: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
+      replaceRolePermissions: jest
+        .fn()
+        .mockResolvedValue({ data: { id: 'role-1' } }),
+      assignAccountRoles: jest
+        .fn()
+        .mockResolvedValue({ data: { account_id: 'account-1' } }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [RoleController],
+      providers: [
+        {
+          provide: RoleService,
+          useValue: roleService,
+        },
+      ],
+    }).compile();
+
+    controller = module.get(RoleController);
+    reflector = new Reflector();
+  });
+
+  /* eslint-disable @typescript-eslint/unbound-method */
+  describe('Route Metadata & Auth Decorators', () => {
+    it('has RequireRole admin and super_admin on the class', () => {
+      const roles = reflector.get<string[]>(REQUIRED_ROLES_KEY, RoleController);
+      expect(roles).toEqual(['admin', 'super_admin']);
+    });
+
+    it('has RequirePermission identity.roles.read on listRoles', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.listRoles,
+      );
+      expect(permissions).toEqual(['identity.roles.read']);
+    });
+
+    it('has RequirePermission identity.roles.read on getRoleById', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.getRoleById,
+      );
+      expect(permissions).toEqual(['identity.roles.read']);
+    });
+
+    it('has RequirePermission identity.roles.manage on createRole', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.createRole,
+      );
+      expect(permissions).toEqual(['identity.roles.manage']);
+    });
+
+    it('has RequirePermission identity.roles.manage on updateRole', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.updateRole,
+      );
+      expect(permissions).toEqual(['identity.roles.manage']);
+    });
+
+    it('has RequirePermission identity.roles.manage on updateRoleStatus', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.updateRoleStatus,
+      );
+      expect(permissions).toEqual(['identity.roles.manage']);
+    });
+
+    it('has RequirePermission identity.roles.manage on replaceRolePermissions', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.replaceRolePermissions,
+      );
+      expect(permissions).toEqual(['identity.roles.manage']);
+    });
+
+    it('has RequirePermission identity.roles.manage on assignAccountRoles', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        RoleController.prototype.assignAccountRoles,
+      );
+      expect(permissions).toEqual(['identity.roles.manage']);
+    });
+  });
+  /* eslint-enable @typescript-eslint/unbound-method */
+
+  describe('Validation (Negative Cases)', () => {
+    it('throws BadRequestException on invalid list query', () => {
+      expect(() => controller.listRoles({ is_active: 123 })).toThrow(
+        BadRequestException,
+      );
+      expect(roleService.listRoles).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on create role with invalid code', () => {
+      expect(() =>
+        controller.createRole(mockActor, {
+          code: 'Invalid Code!',
+          name: 'Test Role',
+        }),
+      ).toThrow(BadRequestException);
+      expect(roleService.createRole).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on create role with empty name', () => {
+      expect(() =>
+        controller.createRole(mockActor, {
+          code: 'test_role',
+          name: '   ',
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException on update role with empty payload', () => {
+      expect(() => controller.updateRole(mockActor, 'role-1', {})).toThrow(
+        BadRequestException,
+      );
+      expect(roleService.updateRole).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on update role status with invalid payload', () => {
+      expect(() =>
+        controller.updateRoleStatus(mockActor, 'role-1', {
+          is_active: 'maybe',
+        }),
+      ).toThrow(BadRequestException);
+      expect(roleService.updateRoleStatus).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on replace permissions with missing array', () => {
+      expect(() =>
+        controller.replaceRolePermissions(mockActor, 'role-1', {}),
+      ).toThrow(BadRequestException);
+      expect(roleService.replaceRolePermissions).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on assign account roles with empty array', () => {
+      expect(() =>
+        controller.assignAccountRoles(mockActor, 'account-1', {
+          role_ids: [],
+        }),
+      ).toThrow(BadRequestException);
+      expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on assign account roles with duplicate role IDs', () => {
+      expect(() =>
+        controller.assignAccountRoles(mockActor, 'account-1', {
+          role_ids: ['role-1', 'role-1'],
+        }),
+      ).toThrow(BadRequestException);
+      expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Delegation & Mapping (Positive Cases)', () => {
+    it('delegates listRoles with parsed query', async () => {
+      await controller.listRoles({ search: '  admin  ', is_active: 'true' });
+      expect(roleService.listRoles).toHaveBeenCalledWith({
+        search: 'admin',
+        is_active: true,
+      });
+    });
+
+    it('delegates getRoleById with id parameter', async () => {
+      await controller.getRoleById('role-123');
+      expect(roleService.getRoleById).toHaveBeenCalledWith('role-123');
+    });
+
+    it('delegates createRole with actor ID and validated DTO', async () => {
+      const body = {
+        code: 'custom_editor',
+        name: 'Content Editor',
+        description: 'Edits news',
+        permission_keys: ['communication.news.manage'],
+      };
+      await controller.createRole(mockActor, body);
+      expect(roleService.createRole).toHaveBeenCalledWith(
+        'account-admin-1',
+        body,
+      );
+    });
+
+    it('delegates updateRole with actor ID, role ID and validated DTO', async () => {
+      const body = { name: 'Renamed Role', version: 1 };
+      await controller.updateRole(mockActor, 'role-1', body);
+      expect(roleService.updateRole).toHaveBeenCalledWith(
+        'account-admin-1',
+        'role-1',
+        body,
+      );
+    });
+
+    it('delegates updateRoleStatus with actor ID, role ID and validated DTO', async () => {
+      const body = { is_active: false, version: 2 };
+      await controller.updateRoleStatus(mockActor, 'role-1', body);
+      expect(roleService.updateRoleStatus).toHaveBeenCalledWith(
+        'account-admin-1',
+        'role-1',
+        body,
+      );
+    });
+
+    it('delegates replaceRolePermissions with actor ID, role ID and validated DTO', async () => {
+      const body = {
+        permission_keys: ['identity.roles.read'],
+        confirm_critical: true,
+      };
+      await controller.replaceRolePermissions(mockActor, 'role-1', body);
+      expect(roleService.replaceRolePermissions).toHaveBeenCalledWith(
+        'account-admin-1',
+        'role-1',
+        body,
+      );
+    });
+
+    it('delegates assignAccountRoles with actor ID, account ID and validated DTO', async () => {
+      const body = { role_ids: ['role-1', 'role-2'] };
+      await controller.assignAccountRoles(mockActor, 'account-99', body);
+      expect(roleService.assignAccountRoles).toHaveBeenCalledWith(
+        'account-admin-1',
+        'account-99',
+        body,
+      );
+    });
+
+    it('throws UnauthorizedException when actor is missing (fail-closed)', () => {
+      const body = { name: 'New Name' };
+      expect(() =>
+        controller.createRole(undefined, {
+          code: 'test_role',
+          name: 'Test',
+        }),
+      ).toThrow(UnauthorizedException);
+      expect(() => controller.updateRole(undefined, 'role-1', body)).toThrow(
+        UnauthorizedException,
+      );
+      expect(() =>
+        controller.updateRoleStatus(undefined, 'role-1', { is_active: true }),
+      ).toThrow(UnauthorizedException);
+      expect(() =>
+        controller.replaceRolePermissions(undefined, 'role-1', {
+          permission_keys: ['identity.roles.read'],
+        }),
+      ).toThrow(UnauthorizedException);
+      expect(() =>
+        controller.assignAccountRoles(undefined, 'account-1', {
+          role_ids: ['role-1'],
+        }),
+      ).toThrow(UnauthorizedException);
+      expect(roleService.updateRole).not.toHaveBeenCalled();
+    });
+  });
+});
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.controller.ts">
@@ -216,45 +476,91 @@ import {
   validateUpdateRole,
   validateUpdateRoleStatus,
 } from './role.validation';
-⋮----
-export class RoleController
-⋮----
-constructor(private readonly roleService: RoleService)
-⋮----
-private getActorId(actor: AuthenticatedUser | undefined): string
-⋮----
-listRoles(@Query() query: unknown)
-⋮----
-getRoleById(@Param('id') id: string)
-⋮----
-createRole(
+
+@Controller('api/v1/admin')
+@RequireRole('admin', 'super_admin')
+export class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+
+  private getActorId(actor: AuthenticatedUser | undefined): string {
+    if (!actor?.id) {
+      throw new UnauthorizedException('Authentication required');
+    }
+    return actor.id;
+  }
+
+  @Get('roles')
+  @RequirePermission('identity.roles.read')
+  listRoles(@Query() query: unknown) {
+    const dto = validateListRolesQuery(query);
+    return this.roleService.listRoles(dto);
+  }
+
+  @Get('roles/:id')
+  @RequirePermission('identity.roles.read')
+  getRoleById(@Param('id') id: string) {
+    return this.roleService.getRoleById(id);
+  }
+
+  @Post('roles')
+  @RequirePermission('identity.roles.manage')
+  createRole(
     @CurrentUser() actor: AuthenticatedUser | undefined,
     @Body() body: unknown,
-)
-⋮----
-updateRole(
+  ) {
+    const dto = validateCreateRole(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.createRole(actorId, dto);
+  }
+
+  @Patch('roles/:id')
+  @RequirePermission('identity.roles.manage')
+  updateRole(
     @CurrentUser() actor: AuthenticatedUser | undefined,
     @Param('id') id: string,
     @Body() body: unknown,
-)
-⋮----
-updateRoleStatus(
+  ) {
+    const dto = validateUpdateRole(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.updateRole(actorId, id, dto);
+  }
+
+  @Patch('roles/:id/status')
+  @RequirePermission('identity.roles.manage')
+  updateRoleStatus(
     @CurrentUser() actor: AuthenticatedUser | undefined,
     @Param('id') id: string,
     @Body() body: unknown,
-)
-⋮----
-replaceRolePermissions(
+  ) {
+    const dto = validateUpdateRoleStatus(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.updateRoleStatus(actorId, id, dto);
+  }
+
+  @Put('roles/:id/permissions')
+  @RequirePermission('identity.roles.manage')
+  replaceRolePermissions(
     @CurrentUser() actor: AuthenticatedUser | undefined,
     @Param('id') id: string,
     @Body() body: unknown,
-)
-⋮----
-assignAccountRoles(
+  ) {
+    const dto = validateReplaceRolePermissions(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.replaceRolePermissions(actorId, id, dto);
+  }
+
+  @Put('accounts/:account_id/roles')
+  @RequirePermission('identity.roles.manage')
+  assignAccountRoles(
     @CurrentUser() actor: AuthenticatedUser | undefined,
     @Param('account_id') accountId: string,
     @Body() body: unknown,
-)
+  ) {
+    const dto = validateAssignAccountRoles(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.assignAccountRoles(actorId, accountId, dto);
+  }
+}
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.service.spec.ts">
@@ -266,14 +572,689 @@ import {
 import type { PrismaService } from '../../../prisma/prisma.service';
 import type { AuditService } from '../audit/audit.service';
 import { RoleService } from './role.service';
-⋮----
-permission_keys: ['identity.permissions.manage'], // critical risk
-⋮----
-version: 1, // outdated version
-⋮----
-permission_keys: ['identity.me.read'], // removing identity.permissions.manage
-⋮----
-count: jest.fn().mockResolvedValue(1), // last super_admin account
+
+describe('RoleService', () => {
+  let service: RoleService;
+  let mockPrisma: any;
+  let mockAuditService: { record: jest.Mock };
+
+  beforeEach(() => {
+    mockAuditService = {
+      record: jest.fn().mockResolvedValue(undefined),
+    };
+  });
+
+  describe('listRoles', () => {
+    it('returns a list of roles with permissions and account counts', async () => {
+      const mockRoles = [
+        {
+          id: 'role-1',
+          code: 'admin',
+          name: 'Administrator',
+          description: 'Admin role',
+          isSystem: true,
+          isActive: true,
+          version: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          rolePermissions: [{ permissionKey: 'identity.permissions.read' }],
+          _count: { accountAssignments: 2 },
+        },
+      ];
+
+      mockPrisma = {
+        role: {
+          findMany: jest.fn().mockResolvedValue(mockRoles),
+        },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+      const result = await service.listRoles({});
+
+      expect(result.data.roles).toHaveLength(1);
+      expect(result.data.roles[0].code).toBe('admin');
+      expect(result.data.roles[0].permission_keys).toContain(
+        'identity.permissions.read',
+      );
+      expect(result.data.roles[0].assigned_account_count).toBe(2);
+    });
+  });
+
+  describe('createRole', () => {
+    it('creates a role with valid permissions successfully', async () => {
+      const newRole = {
+        id: 'role-new',
+        code: 'custom_role',
+        name: 'Custom Role',
+        description: 'Custom',
+        isSystem: false,
+        isActive: true,
+        version: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        rolePermissions: [{ permissionKey: 'identity.me.read' }],
+        _count: { accountAssignments: 0 },
+      };
+
+      mockPrisma = {
+        role: {
+          findUnique: jest
+            .fn()
+            .mockImplementation(
+              ({ where }: { where: Record<string, string> }) => {
+                if (where.code === 'custom_role') return Promise.resolve(null);
+                if (where.id === 'role-new') return Promise.resolve(newRole);
+                return Promise.resolve(null);
+              },
+            ),
+          create: jest.fn().mockResolvedValue(newRole),
+        },
+        rolePermission: {
+          createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+      const result = await service.createRole('actor-1', {
+        code: 'custom_role',
+        name: 'Custom Role',
+        description: 'Custom',
+        permission_keys: ['identity.me.read'],
+      });
+
+      expect(result.data.code).toBe('custom_role');
+      expect(mockAuditService.record).toHaveBeenCalled();
+    });
+
+    it('rejects creation when an unknown permission key is provided', async () => {
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue(null) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.createRole('actor-1', {
+          code: 'custom_role',
+          name: 'Custom Role',
+          permission_keys: ['invalid.permission.key'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects creation with critical permissions when confirm_critical is not set', async () => {
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue(null) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.createRole('actor-1', {
+          code: 'custom_role',
+          name: 'Custom Role',
+          permission_keys: ['identity.permissions.manage'], // critical risk
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects creation if role code already exists', async () => {
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue({ id: 'existing' }) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.createRole('actor-1', {
+          code: 'admin',
+          name: 'Administrator',
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('updateRole', () => {
+    it('renames and updates role successfully with atomic version check', async () => {
+      const existingRole = {
+        id: 'role-1',
+        code: 'custom_role',
+        name: 'Old Name',
+        description: 'Old Desc',
+        isSystem: false,
+        isActive: true,
+        version: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        rolePermissions: [],
+        _count: { accountAssignments: 0 },
+      };
+
+      const updatedRole = {
+        ...existingRole,
+        name: 'New Name',
+        version: 2,
+      };
+
+      let callCount = 0;
+      mockPrisma = {
+        role: {
+          findUnique: jest.fn().mockImplementation(() => {
+            callCount++;
+            return Promise.resolve(
+              callCount === 1 ? existingRole : updatedRole,
+            );
+          }),
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+      const result = await service.updateRole('actor-1', 'role-1', {
+        name: 'New Name',
+        version: 1,
+      });
+
+      expect(result.data.name).toBe('New Name');
+      expect(result.data.version).toBe(2);
+      expect(
+        (mockPrisma as { role: { updateMany: jest.Mock } }).role.updateMany,
+      ).toHaveBeenCalledWith({
+        where: { id: 'role-1', version: 1 },
+        data: {
+          name: 'New Name',
+          version: { increment: 1 },
+        },
+      });
+    });
+
+    it('throws ConflictException on optimistic version conflict before query', async () => {
+      const existingRole = {
+        id: 'role-1',
+        version: 2,
+      };
+
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue(existingRole) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.updateRole('actor-1', 'role-1', {
+          name: 'New Name',
+          version: 1, // outdated version
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('throws ConflictException when DB updateMany fails atomic version check (count === 0)', async () => {
+      const existingRole = {
+        id: 'role-1',
+        version: 1,
+      };
+
+      mockPrisma = {
+        role: {
+          findUnique: jest.fn().mockResolvedValue(existingRole),
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.updateRole('actor-1', 'role-1', {
+          name: 'New Name',
+          version: 1,
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('updateRoleStatus', () => {
+    it('prevents deactivating system role', async () => {
+      const systemRole = {
+        id: 'role-super-admin',
+        code: 'super_admin',
+        isSystem: true,
+        isActive: true,
+        version: 1,
+      };
+
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue(systemRole) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.updateRoleStatus('actor-1', 'role-super-admin', {
+          is_active: false,
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws ConflictException on DB atomic updateMany version mismatch', async () => {
+      const existingRole = {
+        id: 'role-1',
+        code: 'custom_role',
+        isSystem: false,
+        isActive: true,
+        version: 2,
+      };
+
+      mockPrisma = {
+        role: {
+          findUnique: jest.fn().mockResolvedValue(existingRole),
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.updateRoleStatus('actor-1', 'role-1', {
+          is_active: false,
+          version: 2,
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('replaceRolePermissions', () => {
+    it('prevents removing critical management permissions from super_admin role', async () => {
+      const superAdminRole = {
+        id: 'role-super-admin',
+        code: 'super_admin',
+        isSystem: true,
+        isActive: true,
+        version: 1,
+        rolePermissions: [
+          { permissionKey: 'identity.permissions.manage' },
+          { permissionKey: 'identity.me.read' },
+        ],
+      };
+
+      mockPrisma = {
+        role: { findUnique: jest.fn().mockResolvedValue(superAdminRole) },
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.replaceRolePermissions('actor-1', 'role-super-admin', {
+          permission_keys: ['identity.me.read'], // removing identity.permissions.manage
+          confirm_critical: true,
+        }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws ConflictException when atomic version check fails on permission replace', async () => {
+      const role = {
+        id: 'role-1',
+        code: 'custom_role',
+        isSystem: false,
+        isActive: true,
+        version: 1,
+        rolePermissions: [{ permissionKey: 'identity.me.read' }],
+      };
+
+      mockPrisma = {
+        role: {
+          findUnique: jest.fn().mockResolvedValue(role),
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.replaceRolePermissions('actor-1', 'role-1', {
+          permission_keys: ['identity.me.read'],
+          version: 1,
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('assignAccountRoles', () => {
+    it('prevents self-demotion when actor removes super_admin from own account', async () => {
+      const targetAccount = {
+        id: 'actor-1',
+        role: 'super_admin',
+        roleAssignments: [
+          {
+            role: {
+              code: 'super_admin',
+              rolePermissions: [
+                { permissionKey: 'identity.permissions.manage' },
+              ],
+            },
+          },
+        ],
+      };
+
+      const regularRole = {
+        id: 'role-teacher',
+        code: 'teacher',
+        isActive: true,
+      };
+
+      mockPrisma = {
+        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
+        role: { findMany: jest.fn().mockResolvedValue([regularRole]) },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-1', 'actor-1', {
+          role_ids: ['role-teacher'],
+        }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('prevents demoting the last active super_admin in system inside transaction with serializable isolation', async () => {
+      const targetAccount = {
+        id: 'account-last-admin',
+        role: 'super_admin',
+        roleAssignments: [
+          {
+            role: {
+              code: 'super_admin',
+              rolePermissions: [
+                { permissionKey: 'identity.permissions.manage' },
+              ],
+            },
+          },
+        ],
+      };
+
+      const teacherRole = {
+        id: 'role-teacher',
+        code: 'teacher',
+        isActive: true,
+      };
+
+      mockPrisma = {
+        account: {
+          findUnique: jest.fn().mockResolvedValue(targetAccount),
+          count: jest.fn().mockResolvedValue(1), // last super_admin account
+        },
+        role: { findMany: jest.fn().mockResolvedValue([teacherRole]) },
+        accountRoleAssignment: {
+          count: jest.fn().mockResolvedValue(1),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation(
+            (cb: (tx: any) => Promise<unknown>, options?: any) => {
+              expect(options).toEqual({ isolationLevel: 'Serializable' });
+              return cb(mockPrisma);
+            },
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-admin-2', 'account-last-admin', {
+          role_ids: ['role-teacher'],
+        }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('rejects assigning roles with critical permissions when confirm_critical is not set', async () => {
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [],
+      };
+
+      const criticalRole = {
+        id: 'role-critical',
+        code: 'role_manager',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
+        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-1', 'account-1', {
+          role_ids: ['role-critical'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('allows assigning roles with critical permissions when confirm_critical is true', async () => {
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [],
+      };
+
+      const criticalRole = {
+        id: 'role-critical',
+        code: 'admin',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: {
+          findUnique: jest.fn().mockResolvedValue(targetAccount),
+          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
+        },
+        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
+        accountRoleAssignment: {
+          deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+          createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      const result = await service.assignAccountRoles('actor-1', 'account-1', {
+        role_ids: ['role-critical'],
+        confirm_critical: true,
+      });
+
+      expect(result.data.account_id).toBe('account-1');
+      expect(result.data.assigned_role_ids).toEqual(['role-critical']);
+      expect(mockAuditService.record).toHaveBeenCalled();
+    });
+
+    it('rejects removing a role-derived critical permission when confirm_critical is not set', async () => {
+      const currentCriticalRole = {
+        id: 'role-critical',
+        code: 'role_manager',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [{ role: currentCriticalRole }],
+      };
+
+      const regularRole = {
+        id: 'role-regular',
+        code: 'regular_role',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.me.read' }],
+      };
+
+      mockPrisma = {
+        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
+        role: { findMany: jest.fn().mockResolvedValue([regularRole]) },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-1', 'account-1', {
+          role_ids: ['role-regular'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('allows assigning roles without confirm_critical when unchanged critical effective permission is reassigned', async () => {
+      const currentCriticalRole = {
+        id: 'role-critical-1',
+        code: 'role_manager_1',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [{ role: currentCriticalRole }],
+      };
+
+      const newCriticalRole = {
+        id: 'role-critical-2',
+        code: 'role_manager_2',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: {
+          findUnique: jest.fn().mockResolvedValue(targetAccount),
+          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
+        },
+        role: { findMany: jest.fn().mockResolvedValue([newCriticalRole]) },
+        accountRoleAssignment: {
+          deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+          createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      const result = await service.assignAccountRoles('actor-1', 'account-1', {
+        role_ids: ['role-critical-2'],
+      });
+
+      expect(result.data.account_id).toBe('account-1');
+      expect(result.data.assigned_role_ids).toEqual(['role-critical-2']);
+      expect(mockAuditService.record).toHaveBeenCalled();
+    });
+  });
+});
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.service.ts">
@@ -299,42 +1280,658 @@ import type {
   UpdateRoleDto,
   UpdateRoleStatusDto,
 } from './role.validation';
-⋮----
-export class RoleService
-⋮----
-constructor(
-⋮----
-async listRoles(query: ListRolesQueryDto =
-⋮----
-async getRoleById(roleId: string)
-⋮----
-async createRole(actorId: string, payload: CreateRoleDto)
-⋮----
-async updateRole(actorId: string, roleId: string, payload: UpdateRoleDto)
-⋮----
-async updateRoleStatus(
+
+@Injectable()
+export class RoleService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
+
+  async listRoles(query: ListRolesQueryDto = {}) {
+    const where: Prisma.RoleWhereInput = {};
+
+    if (query.is_active !== undefined) {
+      where.isActive = query.is_active;
+    }
+
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { name: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    const roles = await this.prisma.role.findMany({
+      where,
+      include: {
+        rolePermissions: {
+          select: { permissionKey: true },
+        },
+        _count: {
+          select: { accountAssignments: true },
+        },
+      },
+      orderBy: [{ isSystem: 'desc' }, { name: 'asc' }],
+    });
+
+    return {
+      data: {
+        roles: roles.map((role) => ({
+          id: role.id,
+          code: role.code,
+          name: role.name,
+          description: role.description,
+          is_system: role.isSystem,
+          is_active: role.isActive,
+          version: role.version,
+          permission_keys: role.rolePermissions.map((rp) => rp.permissionKey),
+          assigned_account_count: role._count.accountAssignments,
+          created_at: role.createdAt.toISOString(),
+          updated_at: role.updatedAt.toISOString(),
+        })),
+      },
+    };
+  }
+
+  async getRoleById(roleId: string) {
+    const role = await this.prisma.role.findUnique({
+      where: { id: roleId },
+      include: {
+        rolePermissions: {
+          select: { permissionKey: true },
+        },
+        _count: {
+          select: { accountAssignments: true },
+        },
+      },
+    });
+
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
+
+    return {
+      data: {
+        id: role.id,
+        code: role.code,
+        name: role.name,
+        description: role.description,
+        is_system: role.isSystem,
+        is_active: role.isActive,
+        version: role.version,
+        permission_keys:
+          role.rolePermissions?.map((rp) => rp.permissionKey) ?? [],
+        assigned_account_count: role._count?.accountAssignments ?? 0,
+        created_at: role.createdAt.toISOString(),
+        updated_at: role.updatedAt.toISOString(),
+      },
+    };
+  }
+
+  async createRole(actorId: string, payload: CreateRoleDto) {
+    const permissionKeys = payload.permission_keys ?? [];
+
+    for (const key of permissionKeys) {
+      if (!isPermissionKey(key)) {
+        throw new BadRequestException(`Unknown permission key: ${key}`);
+      }
+    }
+
+    const hasCritical = permissionKeys.some((key) => {
+      const def = PERMISSIONS.find((p) => p.key === key);
+      return def && def.risk === 'critical';
+    });
+
+    if (hasCritical && !payload.confirm_critical) {
+      throw new BadRequestException(
+        'Explicit confirmation required for critical permission changes',
+      );
+    }
+
+    const existingCode = await this.prisma.role.findUnique({
+      where: { code: payload.code },
+      select: { id: true },
+    });
+
+    if (existingCode) {
+      throw new ConflictException('Role code already exists');
+    }
+
+    const role = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.role.create({
+        data: {
+          code: payload.code,
+          name: payload.name,
+          description: payload.description,
+          isSystem: false,
+          isActive: true,
+          version: 1,
+        },
+      });
+
+      if (permissionKeys.length > 0) {
+        await tx.rolePermission.createMany({
+          data: permissionKeys.map((key) => ({
+            roleId: created.id,
+            permissionKey: key,
+          })),
+        });
+      }
+
+      await this.auditService.record(
+        {
+          actorId,
+          action: 'role.create',
+          boundedContext: 'Identity & Access',
+          resourceType: 'role',
+          resourceId: created.id,
+          metadata: {
+            code: created.code,
+            name: created.name,
+            permission_keys: permissionKeys,
+          },
+        },
+        tx,
+      );
+
+      return created;
+    });
+
+    return this.getRoleById(role.id);
+  }
+
+  async updateRole(actorId: string, roleId: string, payload: UpdateRoleDto) {
+    const existingRole = await this.prisma.role.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!existingRole) {
+      throw new NotFoundException('Role not found');
+    }
+
+    if (
+      payload.version !== undefined &&
+      existingRole.version !== payload.version
+    ) {
+      throw new ConflictException('Role version conflict');
+    }
+
+    const expectedVersion = payload.version ?? existingRole.version;
+
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.role.updateMany({
+        where: { id: roleId, version: expectedVersion },
+        data: {
+          ...(payload.name !== undefined ? { name: payload.name } : {}),
+          ...(payload.description !== undefined
+            ? { description: payload.description }
+            : {}),
+          version: { increment: 1 },
+        },
+      });
+
+      if (count === 0) {
+        const current = await tx.role.findUnique({ where: { id: roleId } });
+        if (!current) {
+          throw new NotFoundException('Role not found');
+        }
+        throw new ConflictException('Role version conflict');
+      }
+
+      await this.auditService.record(
+        {
+          actorId,
+          action: 'role.update',
+          boundedContext: 'Identity & Access',
+          resourceType: 'role',
+          resourceId: roleId,
+          metadata: {
+            name: payload.name,
+            description: payload.description,
+          },
+        },
+        tx,
+      );
+    });
+
+    return this.getRoleById(roleId);
+  }
+
+  async updateRoleStatus(
     actorId: string,
     roleId: string,
     payload: UpdateRoleStatusDto,
-)
-⋮----
-async replaceRolePermissions(
+  ) {
+    const existingRole = await this.prisma.role.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!existingRole) {
+      throw new NotFoundException('Role not found');
+    }
+
+    if (
+      !payload.is_active &&
+      (existingRole.isSystem || existingRole.code === 'super_admin')
+    ) {
+      throw new BadRequestException('System roles cannot be deactivated');
+    }
+
+    if (
+      payload.version !== undefined &&
+      existingRole.version !== payload.version
+    ) {
+      throw new ConflictException('Role version conflict');
+    }
+
+    const expectedVersion = payload.version ?? existingRole.version;
+
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.role.updateMany({
+        where: { id: roleId, version: expectedVersion },
+        data: {
+          isActive: payload.is_active,
+          version: { increment: 1 },
+        },
+      });
+
+      if (count === 0) {
+        const current = await tx.role.findUnique({ where: { id: roleId } });
+        if (!current) {
+          throw new NotFoundException('Role not found');
+        }
+        throw new ConflictException('Role version conflict');
+      }
+
+      await this.auditService.record(
+        {
+          actorId,
+          action: 'role.status.update',
+          boundedContext: 'Identity & Access',
+          resourceType: 'role',
+          resourceId: roleId,
+          metadata: {
+            is_active: payload.is_active,
+          },
+        },
+        tx,
+      );
+    });
+
+    return this.getRoleById(roleId);
+  }
+
+  async replaceRolePermissions(
     actorId: string,
     roleId: string,
     payload: ReplaceRolePermissionsDto,
-)
-⋮----
-async assignAccountRoles(
+  ) {
+    const existingRole = await this.prisma.role.findUnique({
+      where: { id: roleId },
+      include: {
+        rolePermissions: {
+          select: { permissionKey: true },
+        },
+      },
+    });
+
+    if (!existingRole) {
+      throw new NotFoundException('Role not found');
+    }
+
+    for (const key of payload.permission_keys) {
+      if (!isPermissionKey(key)) {
+        throw new BadRequestException(`Unknown permission key: ${key}`);
+      }
+    }
+
+    if (existingRole.code === 'super_admin') {
+      const criticalSuperAdminKeys = [
+        'identity.permissions.manage',
+        'users.manage',
+      ];
+      const missingCriticalKeys = criticalSuperAdminKeys.filter(
+        (key) => !payload.permission_keys.includes(key),
+      );
+      if (missingCriticalKeys.length > 0) {
+        throw new ForbiddenException(
+          'Cannot remove critical management permissions from super_admin role',
+        );
+      }
+    }
+
+    const currentKeys = existingRole.rolePermissions.map(
+      (rp) => rp.permissionKey,
+    );
+    const addedKeys = payload.permission_keys.filter(
+      (k) => !currentKeys.includes(k),
+    );
+    const removedKeys = currentKeys.filter(
+      (k) => !payload.permission_keys.includes(k),
+    );
+
+    const changedKeys = [...addedKeys, ...removedKeys];
+    const hasCriticalChange = changedKeys.some((key) => {
+      const def = PERMISSIONS.find((p) => p.key === key);
+      return def && def.risk === 'critical';
+    });
+
+    if (hasCriticalChange && !payload.confirm_critical) {
+      throw new BadRequestException(
+        'Explicit confirmation required for critical permission changes',
+      );
+    }
+
+    if (
+      payload.version !== undefined &&
+      existingRole.version !== payload.version
+    ) {
+      throw new ConflictException('Role version conflict');
+    }
+
+    const expectedVersion = payload.version ?? existingRole.version;
+
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.role.updateMany({
+        where: { id: roleId, version: expectedVersion },
+        data: {
+          version: { increment: 1 },
+        },
+      });
+
+      if (count === 0) {
+        const current = await tx.role.findUnique({ where: { id: roleId } });
+        if (!current) {
+          throw new NotFoundException('Role not found');
+        }
+        throw new ConflictException('Role version conflict');
+      }
+
+      await tx.rolePermission.deleteMany({
+        where: { roleId },
+      });
+
+      if (payload.permission_keys.length > 0) {
+        await tx.rolePermission.createMany({
+          data: payload.permission_keys.map((key) => ({
+            roleId,
+            permissionKey: key,
+          })),
+        });
+      }
+
+      await this.auditService.record(
+        {
+          actorId,
+          action: 'role.permissions.update',
+          boundedContext: 'Identity & Access',
+          resourceType: 'role',
+          resourceId: roleId,
+          metadata: {
+            permission_keys: payload.permission_keys,
+          },
+        },
+        tx,
+      );
+    });
+
+    return this.getRoleById(roleId);
+  }
+
+  async assignAccountRoles(
     actorId: string,
     accountId: string,
     payload: AssignAccountRolesDto,
-)
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const account = await tx.account.findUnique({
+          where: { id: accountId },
+          include: {
+            roleAssignments: {
+              include: {
+                role: {
+                  include: {
+                    rolePermissions: {
+                      select: { permissionKey: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        if (!account) {
+          throw new NotFoundException('Account not found');
+        }
+
+        const targetRoles = await tx.role.findMany({
+          where: { id: { in: payload.role_ids } },
+          include: {
+            rolePermissions: {
+              select: { permissionKey: true },
+            },
+          },
+        });
+
+        if (targetRoles.length !== payload.role_ids.length) {
+          throw new BadRequestException(
+            'One or more specified roles do not exist',
+          );
+        }
+
+        const inactiveRole = targetRoles.find((r) => !r.isActive);
+        if (inactiveRole) {
+          throw new BadRequestException(
+            `Cannot assign inactive role: ${inactiveRole.name}`,
+          );
+        }
+
+        const currentPermissions = Array.from(
+          new Set(
+            account.roleAssignments.flatMap(
+              (ra) =>
+                ra.role?.rolePermissions?.map((rp) => rp.permissionKey) ?? [],
+            ),
+          ),
+        );
+
+        const targetPermissions = Array.from(
+          new Set(
+            targetRoles.flatMap(
+              (r) => r.rolePermissions?.map((rp) => rp.permissionKey) ?? [],
+            ),
+          ),
+        );
+
+        const addedKeys = targetPermissions.filter(
+          (k) => !currentPermissions.includes(k),
+        );
+        const removedKeys = currentPermissions.filter(
+          (k) => !targetPermissions.includes(k),
+        );
+        const changedKeys = [...addedKeys, ...removedKeys];
+
+        const hasCriticalChange = changedKeys.some((key) => {
+          const def = PERMISSIONS.find((p) => p.key === key);
+          return def && def.risk === 'critical';
+        });
+
+        const currentlyIsSuperAdmin =
+          account.role === 'super_admin' ||
+          account.roleAssignments.some((ra) => ra.role.code === 'super_admin');
+
+        const willBeSuperAdmin = targetRoles.some(
+          (r) => r.code === 'super_admin',
+        );
+
+        if (currentlyIsSuperAdmin && !willBeSuperAdmin) {
+          if (actorId === accountId) {
+            throw new ForbiddenException('Self-demotion is not allowed');
+          }
+
+          const superAdminCount = await tx.account.count({
+            where: {
+              OR: [
+                { role: 'super_admin' },
+                {
+                  roleAssignments: {
+                    some: { role: { code: 'super_admin' } },
+                  },
+                },
+              ],
+              isActive: true,
+            },
+          });
+
+          if (superAdminCount <= 1) {
+            throw new ForbiddenException(
+              'Cannot demote the last super admin account',
+            );
+          }
+        }
+
+        if (hasCriticalChange && !payload.confirm_critical) {
+          throw new BadRequestException(
+            'Explicit confirmation required for critical permission changes',
+          );
+        }
+
+        const legacyRole: AccountRole = willBeSuperAdmin
+          ? 'super_admin'
+          : targetRoles.some((r) => r.code === 'admin')
+            ? 'admin'
+            : targetRoles.some((r) => r.code === 'teacher')
+              ? 'teacher'
+              : targetRoles.some((r) => r.code === 'student')
+                ? 'student'
+                : targetRoles.some((r) => r.code === 'parent')
+                  ? 'parent'
+                  : 'admin';
+
+        await tx.accountRoleAssignment.deleteMany({
+          where: { accountId },
+        });
+
+        await tx.accountRoleAssignment.createMany({
+          data: payload.role_ids.map((roleId) => ({
+            accountId,
+            roleId,
+            assignedById: actorId,
+          })),
+        });
+
+        await tx.account.update({
+          where: { id: accountId },
+          data: { role: legacyRole },
+        });
+
+        await this.auditService.record(
+          {
+            actorId,
+            action: 'account.roles.assign',
+            boundedContext: 'Identity & Access',
+            resourceType: 'account',
+            resourceId: accountId,
+            metadata: {
+              assigned_role_ids: payload.role_ids,
+            },
+          },
+          tx,
+        );
+
+        return {
+          data: {
+            account_id: accountId,
+            assigned_role_ids: payload.role_ids,
+            legacy_role: legacyRole,
+          },
+        };
+      },
+      {
+        isolationLevel: 'Serializable' as Prisma.TransactionIsolationLevel,
+      },
+    );
+  }
+}
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.validation.ts">
 import { BadRequestException } from '@nestjs/common';
 import { z, ZodError, type ZodType } from 'zod';
-⋮----
+
+const nonEmptyString = z.string().trim().min(1, 'Field cannot be empty');
+
+const booleanCoerce = z
+  .union([z.boolean(), z.string()])
+  .transform((val) => {
+    if (typeof val === 'boolean') return val;
+    if (val.toLowerCase() === 'true') return true;
+    if (val.toLowerCase() === 'false') return false;
+    return undefined;
+  })
+  .pipe(z.boolean().optional());
+
+const listRolesQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  is_active: booleanCoerce,
+});
+
+const createRoleSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(2, 'Code must be at least 2 characters')
+    .max(50, 'Code must not exceed 50 characters')
+    .regex(
+      /^[a-z0-9_]+$/,
+      'Code must contain only lowercase letters, numbers, and underscores',
+    ),
+  name: nonEmptyString,
+  description: z.string().trim().optional(),
+  permission_keys: z.array(z.string().trim()).optional(),
+  confirm_critical: z.boolean().optional(),
+});
+
+const updateRoleSchema = z
+  .object({
+    name: nonEmptyString.optional(),
+    description: z.string().trim().optional(),
+    version: z.number().int().optional(),
+  })
+  .refine(
+    (payload) =>
+      payload.name !== undefined || payload.description !== undefined,
+    {
+      message: 'Payload must contain at least one field to update',
+      path: ['body'],
+    },
+  );
+
+const updateRoleStatusSchema = z.object({
+  is_active: z.boolean(),
+  version: z.number().int().optional(),
+});
+
+const replaceRolePermissionsSchema = z.object({
+  permission_keys: z.array(z.string().trim()),
+  confirm_critical: z.boolean().optional(),
+  version: z.number().int().optional(),
+});
+
+const assignAccountRolesSchema = z.object({
+  role_ids: z
+    .array(nonEmptyString)
+    .min(1, 'At least one role ID must be assigned')
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Role IDs must be unique',
+    }),
+  confirm_critical: z.boolean().optional(),
+});
+
 export type ListRolesQueryDto = z.infer<typeof listRolesQuerySchema>;
 export type CreateRoleDto = z.infer<typeof createRoleSchema>;
 export type UpdateRoleDto = z.infer<typeof updateRoleSchema>;
@@ -343,111 +1940,146 @@ export type ReplaceRolePermissionsDto = z.infer<
   typeof replaceRolePermissionsSchema
 >;
 export type AssignAccountRolesDto = z.infer<typeof assignAccountRolesSchema>;
-⋮----
-export function validateListRolesQuery(payload: unknown): ListRolesQueryDto
-⋮----
-export function validateCreateRole(payload: unknown): CreateRoleDto
-⋮----
-export function validateUpdateRole(payload: unknown): UpdateRoleDto
-⋮----
+
+export function validateListRolesQuery(payload: unknown): ListRolesQueryDto {
+  return parseRequest(listRolesQuerySchema, payload, 'query');
+}
+
+export function validateCreateRole(payload: unknown): CreateRoleDto {
+  return parseRequest(createRoleSchema, payload, 'body');
+}
+
+export function validateUpdateRole(payload: unknown): UpdateRoleDto {
+  return parseRequest(updateRoleSchema, payload, 'body');
+}
+
 export function validateUpdateRoleStatus(
   payload: unknown,
-): UpdateRoleStatusDto
-⋮----
+): UpdateRoleStatusDto {
+  return parseRequest(updateRoleStatusSchema, payload, 'body');
+}
+
 export function validateReplaceRolePermissions(
   payload: unknown,
-): ReplaceRolePermissionsDto
-⋮----
+): ReplaceRolePermissionsDto {
+  return parseRequest(replaceRolePermissionsSchema, payload, 'body');
+}
+
 export function validateAssignAccountRoles(
   payload: unknown,
-): AssignAccountRolesDto
-⋮----
+): AssignAccountRolesDto {
+  return parseRequest(assignAccountRolesSchema, payload, 'body');
+}
+
 function parseRequest<T>(
   schema: ZodType<T>,
   value: unknown,
   source: string,
-): T
-</file>
-
-<file path="backend/src/modules/identity-access/permissions/permission.service.spec.ts">
-import type { PrismaService } from '../../../prisma/prisma.service';
-import { PermissionService } from './permission.service';
-⋮----
-function prismaWithDirectPermission(permission:
-⋮----
-function prismaWithRolePermission(hasRole: boolean)
-⋮----
-function prismaWithNoPermission()
+): T {
+  try {
+    return schema.parse(value);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new BadRequestException({
+        message: 'Invalid request payload',
+        details: error.issues.map((issue) => ({
+          source,
+          path: issue.path.join('.'),
+          message: issue.message,
+        })),
+      });
+    }
+    throw error;
+  }
+}
 </file>
 
 <file path="backend/src/modules/identity-access/permissions/permission.service.ts">
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { PermissionKey } from './permission.registry';
-⋮----
-export class PermissionService
-⋮----
-constructor(private readonly prisma: PrismaService)
-⋮----
-async userHasPermission(
+
+@Injectable()
+export class PermissionService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async userHasPermission(
     accountId: string,
     permissionKey: PermissionKey,
-): Promise<boolean>
-⋮----
-async getAccountPermissions(accountId: string): Promise<string[]>
-</file>
+  ): Promise<boolean> {
+    const [directPermission, roleAssignment] = await Promise.all([
+      this.prisma.accountPermission.findUnique({
+        where: {
+          accountId_permissionKey: {
+            accountId,
+            permissionKey,
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+      this.prisma.accountRoleAssignment.findFirst({
+        where: {
+          accountId,
+          role: {
+            isActive: true,
+            rolePermissions: {
+              some: {
+                permissionKey,
+              },
+            },
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+    ]);
 
-<file path="backend/src/modules/identity-access/account.service.ts">
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { compare, hash } from 'bcrypt';
-import { ok } from '../../common/http/api-response';
-import { PrismaService } from '../../prisma/prisma.service';
-import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
-import type { ApiSuccessEnvelope } from '../../common/http/api-response';
-import { isPermissionKey } from './permissions/permission.registry';
-import { PermissionService } from './permissions/permission.service';
-import type { AuthAccountDto } from './dto/auth.dto';
-import type {
-  ChangePasswordRequestDto,
-  ChangePasswordResponseDto,
-  CurrentActorResponseDto,
-} from './dto/account.dto';
-⋮----
-type AccountWithPermissions = {
-  id: string;
-  username: string;
-  passwordHash: string;
-  displayName: string;
-  role: AuthAccountDto['role'];
-  isActive: boolean;
-  permissions?: Array<{ permissionKey: string }>;
-};
-⋮----
-export class AccountService
-⋮----
-constructor(
-⋮----
-async getCurrentActor(
-    user: AuthenticatedUser | undefined,
-): Promise<ApiSuccessEnvelope<CurrentActorResponseDto>>
-⋮----
-async changePassword(
-    user: AuthenticatedUser | undefined,
-    payload: ChangePasswordRequestDto,
-): Promise<ApiSuccessEnvelope<ChangePasswordResponseDto>>
-⋮----
-private async findAuthenticatedAccount(
-    user: AuthenticatedUser | undefined,
-): Promise<AccountWithPermissions>
-⋮----
-private async getEffectivePermissions(account: {
-    id: string;
-    permissions?: Array<{ permissionKey: string }>;
-}): Promise<string[]>
+    return directPermission !== null || roleAssignment !== null;
+  }
+
+  async getAccountPermissions(accountId: string): Promise<string[]> {
+    const [directPermissions, roleAssignments] = await Promise.all([
+      this.prisma.accountPermission.findMany({
+        where: { accountId },
+        select: { permissionKey: true },
+      }),
+      this.prisma.accountRoleAssignment.findMany({
+        where: {
+          accountId,
+          role: { isActive: true },
+        },
+        select: {
+          role: {
+            select: {
+              rolePermissions: {
+                select: { permissionKey: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const set = new Set<string>();
+
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+
+    for (const ra of roleAssignments) {
+      if (ra.role?.rolePermissions) {
+        for (const rp of ra.role.rolePermissions) {
+          set.add(rp.permissionKey);
+        }
+      }
+    }
+
+    return Array.from(set).sort();
+  }
+}
 </file>
 
 <file path="backend/src/modules/identity-access/auth.service.ts">
@@ -471,7 +2103,7 @@ import type {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
 } from './dto/auth.dto';
-⋮----
+
 type AccountWithPermissions = {
   id: string;
   username: string;
@@ -481,61 +2113,183 @@ type AccountWithPermissions = {
   isActive: boolean;
   permissions?: Array<{ permissionKey: string }>;
 };
-⋮----
-export class AuthService
-⋮----
-constructor(
-⋮----
-async login(
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authConfig: AuthConfigService,
+    private readonly authTokenService: AuthTokenService,
+    private readonly permissionService?: PermissionService,
+  ) {}
+
+  async login(
     payload: LoginRequestDto,
-): Promise<ApiSuccessEnvelope<LoginResponseDto>>
-⋮----
-async refreshToken(
+  ): Promise<ApiSuccessEnvelope<LoginResponseDto>> {
+    const account = await this.prisma.account.findFirst({
+      where: { username: payload.username, isActive: true },
+      include: { permissions: { select: { permissionKey: true } } },
+    });
+
+    if (!account || !(await compare(payload.password, account.passwordHash))) {
+      throw new UnauthorizedException('Invalid username or password');
+    }
+
+    const effectivePermissions = await this.getEffectivePermissions(account);
+    const tokens = await this.issueTokens(account);
+
+    return ok({
+      ...tokens,
+      account: {
+        id: account.id,
+        username: account.username,
+        display_name: account.displayName,
+        role: account.role,
+        permissions: effectivePermissions.filter(isPermissionKey),
+      },
+    });
+  }
+
+  async refreshToken(
     payload: RefreshTokenRequestDto,
-): Promise<ApiSuccessEnvelope<RefreshTokenResponseDto>>
-⋮----
-async logout(
+  ): Promise<ApiSuccessEnvelope<RefreshTokenResponseDto>> {
+    const session = await this.prisma.refreshSession.findUnique({
+      where: { tokenHash: this.hashToken(payload.refresh_token) },
+      include: {
+        account: {
+          include: { permissions: { select: { permissionKey: true } } },
+        },
+      },
+    });
+
+    if (
+      !session ||
+      session.revokedAt ||
+      session.expiresAt <= new Date() ||
+      !session.account.isActive
+    ) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const claim = await this.prisma.refreshSession.updateMany({
+      where: { id: session.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    if (claim.count !== 1) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const tokens = await this.issueTokens(session.account);
+
+    return ok(tokens);
+  }
+
+  async logout(
     user: AuthenticatedUser | undefined,
     payload: LogoutRequestDto,
-): Promise<ApiSuccessEnvelope<LogoutResponseDto>>
-⋮----
-private async issueTokens(
+  ): Promise<ApiSuccessEnvelope<LogoutResponseDto>> {
+    void payload;
+
+    if (!user) {
+      throw new UnauthorizedException('Authentication required');
+    }
+
+    await this.prisma.refreshSession.updateMany({
+      where: { accountId: user.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    return ok({ logged_out: true });
+  }
+
+  private async issueTokens(
     account: AccountWithPermissions,
-): Promise<RefreshTokenResponseDto>
-⋮----
-private async getEffectivePermissions(account: {
+  ): Promise<RefreshTokenResponseDto> {
+    let activeStudentId: string | null = null;
+    if (account.role === 'parent' || account.role === 'student') {
+      const link = await this.prisma.studentAccountLink.findFirst({
+        where: { accountId: account.id, isActive: true },
+        select: { studentId: true },
+      });
+      activeStudentId = link?.studentId ?? null;
+    }
+
+    const access_token = await this.authTokenService.issueAccessToken({
+      id: account.id,
+      username: account.username,
+      role: account.role,
+      activeStudentId,
+    });
+
+    const refresh_token = randomBytes(32).toString('base64url');
+    await this.prisma.refreshSession.create({
+      data: {
+        accountId: account.id,
+        tokenHash: this.hashToken(refresh_token),
+        expiresAt: this.refreshTokenExpiresAt(),
+      },
+    });
+
+    return {
+      access_token,
+      refresh_token,
+      expires_in: this.authConfig.jwtExpiresInSeconds,
+    };
+  }
+
+  private async getEffectivePermissions(account: {
     id: string;
     permissions?: Array<{ permissionKey: string }>;
-}): Promise<string[]>
-⋮----
-private hashToken(token: string): string
-⋮----
-private refreshTokenExpiresAt(): Date
-</file>
+  }): Promise<string[]> {
+    if (this.permissionService) {
+      return this.permissionService.getAccountPermissions(account.id);
+    }
 
-<file path="backend/src/modules/identity-access/identity-access.module.ts">
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthenticationGuard } from '../../common/auth/jwt-authentication.guard';
-import { PermissionGuard } from '../../common/auth/permission.guard';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { AccountController } from './account.controller';
-import { AccountService } from './account.service';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { AdminSeedService } from './bootstrap/admin-seed.service';
-import { AuthConfigService } from './config/auth-config.service';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthTokenService } from './auth-token.service';
-import { PermissionService } from './permissions/permission.service';
-import { AuditController } from './audit/audit.controller';
-import { AuditService } from './audit/audit.service';
-import { RoleController } from './roles/role.controller';
-import { RoleService } from './roles/role.service';
-⋮----
-export class IdentityAccessModule
+    const [directPermissions, roleAssignments] = await Promise.all([
+      account.permissions
+        ? Promise.resolve(account.permissions)
+        : this.prisma.accountPermission?.findMany
+          ? this.prisma.accountPermission.findMany({
+              where: { accountId: account.id },
+              select: { permissionKey: true },
+            })
+          : Promise.resolve([]),
+      this.prisma.accountRoleAssignment?.findMany
+        ? this.prisma.accountRoleAssignment.findMany({
+            where: { accountId: account.id, role: { isActive: true } },
+            select: {
+              role: {
+                select: {
+                  rolePermissions: { select: { permissionKey: true } },
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const set = new Set<string>();
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+    for (const ra of roleAssignments) {
+      for (const rp of ra.role?.rolePermissions ?? []) {
+        set.add(rp.permissionKey);
+      }
+    }
+    return Array.from(set).sort();
+  }
+
+  private hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
+  private refreshTokenExpiresAt(): Date {
+    return new Date(
+      Date.now() + this.authConfig.refreshTokenTtlDays * 24 * 60 * 60 * 1000,
+    );
+  }
+}
 </file>
 
 <file path="backend/prisma/schema.prisma">
@@ -1304,13 +3058,275 @@ model AttachmentFile {
 </file>
 
 <file path="backend/src/modules/identity-access/permissions/permission.registry.ts">
+export const PERMISSIONS = [
+  {
+    key: 'identity.me.read',
+    label: 'Read own identity profile',
+    description:
+      'Read the authenticated actor profile and session bootstrap data.',
+    boundedContext: 'Identity & Access',
+    risk: 'low',
+  },
+  {
+    key: 'identity.accounts.switch',
+    label: 'Switch active account context',
+    description:
+      'Switch between allowed account/student contexts for the authenticated actor.',
+    boundedContext: 'Identity & Access',
+    risk: 'medium',
+  },
+  {
+    key: 'identity.password.change',
+    label: 'Change own password',
+    description:
+      'Change the authenticated actor password after validating the current password.',
+    boundedContext: 'Identity & Access',
+    risk: 'medium',
+  },
+  {
+    key: 'identity.sessions.revoke',
+    label: 'Revoke own sessions',
+    description:
+      'Log out and revoke active refresh sessions for the authenticated actor.',
+    boundedContext: 'Identity & Access',
+    risk: 'medium',
+  },
+  {
+    key: 'identity.permissions.read',
+    label: 'Read permission catalog',
+    description: 'Read the platform permission catalog and access model.',
+    boundedContext: 'Identity & Access',
+    risk: 'high',
+  },
+  {
+    key: 'identity.permissions.manage',
+    label: 'Manage permissions',
+    description: 'Assign and revoke business permissions.',
+    boundedContext: 'Identity & Access',
+    risk: 'critical',
+  },
+  {
+    key: 'users.manage',
+    label: 'Manage users',
+    description:
+      'Create, update, disable, and assign access for platform users.',
+    boundedContext: 'User Management',
+    risk: 'critical',
+  },
+  {
+    key: 'students.read',
+    label: 'Read students',
+    description: 'Read student profiles and account-student relationships.',
+    boundedContext: 'Student Administration',
+    risk: 'medium',
+  },
+  {
+    key: 'students.manage',
+    label: 'Manage students',
+    description: 'Create and update student profiles.',
+    boundedContext: 'Student Administration',
+    risk: 'high',
+  },
+  {
+    key: 'students.accounts.manage',
+    label: 'Manage student account links',
+    description: 'Assign and replace guardian account links for students.',
+    boundedContext: 'Student Administration',
+    risk: 'critical',
+  },
+  {
+    key: 'academics.context.read',
+    label: 'Read academic context',
+    description: 'Read the current academic year and semester context.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.context.manage',
+    label: 'Manage academic context',
+    description:
+      'Create, update, and set current academic years and semesters.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'academics.structure.read',
+    label: 'Read academic structure',
+    description: 'Read grade levels, school classes, and roster enrollments.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.structure.manage',
+    label: 'Manage academic structure',
+    description:
+      'Create and update grade levels, school classes, and student enrollments.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'academics.attendance.read',
+    label: 'Read attendance',
+    description:
+      'Read class attendance sessions and student attendance records.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.attendance.manage',
+    label: 'Manage attendance',
+    description: 'Create and update class attendance sessions.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'academics.scores.read',
+    label: 'Read student scores',
+    description: 'Read student score records and reward discipline history.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.scores.manage',
+    label: 'Manage student scores',
+    description:
+      'Create and update student score records and reward discipline history.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'academics.homework.read',
+    label: 'Read homework assignments',
+    description: 'Read homework assignments and submission progress.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.homework.manage',
+    label: 'Manage homework assignments',
+    description: 'Create, update, and archive homework assignments.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'billing.tuition.read',
+    label: 'Read tuition charges',
+    description: 'Read student tuition charges and outstanding balances.',
+    boundedContext: 'Billing',
+    risk: 'high',
+  },
+  {
+    key: 'billing.tuition.manage',
+    label: 'Manage tuition charges',
+    description: 'Create and update student tuition charges.',
+    boundedContext: 'Billing',
+    risk: 'critical',
+  },
+  {
+    key: 'communication.news.read',
+    label: 'Read news',
+    description: 'Read published or administrative news views.',
+    boundedContext: 'Communication',
+    risk: 'low',
+  },
+  {
+    key: 'communication.news.manage',
+    label: 'Manage news',
+    description: 'Create, edit, hide, pin, reorder, and delete news.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
+  {
+    key: 'communication.news.publish',
+    label: 'Publish news',
+    description: 'Publish school news to resolved audiences.',
+    boundedContext: 'Communication',
+    risk: 'critical',
+  },
+  {
+    key: 'communication.feedback.read',
+    label: 'Read feedback',
+    description: 'Read administrative feedback views.',
+    boundedContext: 'Communication',
+    risk: 'medium',
+  },
+  {
+    key: 'communication.feedback.manage',
+    label: 'Manage feedback',
+    description: 'Update feedback workflow status.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
+  {
+    key: 'communication.notifications.read',
+    label: 'Read notifications',
+    description: 'Read app and administrative notification views.',
+    boundedContext: 'Communication',
+    risk: 'low',
+  },
+  {
+    key: 'communication.notifications.manage',
+    label: 'Manage notifications',
+    description: 'Create and update school notifications.',
+    boundedContext: 'Communication',
+    risk: 'high',
+  },
+  {
+    key: 'academics.timetable.read',
+    label: 'Read timetable',
+    description: 'Read class and student timetable schedules.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.timetable.manage',
+    label: 'Manage timetable',
+    description: 'Create and update class timetable schedules.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
+    key: 'identity.audit.read',
+    label: 'Read audit logs',
+    description: 'Read system audit logs and activity trails.',
+    boundedContext: 'Identity & Access',
+    risk: 'high',
+  },
+  {
+    key: 'identity.roles.read',
+    label: 'Read dynamic roles',
+    description: 'Read dynamic role definitions and assigned permissions.',
+    boundedContext: 'Identity & Access',
+    risk: 'high',
+  },
+  {
+    key: 'identity.roles.manage',
+    label: 'Manage dynamic roles',
+    description:
+      'Create, edit, change status, replace permissions, and assign dynamic roles.',
+    boundedContext: 'Identity & Access',
+    risk: 'critical',
+  },
+  {
+    key: 'student_services.bus.read',
+    label: 'Read bus route and tracking',
+    description: 'Read bus route and tracking information for students.',
+    boundedContext: 'Student Services',
+    risk: 'low',
+  },
+] as const;
+
 export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
-⋮----
-export function isPermissionKey(value: string): value is PermissionKey
+
+export function isPermissionKey(value: string): value is PermissionKey {
+  return PERMISSIONS.some((permission) => permission.key === value);
+}
 </file>
 
 <file path="shared/api-contract/docs/API_CATALOG.md">
 # API Catalog v1 (School App)
+
+Dynamic role assignment: `PUT /admin/accounts/{account_id}/roles` accepts unique `role_ids`; critical role-derived permission changes require explicit `confirm_critical: true`.
 
 Shared contract for Sổ Liên Lạc Điện Tử. Base path is `/api/v1`; external JSON fields use `snake_case`.
 
@@ -1350,6 +3366,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | `PATCH /admin/roles/{id}/status` | — | Update active status of custom roles. |
 | `PUT /admin/roles/{id}/permissions` | — | Replace role permissions with critical-permission confirmation gate. |
 | `PUT /admin/accounts/{account_id}/roles` | — | Assign roles to account with super_admin protection rules. |
+| `GET /admin/audit-logs` | — | Search paginated, recursively redacted audit events with exact actor/action/context/resource/date filters. |
 
 ### User Management
 
@@ -1428,6 +3445,8 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 <file path="shared/api-contract/docs/IMPLEMENTATION_STATUS.md">
 # Implementation Status
 
+Dynamic role assignment hardening is implemented: duplicate `role_ids` are rejected; critical role-derived permission changes require explicit confirmation.
+
 This file tracks backend availability for the draft v1 OpenAPI contract. It is conservative by default: an endpoint appearing in the contract does not mean it is live in the backend.
 
 ## Status Legend
@@ -1445,7 +3464,7 @@ This file tracks backend availability for the draft v1 OpenAPI contract. It is c
 
 | Bounded context | Contract status | Backend implementation status | Frontend guidance |
 | --- | --- | --- | --- |
-| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role list/detail/create/rename/status/permissions, and account-role assignment endpoints are live scope. |
+| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role administration, account-role assignment, and protected redacted audit-log viewing are live scope. |
 | User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
 | Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
 | Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |
@@ -1469,14 +3488,11 @@ Changing a context or endpoint to `implemented` requires all of these:
 If any item is missing, use `partial` or `mock-only` instead of `implemented`.
 </file>
 
-<file path="front-end/lib/api/admin-route.test.ts">
-import { describe, expect, it } from "vitest";
-import { resolveAdminEndpoint } from "./admin-route";
-</file>
-
 <file path="shared/api-contract/docs/CONTRACT_CHANGES.md">
 # Contract Changes
 
+- 2026-08-06: Hardened `PUT /admin/accounts/{account_id}/roles`: `role_ids` must be unique; assignments adding or removing critical role-derived permissions require `confirm_critical: true`.
+- 2026-08-06: Added protected `GET /admin/audit-logs` with exact actor/action/context/resource/date filters, validated pagination/range, recursive secret metadata redaction, Next BFF consumption, and permission-aware admin UI.
 - 2026-08-06: Added exact contracts, snake_case envelopes, DTO validation rules, error specs (400/401/403/409), and BFF allowlists for protected role administration (list/detail/create/rename/status/permissions) and account-role assignments.
 - 2026-08-06: Synchronized C3 Academic Structure student transfers (POST /api/v1/admin/academic-structure/transfers) and cohort promotions (POST /api/v1/admin/academic-structure/promotions) contracts with validated snake_case request/response DTOs, academics.structure.manage permission, fixed-role policy, and audited writes.
 - 2026-08-06: Implemented `GET/POST /admin/timetable` with required class, semester, week scope, validated lesson slots, explicit permissions, BFF consumption, and audited writes.
@@ -1549,10 +3565,6 @@ import { resolveAdminEndpoint } from "./admin-route";
 - Added OpenAPI export pipeline from `services/auth-service`.
 - Added verification and SDK preparation scripts.
 - Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
-</file>
-
-<file path="front-end/lib/api/admin-route.ts">
-export function resolveAdminEndpoint(resource: string, segments: string[], method: string): string
 </file>
 
 </files>

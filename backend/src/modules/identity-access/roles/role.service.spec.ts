@@ -418,7 +418,16 @@ describe('RoleService', () => {
       const targetAccount = {
         id: 'actor-1',
         role: 'super_admin',
-        roleAssignments: [{ role: { code: 'super_admin' } }],
+        roleAssignments: [
+          {
+            role: {
+              code: 'super_admin',
+              rolePermissions: [
+                { permissionKey: 'identity.permissions.manage' },
+              ],
+            },
+          },
+        ],
       };
 
       const regularRole = {
@@ -453,7 +462,16 @@ describe('RoleService', () => {
       const targetAccount = {
         id: 'account-last-admin',
         role: 'super_admin',
-        roleAssignments: [{ role: { code: 'super_admin' } }],
+        roleAssignments: [
+          {
+            role: {
+              code: 'super_admin',
+              rolePermissions: [
+                { permissionKey: 'identity.permissions.manage' },
+              ],
+            },
+          },
+        ],
       };
 
       const teacherRole = {
@@ -491,6 +509,183 @@ describe('RoleService', () => {
           role_ids: ['role-teacher'],
         }),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('rejects assigning roles with critical permissions when confirm_critical is not set', async () => {
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [],
+      };
+
+      const criticalRole = {
+        id: 'role-critical',
+        code: 'role_manager',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
+        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-1', 'account-1', {
+          role_ids: ['role-critical'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('allows assigning roles with critical permissions when confirm_critical is true', async () => {
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [],
+      };
+
+      const criticalRole = {
+        id: 'role-critical',
+        code: 'admin',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: {
+          findUnique: jest.fn().mockResolvedValue(targetAccount),
+          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
+        },
+        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
+        accountRoleAssignment: {
+          deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+          createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      const result = await service.assignAccountRoles('actor-1', 'account-1', {
+        role_ids: ['role-critical'],
+        confirm_critical: true,
+      });
+
+      expect(result.data.account_id).toBe('account-1');
+      expect(result.data.assigned_role_ids).toEqual(['role-critical']);
+      expect(mockAuditService.record).toHaveBeenCalled();
+    });
+
+    it('rejects removing a role-derived critical permission when confirm_critical is not set', async () => {
+      const currentCriticalRole = {
+        id: 'role-critical',
+        code: 'role_manager',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [{ role: currentCriticalRole }],
+      };
+
+      const regularRole = {
+        id: 'role-regular',
+        code: 'regular_role',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.me.read' }],
+      };
+
+      mockPrisma = {
+        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
+        role: { findMany: jest.fn().mockResolvedValue([regularRole]) },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      await expect(
+        service.assignAccountRoles('actor-1', 'account-1', {
+          role_ids: ['role-regular'],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('allows assigning roles without confirm_critical when unchanged critical effective permission is reassigned', async () => {
+      const currentCriticalRole = {
+        id: 'role-critical-1',
+        code: 'role_manager_1',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      const targetAccount = {
+        id: 'account-1',
+        role: 'admin',
+        roleAssignments: [{ role: currentCriticalRole }],
+      };
+
+      const newCriticalRole = {
+        id: 'role-critical-2',
+        code: 'role_manager_2',
+        isActive: true,
+        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
+      };
+
+      mockPrisma = {
+        account: {
+          findUnique: jest.fn().mockResolvedValue(targetAccount),
+          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
+        },
+        role: { findMany: jest.fn().mockResolvedValue([newCriticalRole]) },
+        accountRoleAssignment: {
+          deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+          createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        $transaction: jest
+          .fn()
+          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
+            cb(mockPrisma),
+          ),
+      };
+
+      service = new RoleService(
+        mockPrisma as PrismaService,
+        mockAuditService as AuditService,
+      );
+
+      const result = await service.assignAccountRoles('actor-1', 'account-1', {
+        role_ids: ['role-critical-2'],
+      });
+
+      expect(result.data.account_id).toBe('account-1');
+      expect(result.data.assigned_role_ids).toEqual(['role-critical-2']);
+      expect(mockAuditService.record).toHaveBeenCalled();
     });
   });
 });
