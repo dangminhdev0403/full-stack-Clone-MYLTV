@@ -875,9 +875,9 @@
     "semantic_hash": "b747a018d6f2f02e5aa191d1e0e4587a"
   },
   "front-end/features/admin-shell/data/admin-nav-items.test.ts": {
-    "mtime": 1785101091.4753819,
-    "ast_hash": "f06a1463c6ce4ee8beb842b624503c2e",
-    "semantic_hash": "f06a1463c6ce4ee8beb842b624503c2e"
+    "mtime": 1786024133.0616174,
+    "ast_hash": "5abb4fced6d469b039211d3cce8f3c7e",
+    "semantic_hash": ""
   },
   "front-end/features/admin-shell/data/admin-nav-items.ts": {
     "mtime": 1785993116.2302392,
@@ -1105,9 +1105,9 @@
     "semantic_hash": "d65317d1d448c5434e4dc53b7fefdd9d"
   },
   "front-end/features/notifications/components/notifications-page.tsx": {
-    "mtime": 1785104175.8546207,
-    "ast_hash": "0a24c866dd3fa73548aa97f2056bfc56",
-    "semantic_hash": "0a24c866dd3fa73548aa97f2056bfc56"
+    "mtime": 1786023998.6961205,
+    "ast_hash": "71892b4b86ab6e17bdfdcc41d4794d33",
+    "semantic_hash": ""
   },
   "front-end/features/notifications/hooks/use-notifications.ts": {
     "mtime": 1785092435.4157562,
@@ -1845,8 +1845,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.validation.ts": {
-    "mtime": 1786002208.7223215,
-    "ast_hash": "57a74e870c9c6d841899bf8c4a9fed73",
+    "mtime": 1786023853.6591668,
+    "ast_hash": "881cae05091daa4db363ef7ff9846d72",
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/components/academic-classes-manager.test.tsx": {
@@ -1980,8 +1980,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.validation.ts": {
-    "mtime": 1786022916.7469313,
-    "ast_hash": "5b74fea07c62c4c19be9b4f929d4fa66",
+    "mtime": 1786025895.6557887,
+    "ast_hash": "eb80392fbd983724a198eda42e494331",
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/service/academic-structure.client.test.ts": {
@@ -2025,8 +2025,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.validation.spec.ts": {
-    "mtime": 1786022906.1443148,
-    "ast_hash": "e8e9b551cc31fd501faec95058bb8604",
+    "mtime": 1786025914.9148877,
+    "ast_hash": "0c323a9a2a28a437ae374d439e6d3f99",
     "semantic_hash": ""
   }
 }

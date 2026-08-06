@@ -32,7 +32,7 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/modules/identity-access/roles/*.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/modules/identity-access/permissions/permission.service.ts
+- Only files matching these patterns are included: backend/src/modules/identity-access/roles/role.validation.ts, backend/src/modules/identity-access/roles/role.validation.spec.ts, backend/src/modules/identity-access/roles/role.controller.ts, backend/src/modules/identity-access/roles/role.service.ts, backend/src/modules/identity-access/permissions/permission.service.ts, backend/prisma/schema.prisma, backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/prisma/seed.ts
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Files are sorted by Git change count (files with more changes are at the bottom)
@@ -46,157 +46,23 @@ backend/
     migrations/
       20260806160000_add_dynamic_roles/
         migration.sql
+    schema.prisma
   src/
     modules/
       identity-access/
         permissions/
-          permission.registry.ts
           permission.service.ts
         roles/
-          role.controller.spec.ts
           role.controller.ts
-          role.service.spec.ts
           role.service.ts
           role.validation.spec.ts
           role.validation.ts
+    prisma/
+      seed.ts
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path="backend/src/modules/identity-access/roles/role.validation.spec.ts">
-import { BadRequestException } from '@nestjs/common';
-import {
-  validateCreateRole,
-  validateReplaceRolePermissions,
-  validateUpdateRole,
-  validateUpdateRoleStatus,
-} from './role.validation';
-
-describe('role.validation', () => {
-  describe('permission_keys uniqueness', () => {
-    it('throws BadRequestException when createRole receives duplicate permission_keys', () => {
-      expect(() =>
-        validateCreateRole({
-          code: 'test_role',
-          name: 'Test Role',
-          permission_keys: ['identity.roles.read', 'identity.roles.read'],
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('allows createRole with unique permission_keys or without permission_keys', () => {
-      const result = validateCreateRole({
-        code: 'test_role',
-        name: 'Test Role',
-        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
-      });
-      expect(result.permission_keys).toEqual([
-        'identity.roles.read',
-        'identity.roles.manage',
-      ]);
-    });
-
-    it('throws BadRequestException when replaceRolePermissions receives duplicate permission_keys', () => {
-      expect(() =>
-        validateReplaceRolePermissions({
-          permission_keys: ['identity.roles.read', 'identity.roles.read'],
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('allows replaceRolePermissions with unique permission_keys', () => {
-      const result = validateReplaceRolePermissions({
-        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
-      });
-      expect(result.permission_keys).toEqual([
-        'identity.roles.read',
-        'identity.roles.manage',
-      ]);
-    });
-  });
-
-  describe('version positive integer requirement', () => {
-    it('throws BadRequestException when updateRole has version = 0', () => {
-      expect(() =>
-        validateUpdateRole({
-          name: 'Updated Name',
-          version: 0,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('throws BadRequestException when updateRole has version < 0', () => {
-      expect(() =>
-        validateUpdateRole({
-          name: 'Updated Name',
-          version: -1,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('allows updateRole with positive integer version', () => {
-      const result = validateUpdateRole({
-        name: 'Updated Name',
-        version: 1,
-      });
-      expect(result.version).toBe(1);
-    });
-
-    it('throws BadRequestException when updateRoleStatus has version = 0', () => {
-      expect(() =>
-        validateUpdateRoleStatus({
-          is_active: false,
-          version: 0,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('throws BadRequestException when updateRoleStatus has version < 0', () => {
-      expect(() =>
-        validateUpdateRoleStatus({
-          is_active: false,
-          version: -5,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('allows updateRoleStatus with positive integer version', () => {
-      const result = validateUpdateRoleStatus({
-        is_active: false,
-        version: 2,
-      });
-      expect(result.version).toBe(2);
-    });
-
-    it('throws BadRequestException when replaceRolePermissions has version = 0', () => {
-      expect(() =>
-        validateReplaceRolePermissions({
-          permission_keys: ['identity.roles.read'],
-          version: 0,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('throws BadRequestException when replaceRolePermissions has version < 0', () => {
-      expect(() =>
-        validateReplaceRolePermissions({
-          permission_keys: ['identity.roles.read'],
-          version: -2,
-        }),
-      ).toThrow(BadRequestException);
-    });
-
-    it('allows replaceRolePermissions with positive integer version', () => {
-      const result = validateReplaceRolePermissions({
-        permission_keys: ['identity.roles.read'],
-        version: 3,
-      });
-      expect(result.version).toBe(3);
-    });
-  });
-});
-</file>
 
 <file path="backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql">
 -- CreateTable
@@ -403,1086 +269,157 @@ export class RoleController {
 }
 </file>
 
-<file path="backend/src/modules/identity-access/permissions/permission.service.ts">
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { PERMISSIONS, type PermissionKey } from './permission.registry';
-
-@Injectable()
-export class PermissionService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async userHasPermission(
-    accountId: string,
-    permissionKey: PermissionKey,
-  ): Promise<boolean> {
-    const account = await this.prisma.account.findUnique({
-      where: { id: accountId },
-      select: { role: true },
-    });
-    if (account?.role === 'super_admin') {
-      return true;
-    }
-
-    const [directPermission, roleAssignment] = await Promise.all([
-      this.prisma.accountPermission.findUnique({
-        where: {
-          accountId_permissionKey: {
-            accountId,
-            permissionKey,
-          },
-        },
-        select: {
-          accountId: true,
-        },
-      }),
-      this.prisma.accountRoleAssignment.findFirst({
-        where: {
-          accountId,
-          role: {
-            isActive: true,
-            rolePermissions: {
-              some: {
-                permissionKey,
-              },
-            },
-          },
-        },
-        select: {
-          accountId: true,
-        },
-      }),
-    ]);
-
-    return directPermission !== null || roleAssignment !== null;
-  }
-
-  async getAccountPermissions(accountId: string): Promise<string[]> {
-    const account = await this.prisma.account.findUnique({
-      where: { id: accountId },
-      select: { role: true },
-    });
-    if (account?.role === 'super_admin') {
-      return PERMISSIONS.map((p) => p.key).sort();
-    }
-
-    const [directPermissions, roleAssignments] = await Promise.all([
-      this.prisma.accountPermission.findMany({
-        where: { accountId },
-        select: { permissionKey: true },
-      }),
-      this.prisma.accountRoleAssignment.findMany({
-        where: {
-          accountId,
-          role: { isActive: true },
-        },
-        select: {
-          role: {
-            select: {
-              rolePermissions: {
-                select: { permissionKey: true },
-              },
-            },
-          },
-        },
-      }),
-    ]);
-
-    const set = new Set<string>();
-
-    for (const dp of directPermissions) {
-      set.add(dp.permissionKey);
-    }
-
-    for (const ra of roleAssignments) {
-      if (ra.role?.rolePermissions) {
-        for (const rp of ra.role.rolePermissions) {
-          set.add(rp.permissionKey);
-        }
-      }
-    }
-
-    return Array.from(set).sort();
-  }
-}
-</file>
-
-<file path="backend/src/modules/identity-access/roles/role.controller.spec.ts">
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
-import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+<file path="backend/src/modules/identity-access/roles/role.validation.spec.ts">
+import { BadRequestException } from '@nestjs/common';
 import {
-  REQUIRED_PERMISSIONS_KEY,
-  REQUIRED_ROLES_KEY,
-} from '../../../common/auth/auth.constants';
-import { RoleController } from './role.controller';
-import { RoleService } from './role.service';
+  validateCreateRole,
+  validateListRolesQuery,
+  validateReplaceRolePermissions,
+  validateUpdateRole,
+  validateUpdateRoleStatus,
+} from './role.validation';
 
-describe('RoleController', () => {
-  let controller: RoleController;
-  let roleService: jest.Mocked<Partial<RoleService>>;
-  let reflector: Reflector;
-
-  const mockActor: AuthenticatedUser = {
-    id: 'account-admin-1',
-    username: 'admin',
-    role: 'admin',
-  };
-
-  beforeEach(async () => {
-    roleService = {
-      listRoles: jest.fn().mockResolvedValue({ data: { roles: [] } }),
-      getRoleById: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
-      createRole: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
-      updateRole: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
-      updateRoleStatus: jest.fn().mockResolvedValue({ data: { id: 'role-1' } }),
-      replaceRolePermissions: jest
-        .fn()
-        .mockResolvedValue({ data: { id: 'role-1' } }),
-      assignAccountRoles: jest
-        .fn()
-        .mockResolvedValue({ data: { account_id: 'account-1' } }),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [RoleController],
-      providers: [
-        {
-          provide: RoleService,
-          useValue: roleService,
-        },
-      ],
-    }).compile();
-
-    controller = module.get(RoleController);
-    reflector = new Reflector();
-  });
-
-  /* eslint-disable @typescript-eslint/unbound-method */
-  describe('Route Metadata & Auth Decorators', () => {
-    it('has RequireRole admin and super_admin on the class', () => {
-      const roles = reflector.get<string[]>(REQUIRED_ROLES_KEY, RoleController);
-      expect(roles).toEqual(['admin', 'super_admin']);
-    });
-
-    it('has RequirePermission identity.roles.read on listRoles', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.listRoles,
-      );
-      expect(permissions).toEqual(['identity.roles.read']);
-    });
-
-    it('has RequirePermission identity.roles.read on getRoleById', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.getRoleById,
-      );
-      expect(permissions).toEqual(['identity.roles.read']);
-    });
-
-    it('has RequirePermission identity.roles.manage on createRole', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.createRole,
-      );
-      expect(permissions).toEqual(['identity.roles.manage']);
-    });
-
-    it('has RequirePermission identity.roles.manage on updateRole', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.updateRole,
-      );
-      expect(permissions).toEqual(['identity.roles.manage']);
-    });
-
-    it('has RequirePermission identity.roles.manage on updateRoleStatus', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.updateRoleStatus,
-      );
-      expect(permissions).toEqual(['identity.roles.manage']);
-    });
-
-    it('has RequirePermission identity.roles.manage on replaceRolePermissions', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.replaceRolePermissions,
-      );
-      expect(permissions).toEqual(['identity.roles.manage']);
-    });
-
-    it('has RequirePermission identity.roles.manage on assignAccountRoles', () => {
-      const permissions = reflector.get<string[]>(
-        REQUIRED_PERMISSIONS_KEY,
-        RoleController.prototype.assignAccountRoles,
-      );
-      expect(permissions).toEqual(['identity.roles.manage']);
-    });
-  });
-  /* eslint-enable @typescript-eslint/unbound-method */
-
-  describe('Validation (Negative Cases)', () => {
-    it('throws BadRequestException on invalid list query', () => {
-      expect(() => controller.listRoles({ is_active: 123 })).toThrow(
-        BadRequestException,
-      );
-      expect(roleService.listRoles).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on create role with invalid code', () => {
+describe('role.validation', () => {
+  describe('validateListRolesQuery', () => {
+    it('throws BadRequestException when is_active is invalid like "yes"', () => {
       expect(() =>
-        controller.createRole(mockActor, {
-          code: 'Invalid Code!',
-          name: 'Test Role',
-        }),
-      ).toThrow(BadRequestException);
-      expect(roleService.createRole).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on create role with empty name', () => {
-      expect(() =>
-        controller.createRole(mockActor, {
-          code: 'test_role',
-          name: '   ',
-        }),
+        validateListRolesQuery({ is_active: 'yes' as unknown as boolean }),
       ).toThrow(BadRequestException);
     });
 
-    it('throws BadRequestException on update role with empty payload', () => {
-      expect(() => controller.updateRole(mockActor, 'role-1', {})).toThrow(
-        BadRequestException,
-      );
-      expect(roleService.updateRole).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on update role status with invalid payload', () => {
-      expect(() =>
-        controller.updateRoleStatus(mockActor, 'role-1', {
-          is_active: 'maybe',
-        }),
-      ).toThrow(BadRequestException);
-      expect(roleService.updateRoleStatus).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on replace permissions with missing array', () => {
-      expect(() =>
-        controller.replaceRolePermissions(mockActor, 'role-1', {}),
-      ).toThrow(BadRequestException);
-      expect(roleService.replaceRolePermissions).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on assign account roles with empty array', () => {
-      expect(() =>
-        controller.assignAccountRoles(mockActor, 'account-1', {
-          role_ids: [],
-        }),
-      ).toThrow(BadRequestException);
-      expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
-    });
-
-    it('throws BadRequestException on assign account roles with duplicate role IDs', () => {
-      expect(() =>
-        controller.assignAccountRoles(mockActor, 'account-1', {
-          role_ids: ['role-1', 'role-1'],
-        }),
-      ).toThrow(BadRequestException);
-      expect(roleService.assignAccountRoles).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Delegation & Mapping (Positive Cases)', () => {
-    it('delegates listRoles with parsed query', async () => {
-      await controller.listRoles({ search: '  admin  ', is_active: 'true' });
-      expect(roleService.listRoles).toHaveBeenCalledWith({
-        search: 'admin',
+    it('allows valid boolean and string booleans or missing is_active', () => {
+      expect(validateListRolesQuery({})).toEqual({});
+      expect(validateListRolesQuery({ is_active: true })).toEqual({
         is_active: true,
       });
+      expect(validateListRolesQuery({ is_active: 'true' })).toEqual({
+        is_active: true,
+      });
+      expect(validateListRolesQuery({ is_active: 'false' })).toEqual({
+        is_active: false,
+      });
     });
+  });
 
-    it('delegates getRoleById with id parameter', async () => {
-      await controller.getRoleById('role-123');
-      expect(roleService.getRoleById).toHaveBeenCalledWith('role-123');
-    });
-
-    it('delegates createRole with actor ID and validated DTO', async () => {
-      const body = {
-        code: 'custom_editor',
-        name: 'Content Editor',
-        description: 'Edits news',
-        permission_keys: ['communication.news.manage'],
-      };
-      await controller.createRole(mockActor, body);
-      expect(roleService.createRole).toHaveBeenCalledWith(
-        'account-admin-1',
-        body,
-      );
-    });
-
-    it('delegates updateRole with actor ID, role ID and validated DTO', async () => {
-      const body = { name: 'Renamed Role', version: 1 };
-      await controller.updateRole(mockActor, 'role-1', body);
-      expect(roleService.updateRole).toHaveBeenCalledWith(
-        'account-admin-1',
-        'role-1',
-        body,
-      );
-    });
-
-    it('delegates updateRoleStatus with actor ID, role ID and validated DTO', async () => {
-      const body = { is_active: false, version: 2 };
-      await controller.updateRoleStatus(mockActor, 'role-1', body);
-      expect(roleService.updateRoleStatus).toHaveBeenCalledWith(
-        'account-admin-1',
-        'role-1',
-        body,
-      );
-    });
-
-    it('delegates replaceRolePermissions with actor ID, role ID and validated DTO', async () => {
-      const body = {
-        permission_keys: ['identity.roles.read'],
-        confirm_critical: true,
-      };
-      await controller.replaceRolePermissions(mockActor, 'role-1', body);
-      expect(roleService.replaceRolePermissions).toHaveBeenCalledWith(
-        'account-admin-1',
-        'role-1',
-        body,
-      );
-    });
-
-    it('delegates assignAccountRoles with actor ID, account ID and validated DTO', async () => {
-      const body = { role_ids: ['role-1', 'role-2'] };
-      await controller.assignAccountRoles(mockActor, 'account-99', body);
-      expect(roleService.assignAccountRoles).toHaveBeenCalledWith(
-        'account-admin-1',
-        'account-99',
-        body,
-      );
-    });
-
-    it('throws UnauthorizedException when actor is missing (fail-closed)', () => {
-      const body = { name: 'New Name' };
+  describe('permission_keys uniqueness', () => {
+    it('throws BadRequestException when createRole receives duplicate permission_keys', () => {
       expect(() =>
-        controller.createRole(undefined, {
+        validateCreateRole({
           code: 'test_role',
-          name: 'Test',
+          name: 'Test Role',
+          permission_keys: ['identity.roles.read', 'identity.roles.read'],
         }),
-      ).toThrow(UnauthorizedException);
-      expect(() => controller.updateRole(undefined, 'role-1', body)).toThrow(
-        UnauthorizedException,
-      );
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows createRole with unique permission_keys or without permission_keys', () => {
+      const result = validateCreateRole({
+        code: 'test_role',
+        name: 'Test Role',
+        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
+      });
+      expect(result.permission_keys).toEqual([
+        'identity.roles.read',
+        'identity.roles.manage',
+      ]);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions receives duplicate permission_keys', () => {
       expect(() =>
-        controller.updateRoleStatus(undefined, 'role-1', { is_active: true }),
-      ).toThrow(UnauthorizedException);
+        validateReplaceRolePermissions({
+          permission_keys: ['identity.roles.read', 'identity.roles.read'],
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows replaceRolePermissions with unique permission_keys', () => {
+      const result = validateReplaceRolePermissions({
+        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
+      });
+      expect(result.permission_keys).toEqual([
+        'identity.roles.read',
+        'identity.roles.manage',
+      ]);
+    });
+  });
+
+  describe('version positive integer requirement', () => {
+    it('throws BadRequestException when updateRole has version = 0', () => {
       expect(() =>
-        controller.replaceRolePermissions(undefined, 'role-1', {
+        validateUpdateRole({
+          name: 'Updated Name',
+          version: 0,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when updateRole has version < 0', () => {
+      expect(() =>
+        validateUpdateRole({
+          name: 'Updated Name',
+          version: -1,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows updateRole with positive integer version', () => {
+      const result = validateUpdateRole({
+        name: 'Updated Name',
+        version: 1,
+      });
+      expect(result.version).toBe(1);
+    });
+
+    it('throws BadRequestException when updateRoleStatus has version = 0', () => {
+      expect(() =>
+        validateUpdateRoleStatus({
+          is_active: false,
+          version: 0,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when updateRoleStatus has version < 0', () => {
+      expect(() =>
+        validateUpdateRoleStatus({
+          is_active: false,
+          version: -5,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows updateRoleStatus with positive integer version', () => {
+      const result = validateUpdateRoleStatus({
+        is_active: false,
+        version: 2,
+      });
+      expect(result.version).toBe(2);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions has version = 0', () => {
+      expect(() =>
+        validateReplaceRolePermissions({
           permission_keys: ['identity.roles.read'],
+          version: 0,
         }),
-      ).toThrow(UnauthorizedException);
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions has version < 0', () => {
       expect(() =>
-        controller.assignAccountRoles(undefined, 'account-1', {
-          role_ids: ['role-1'],
+        validateReplaceRolePermissions({
+          permission_keys: ['identity.roles.read'],
+          version: -2,
         }),
-      ).toThrow(UnauthorizedException);
-      expect(roleService.updateRole).not.toHaveBeenCalled();
+      ).toThrow(BadRequestException);
     });
-  });
-});
-</file>
 
-<file path="backend/src/modules/identity-access/roles/role.service.spec.ts">
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
-import type { PrismaService } from '../../../prisma/prisma.service';
-import type { AuditService } from '../audit/audit.service';
-import { RoleService } from './role.service';
-
-describe('RoleService', () => {
-  let service: RoleService;
-  let mockPrisma: any;
-  let mockAuditService: { record: jest.Mock };
-
-  beforeEach(() => {
-    mockAuditService = {
-      record: jest.fn().mockResolvedValue(undefined),
-    };
-  });
-
-  describe('listRoles', () => {
-    it('returns a list of roles with permissions and account counts', async () => {
-      const mockRoles = [
-        {
-          id: 'role-1',
-          code: 'admin',
-          name: 'Administrator',
-          description: 'Admin role',
-          isSystem: true,
-          isActive: true,
-          version: 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          rolePermissions: [{ permissionKey: 'identity.permissions.read' }],
-          _count: { accountAssignments: 2 },
-        },
-      ];
-
-      mockPrisma = {
-        role: {
-          findMany: jest.fn().mockResolvedValue(mockRoles),
-        },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-      const result = await service.listRoles({});
-
-      expect(result.data.roles).toHaveLength(1);
-      expect(result.data.roles[0].code).toBe('admin');
-      expect(result.data.roles[0].permission_keys).toContain(
-        'identity.permissions.read',
-      );
-      expect(result.data.roles[0].assigned_account_count).toBe(2);
-    });
-  });
-
-  describe('createRole', () => {
-    it('creates a role with valid permissions successfully', async () => {
-      const newRole = {
-        id: 'role-new',
-        code: 'custom_role',
-        name: 'Custom Role',
-        description: 'Custom',
-        isSystem: false,
-        isActive: true,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        rolePermissions: [{ permissionKey: 'identity.me.read' }],
-        _count: { accountAssignments: 0 },
-      };
-
-      mockPrisma = {
-        role: {
-          findUnique: jest
-            .fn()
-            .mockImplementation(
-              ({ where }: { where: Record<string, string> }) => {
-                if (where.code === 'custom_role') return Promise.resolve(null);
-                if (where.id === 'role-new') return Promise.resolve(newRole);
-                return Promise.resolve(null);
-              },
-            ),
-          create: jest.fn().mockResolvedValue(newRole),
-        },
-        rolePermission: {
-          createMany: jest.fn().mockResolvedValue({ count: 1 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-      const result = await service.createRole('actor-1', {
-        code: 'custom_role',
-        name: 'Custom Role',
-        description: 'Custom',
-        permission_keys: ['identity.me.read'],
+    it('allows replaceRolePermissions with positive integer version', () => {
+      const result = validateReplaceRolePermissions({
+        permission_keys: ['identity.roles.read'],
+        version: 3,
       });
-
-      expect(result.data.code).toBe('custom_role');
-      expect(mockAuditService.record).toHaveBeenCalled();
-    });
-
-    it('rejects creation when an unknown permission key is provided', async () => {
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue(null) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.createRole('actor-1', {
-          code: 'custom_role',
-          name: 'Custom Role',
-          permission_keys: ['invalid.permission.key'],
-        }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('rejects creation with critical permissions when confirm_critical is not set', async () => {
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue(null) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.createRole('actor-1', {
-          code: 'custom_role',
-          name: 'Custom Role',
-          permission_keys: ['identity.permissions.manage'], // critical risk
-        }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('rejects creation if role code already exists', async () => {
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue({ id: 'existing' }) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.createRole('actor-1', {
-          code: 'admin',
-          name: 'Administrator',
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('updateRole', () => {
-    it('renames and updates role successfully with atomic version check', async () => {
-      const existingRole = {
-        id: 'role-1',
-        code: 'custom_role',
-        name: 'Old Name',
-        description: 'Old Desc',
-        isSystem: false,
-        isActive: true,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        rolePermissions: [],
-        _count: { accountAssignments: 0 },
-      };
-
-      const updatedRole = {
-        ...existingRole,
-        name: 'New Name',
-        version: 2,
-      };
-
-      let callCount = 0;
-      mockPrisma = {
-        role: {
-          findUnique: jest.fn().mockImplementation(() => {
-            callCount++;
-            return Promise.resolve(
-              callCount === 1 ? existingRole : updatedRole,
-            );
-          }),
-          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-      const result = await service.updateRole('actor-1', 'role-1', {
-        name: 'New Name',
-        version: 1,
-      });
-
-      expect(result.data.name).toBe('New Name');
-      expect(result.data.version).toBe(2);
-      expect(
-        (mockPrisma as { role: { updateMany: jest.Mock } }).role.updateMany,
-      ).toHaveBeenCalledWith({
-        where: { id: 'role-1', version: 1 },
-        data: {
-          name: 'New Name',
-          version: { increment: 1 },
-        },
-      });
-    });
-
-    it('throws ConflictException on optimistic version conflict before query', async () => {
-      const existingRole = {
-        id: 'role-1',
-        version: 2,
-      };
-
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue(existingRole) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.updateRole('actor-1', 'role-1', {
-          name: 'New Name',
-          version: 1, // outdated version
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-
-    it('throws ConflictException when DB updateMany fails atomic version check (count === 0)', async () => {
-      const existingRole = {
-        id: 'role-1',
-        version: 1,
-      };
-
-      mockPrisma = {
-        role: {
-          findUnique: jest.fn().mockResolvedValue(existingRole),
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.updateRole('actor-1', 'role-1', {
-          name: 'New Name',
-          version: 1,
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('updateRoleStatus', () => {
-    it('prevents deactivating system role', async () => {
-      const systemRole = {
-        id: 'role-super-admin',
-        code: 'super_admin',
-        isSystem: true,
-        isActive: true,
-        version: 1,
-      };
-
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue(systemRole) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.updateRoleStatus('actor-1', 'role-super-admin', {
-          is_active: false,
-        }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('throws ConflictException on DB atomic updateMany version mismatch', async () => {
-      const existingRole = {
-        id: 'role-1',
-        code: 'custom_role',
-        isSystem: false,
-        isActive: true,
-        version: 2,
-      };
-
-      mockPrisma = {
-        role: {
-          findUnique: jest.fn().mockResolvedValue(existingRole),
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.updateRoleStatus('actor-1', 'role-1', {
-          is_active: false,
-          version: 2,
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('replaceRolePermissions', () => {
-    it('prevents removing critical management permissions from super_admin role', async () => {
-      const superAdminRole = {
-        id: 'role-super-admin',
-        code: 'super_admin',
-        isSystem: true,
-        isActive: true,
-        version: 1,
-        rolePermissions: [
-          { permissionKey: 'identity.permissions.manage' },
-          { permissionKey: 'identity.me.read' },
-        ],
-      };
-
-      mockPrisma = {
-        role: { findUnique: jest.fn().mockResolvedValue(superAdminRole) },
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.replaceRolePermissions('actor-1', 'role-super-admin', {
-          permission_keys: ['identity.me.read'], // removing identity.permissions.manage
-          confirm_critical: true,
-        }),
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it('throws ConflictException when atomic version check fails on permission replace', async () => {
-      const role = {
-        id: 'role-1',
-        code: 'custom_role',
-        isSystem: false,
-        isActive: true,
-        version: 1,
-        rolePermissions: [{ permissionKey: 'identity.me.read' }],
-      };
-
-      mockPrisma = {
-        role: {
-          findUnique: jest.fn().mockResolvedValue(role),
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.replaceRolePermissions('actor-1', 'role-1', {
-          permission_keys: ['identity.me.read'],
-          version: 1,
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('assignAccountRoles', () => {
-    it('prevents self-demotion when actor removes super_admin from own account', async () => {
-      const targetAccount = {
-        id: 'actor-1',
-        role: 'super_admin',
-        roleAssignments: [
-          {
-            role: {
-              code: 'super_admin',
-              rolePermissions: [
-                { permissionKey: 'identity.permissions.manage' },
-              ],
-            },
-          },
-        ],
-      };
-
-      const regularRole = {
-        id: 'role-teacher',
-        code: 'teacher',
-        isActive: true,
-      };
-
-      mockPrisma = {
-        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
-        role: { findMany: jest.fn().mockResolvedValue([regularRole]) },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.assignAccountRoles('actor-1', 'actor-1', {
-          role_ids: ['role-teacher'],
-        }),
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it('prevents demoting the last active super_admin in system inside transaction with serializable isolation', async () => {
-      const targetAccount = {
-        id: 'account-last-admin',
-        role: 'super_admin',
-        roleAssignments: [
-          {
-            role: {
-              code: 'super_admin',
-              rolePermissions: [
-                { permissionKey: 'identity.permissions.manage' },
-              ],
-            },
-          },
-        ],
-      };
-
-      const teacherRole = {
-        id: 'role-teacher',
-        code: 'teacher',
-        isActive: true,
-      };
-
-      mockPrisma = {
-        account: {
-          findUnique: jest.fn().mockResolvedValue(targetAccount),
-          count: jest.fn().mockResolvedValue(1), // last super_admin account
-        },
-        role: { findMany: jest.fn().mockResolvedValue([teacherRole]) },
-        accountRoleAssignment: {
-          count: jest.fn().mockResolvedValue(1),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation(
-            (cb: (tx: any) => Promise<unknown>, options?: any) => {
-              expect(options).toEqual({ isolationLevel: 'Serializable' });
-              return cb(mockPrisma);
-            },
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.assignAccountRoles('actor-admin-2', 'account-last-admin', {
-          role_ids: ['role-teacher'],
-        }),
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it('rejects assigning roles with critical permissions when confirm_critical is not set', async () => {
-      const targetAccount = {
-        id: 'account-1',
-        role: 'admin',
-        roleAssignments: [],
-      };
-
-      const criticalRole = {
-        id: 'role-critical',
-        code: 'role_manager',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
-      };
-
-      mockPrisma = {
-        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
-        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.assignAccountRoles('actor-1', 'account-1', {
-          role_ids: ['role-critical'],
-        }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('allows assigning roles with critical permissions when confirm_critical is true', async () => {
-      const targetAccount = {
-        id: 'account-1',
-        role: 'admin',
-        roleAssignments: [],
-      };
-
-      const criticalRole = {
-        id: 'role-critical',
-        code: 'admin',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
-      };
-
-      mockPrisma = {
-        account: {
-          findUnique: jest.fn().mockResolvedValue(targetAccount),
-          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
-        },
-        role: { findMany: jest.fn().mockResolvedValue([criticalRole]) },
-        accountRoleAssignment: {
-          deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
-          createMany: jest.fn().mockResolvedValue({ count: 1 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      const result = await service.assignAccountRoles('actor-1', 'account-1', {
-        role_ids: ['role-critical'],
-        confirm_critical: true,
-      });
-
-      expect(result.data.account_id).toBe('account-1');
-      expect(result.data.assigned_role_ids).toEqual(['role-critical']);
-      expect(mockAuditService.record).toHaveBeenCalled();
-    });
-
-    it('rejects removing a role-derived critical permission when confirm_critical is not set', async () => {
-      const currentCriticalRole = {
-        id: 'role-critical',
-        code: 'role_manager',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
-      };
-
-      const targetAccount = {
-        id: 'account-1',
-        role: 'admin',
-        roleAssignments: [{ role: currentCriticalRole }],
-      };
-
-      const regularRole = {
-        id: 'role-regular',
-        code: 'regular_role',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.me.read' }],
-      };
-
-      mockPrisma = {
-        account: { findUnique: jest.fn().mockResolvedValue(targetAccount) },
-        role: { findMany: jest.fn().mockResolvedValue([regularRole]) },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      await expect(
-        service.assignAccountRoles('actor-1', 'account-1', {
-          role_ids: ['role-regular'],
-        }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('allows assigning roles without confirm_critical when unchanged critical effective permission is reassigned', async () => {
-      const currentCriticalRole = {
-        id: 'role-critical-1',
-        code: 'role_manager_1',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
-      };
-
-      const targetAccount = {
-        id: 'account-1',
-        role: 'admin',
-        roleAssignments: [{ role: currentCriticalRole }],
-      };
-
-      const newCriticalRole = {
-        id: 'role-critical-2',
-        code: 'role_manager_2',
-        isActive: true,
-        rolePermissions: [{ permissionKey: 'identity.permissions.manage' }],
-      };
-
-      mockPrisma = {
-        account: {
-          findUnique: jest.fn().mockResolvedValue(targetAccount),
-          update: jest.fn().mockResolvedValue({ id: 'account-1' }),
-        },
-        role: { findMany: jest.fn().mockResolvedValue([newCriticalRole]) },
-        accountRoleAssignment: {
-          deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
-          createMany: jest.fn().mockResolvedValue({ count: 1 }),
-        },
-        $transaction: jest
-          .fn()
-          .mockImplementation((cb: (tx: any) => Promise<unknown>) =>
-            cb(mockPrisma),
-          ),
-      };
-
-      service = new RoleService(
-        mockPrisma as PrismaService,
-        mockAuditService as AuditService,
-      );
-
-      const result = await service.assignAccountRoles('actor-1', 'account-1', {
-        role_ids: ['role-critical-2'],
-      });
-
-      expect(result.data.account_id).toBe('account-1');
-      expect(result.data.assigned_role_ids).toEqual(['role-critical-2']);
-      expect(mockAuditService.record).toHaveBeenCalled();
+      expect(result.version).toBe(3);
     });
   });
 });
@@ -2089,6 +1026,110 @@ export class RoleService {
 }
 </file>
 
+<file path="backend/src/modules/identity-access/permissions/permission.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { PERMISSIONS, type PermissionKey } from './permission.registry';
+
+@Injectable()
+export class PermissionService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async userHasPermission(
+    accountId: string,
+    permissionKey: PermissionKey,
+  ): Promise<boolean> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return true;
+    }
+
+    const [directPermission, roleAssignment] = await Promise.all([
+      this.prisma.accountPermission.findUnique({
+        where: {
+          accountId_permissionKey: {
+            accountId,
+            permissionKey,
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+      this.prisma.accountRoleAssignment.findFirst({
+        where: {
+          accountId,
+          role: {
+            isActive: true,
+            rolePermissions: {
+              some: {
+                permissionKey,
+              },
+            },
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+    ]);
+
+    return directPermission !== null || roleAssignment !== null;
+  }
+
+  async getAccountPermissions(accountId: string): Promise<string[]> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return PERMISSIONS.map((p) => p.key).sort();
+    }
+
+    const [directPermissions, roleAssignments] = await Promise.all([
+      this.prisma.accountPermission.findMany({
+        where: { accountId },
+        select: { permissionKey: true },
+      }),
+      this.prisma.accountRoleAssignment.findMany({
+        where: {
+          accountId,
+          role: { isActive: true },
+        },
+        select: {
+          role: {
+            select: {
+              rolePermissions: {
+                select: { permissionKey: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const set = new Set<string>();
+
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+
+    for (const ra of roleAssignments) {
+      if (ra.role?.rolePermissions) {
+        for (const rp of ra.role.rolePermissions) {
+          set.add(rp.permissionKey);
+        }
+      }
+    }
+
+    return Array.from(set).sort();
+  }
+}
+</file>
+
 <file path="backend/src/modules/identity-access/roles/role.validation.ts">
 import { BadRequestException } from '@nestjs/common';
 import { z, ZodError, type ZodType } from 'zod';
@@ -2097,17 +1138,21 @@ const nonEmptyString = z.string().trim().min(1, 'Field cannot be empty');
 
 const booleanCoerce = z
   .union([z.boolean(), z.string()])
-  .transform((val) => {
+  .transform((val, ctx) => {
     if (typeof val === 'boolean') return val;
-    if (val.toLowerCase() === 'true') return true;
-    if (val.toLowerCase() === 'false') return false;
-    return undefined;
-  })
-  .pipe(z.boolean().optional());
+    const str = val.trim().toLowerCase();
+    if (str === 'true') return true;
+    if (str === 'false') return false;
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Must be a boolean or "true"/"false"',
+    });
+    return z.NEVER;
+  });
 
 const listRolesQuerySchema = z.object({
   search: z.string().trim().optional(),
-  is_active: booleanCoerce,
+  is_active: booleanCoerce.optional(),
 });
 
 const uniquePermissionKeys = z
@@ -2237,270 +1282,1789 @@ function parseRequest<T>(
 }
 </file>
 
-<file path="backend/src/modules/identity-access/permissions/permission.registry.ts">
-export const PERMISSIONS = [
-  {
-    key: 'identity.me.read',
-    label: 'Read own identity profile',
-    description:
-      'Read the authenticated actor profile and session bootstrap data.',
-    boundedContext: 'Identity & Access',
-    risk: 'low',
-  },
-  {
-    key: 'identity.accounts.switch',
-    label: 'Switch active account context',
-    description:
-      'Switch between allowed account/student contexts for the authenticated actor.',
-    boundedContext: 'Identity & Access',
-    risk: 'medium',
-  },
-  {
-    key: 'identity.password.change',
-    label: 'Change own password',
-    description:
-      'Change the authenticated actor password after validating the current password.',
-    boundedContext: 'Identity & Access',
-    risk: 'medium',
-  },
-  {
-    key: 'identity.sessions.revoke',
-    label: 'Revoke own sessions',
-    description:
-      'Log out and revoke active refresh sessions for the authenticated actor.',
-    boundedContext: 'Identity & Access',
-    risk: 'medium',
-  },
-  {
-    key: 'identity.permissions.read',
-    label: 'Read permission catalog',
-    description: 'Read the platform permission catalog and access model.',
-    boundedContext: 'Identity & Access',
-    risk: 'high',
-  },
-  {
-    key: 'identity.permissions.manage',
-    label: 'Manage permissions',
-    description: 'Assign and revoke business permissions.',
-    boundedContext: 'Identity & Access',
-    risk: 'critical',
-  },
-  {
-    key: 'users.manage',
-    label: 'Manage users',
-    description:
-      'Create, update, disable, and assign access for platform users.',
-    boundedContext: 'User Management',
-    risk: 'critical',
-  },
-  {
-    key: 'students.read',
-    label: 'Read students',
-    description: 'Read student profiles and account-student relationships.',
-    boundedContext: 'Student Administration',
-    risk: 'medium',
-  },
-  {
-    key: 'students.manage',
-    label: 'Manage students',
-    description: 'Create and update student profiles.',
-    boundedContext: 'Student Administration',
-    risk: 'high',
-  },
-  {
-    key: 'students.accounts.manage',
-    label: 'Manage student account links',
-    description: 'Assign and replace guardian account links for students.',
-    boundedContext: 'Student Administration',
-    risk: 'critical',
-  },
-  {
-    key: 'academics.context.read',
-    label: 'Read academic context',
-    description: 'Read the current academic year and semester context.',
-    boundedContext: 'Academics',
-    risk: 'low',
-  },
-  {
-    key: 'academics.context.manage',
-    label: 'Manage academic context',
-    description:
-      'Create, update, and set current academic years and semesters.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'academics.structure.read',
-    label: 'Read academic structure',
-    description: 'Read grade levels, school classes, and roster enrollments.',
-    boundedContext: 'Academics',
-    risk: 'low',
-  },
-  {
-    key: 'academics.structure.manage',
-    label: 'Manage academic structure',
-    description:
-      'Create and update grade levels, school classes, and student enrollments.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'academics.attendance.read',
-    label: 'Read attendance',
-    description:
-      'Read class attendance sessions and student attendance records.',
-    boundedContext: 'Academics',
-    risk: 'medium',
-  },
-  {
-    key: 'academics.attendance.manage',
-    label: 'Manage attendance',
-    description: 'Create and update class attendance sessions.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'academics.scores.read',
-    label: 'Read student scores',
-    description: 'Read student score records and reward discipline history.',
-    boundedContext: 'Academics',
-    risk: 'medium',
-  },
-  {
-    key: 'academics.scores.manage',
-    label: 'Manage student scores',
-    description:
-      'Create and update student score records and reward discipline history.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'academics.homework.read',
-    label: 'Read homework assignments',
-    description: 'Read homework assignments and submission progress.',
-    boundedContext: 'Academics',
-    risk: 'medium',
-  },
-  {
-    key: 'academics.homework.manage',
-    label: 'Manage homework assignments',
-    description: 'Create, update, and archive homework assignments.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'billing.tuition.read',
-    label: 'Read tuition charges',
-    description: 'Read student tuition charges and outstanding balances.',
-    boundedContext: 'Billing',
-    risk: 'high',
-  },
-  {
-    key: 'billing.tuition.manage',
-    label: 'Manage tuition charges',
-    description: 'Create and update student tuition charges.',
-    boundedContext: 'Billing',
-    risk: 'critical',
-  },
-  {
-    key: 'communication.news.read',
-    label: 'Read news',
-    description: 'Read published or administrative news views.',
-    boundedContext: 'Communication',
-    risk: 'low',
-  },
-  {
-    key: 'communication.news.manage',
-    label: 'Manage news',
-    description: 'Create, edit, hide, pin, reorder, and delete news.',
-    boundedContext: 'Communication',
-    risk: 'high',
-  },
-  {
-    key: 'communication.news.publish',
-    label: 'Publish news',
-    description: 'Publish school news to resolved audiences.',
-    boundedContext: 'Communication',
-    risk: 'critical',
-  },
-  {
-    key: 'communication.feedback.read',
-    label: 'Read feedback',
-    description: 'Read administrative feedback views.',
-    boundedContext: 'Communication',
-    risk: 'medium',
-  },
-  {
-    key: 'communication.feedback.manage',
-    label: 'Manage feedback',
-    description: 'Update feedback workflow status.',
-    boundedContext: 'Communication',
-    risk: 'high',
-  },
-  {
-    key: 'communication.notifications.read',
-    label: 'Read notifications',
-    description: 'Read app and administrative notification views.',
-    boundedContext: 'Communication',
-    risk: 'low',
-  },
-  {
-    key: 'communication.notifications.manage',
-    label: 'Manage notifications',
-    description: 'Create and update school notifications.',
-    boundedContext: 'Communication',
-    risk: 'high',
-  },
-  {
-    key: 'academics.timetable.read',
-    label: 'Read timetable',
-    description: 'Read class and student timetable schedules.',
-    boundedContext: 'Academics',
-    risk: 'low',
-  },
-  {
-    key: 'academics.timetable.manage',
-    label: 'Manage timetable',
-    description: 'Create and update class timetable schedules.',
-    boundedContext: 'Academics',
-    risk: 'high',
-  },
-  {
-    key: 'identity.audit.read',
-    label: 'Read audit logs',
-    description: 'Read system audit logs and activity trails.',
-    boundedContext: 'Identity & Access',
-    risk: 'high',
-  },
-  {
-    key: 'identity.roles.read',
-    label: 'Read dynamic roles',
-    description: 'Read dynamic role definitions and assigned permissions.',
-    boundedContext: 'Identity & Access',
-    risk: 'high',
-  },
-  {
-    key: 'identity.roles.manage',
-    label: 'Manage dynamic roles',
-    description:
-      'Create, edit, change status, replace permissions, and assign dynamic roles.',
-    boundedContext: 'Identity & Access',
-    risk: 'critical',
-  },
-  {
-    key: 'student_services.bus.read',
-    label: 'Read bus route and tracking',
-    description: 'Read bus route and tracking information for students.',
-    boundedContext: 'Student Services',
-    risk: 'low',
-  },
+<file path="backend/prisma/schema.prisma">
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountRole {
+  parent
+  student
+  teacher
+  admin
+  super_admin
+}
+
+enum PermissionRisk {
+  low
+  medium
+  high
+  critical
+}
+
+enum StudentAccountRelationship {
+  guardian
+  student
+  teacher
+}
+
+enum StudentGender {
+  male
+  female
+  other
+}
+
+enum StudentGuardianRelationship {
+  father
+  mother
+  grandfather
+  grandmother
+  guardian
+  other
+}
+
+enum AttendancePeriod {
+  morning
+  afternoon
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+enum TuitionChargeStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
+enum NewsPublicationStatus {
+  draft
+  published
+  hidden
+}
+
+enum NewsAudienceType {
+  all
+  grade
+  class
+  student
+}
+
+model Account {
+  id                 String               @id @default(uuid())
+  username           String               @unique
+  passwordHash       String               @map("password_hash")
+  displayName        String               @map("display_name")
+  role               AccountRole          @default(admin)
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  roleAssignments    AccountRoleAssignment[]
+  permissions        AccountPermission[]
+  refreshSessions    RefreshSession[]
+  studentLinks       StudentAccountLink[]
+  createdNews        NewsItem[]
+  auditEvents        AuditEvent[]
+  attendanceSessions AttendanceSession[]  @relation("AttendanceSessionCreator")
+  attendanceRecords  AttendanceRecord[]   @relation("AttendanceRecordMarker")
+  tuitionCharges     TuitionCharge[]      @relation("TuitionChargeCreator")
+  homeroomClasses    SchoolClass[]        @relation("ClassHomeroomTeacher")
+
+  @@map("accounts")
+}
+
+model Permission {
+  id             String              @id @default(uuid())
+  key            String              @unique
+  label          String
+  description    String
+  boundedContext String              @map("bounded_context")
+  risk           PermissionRisk      @default(low)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  accounts       AccountPermission[]
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model Role {
+  id                 String                  @id @default(uuid())
+  code               String                  @unique
+  name               String
+  description        String?
+  isSystem           Boolean                 @default(false) @map("is_system")
+  isActive           Boolean                 @default(true) @map("is_active")
+  version            Int                     @default(1)
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  rolePermissions    RolePermission[]
+  accountAssignments AccountRoleAssignment[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId        String     @map("role_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  role          Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([roleId, permissionKey])
+  @@map("role_permissions")
+}
+
+model AccountRoleAssignment {
+  accountId    String   @map("account_id")
+  roleId       String   @map("role_id")
+  assignedAt   DateTime @default(now()) @map("assigned_at")
+  assignedById String?  @map("assigned_by_id")
+  account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, roleId])
+  @@index([accountId])
+  @@index([roleId])
+  @@map("account_role_assignments")
+}
+
+model AccountPermission {
+  accountId     String     @map("account_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  account       Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([accountId, permissionKey])
+  @@map("account_permissions")
+}
+
+model RefreshSession {
+  id        String    @id @default(uuid())
+  accountId String    @map("account_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@map("refresh_sessions")
+}
+
+model AuditEvent {
+  id             String   @id @default(uuid())
+  actorId        String   @map("actor_id")
+  action         String
+  boundedContext String   @map("bounded_context")
+  resourceType   String   @map("resource_type")
+  resourceId     String   @map("resource_id")
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  actor          Account  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId, createdAt])
+  @@index([boundedContext, resourceType, resourceId])
+  @@map("audit_events")
+}
+
+model Student {
+  id                String                   @id @default(uuid())
+  code              String                   @unique
+  fullName          String                   @map("full_name")
+  avatarUrl         String?                  @map("avatar_url")
+  grade             String?
+  className         String                   @map("class_name")
+  schoolName        String                   @default("Sổ Liên Lạc Điện Tử") @map("school_name")
+  isActive          Boolean                  @default(true) @map("is_active")
+  dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
+  gender            StudentGender?
+  ethnicity         String?
+  birthPlace        String?                  @map("birth_place")
+  permanentAddress  String?                  @map("permanent_address")
+  cohortStartYear   Int?                     @map("cohort_start_year")
+  cohortEndYear     Int?                     @map("cohort_end_year")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  accountLinks      StudentAccountLink[]
+  guardianContacts  StudentGuardianContact[]
+  attendanceRecords AttendanceRecord[]
+  tuitionCharges    TuitionCharge[]
+  enrollments       ClassEnrollment[]
+
+  @@index([className])
+  @@index([grade])
+  @@index([isActive])
+  @@map("students")
+}
+
+model StudentGuardianContact {
+  id                 String                      @id @default(uuid())
+  studentId          String                      @map("student_id")
+  relationship       StudentGuardianRelationship
+  relationshipLabel  String?                     @map("relationship_label")
+  fullName           String                      @map("full_name")
+  phone              String
+  isEmergencyContact Boolean                     @default(false) @map("is_emergency_contact")
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  student            Student                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([studentId, isEmergencyContact])
+  @@map("student_guardian_contacts")
+}
+
+model StudentAccountLink {
+  studentId    String                     @map("student_id")
+  accountId    String                     @map("account_id")
+  relationship StudentAccountRelationship @default(guardian)
+  isActive     Boolean                    @default(true) @map("is_active")
+  createdAt    DateTime                   @default(now()) @map("created_at")
+  student      Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  account      Account                    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, accountId, relationship])
+  @@index([accountId])
+  @@index([studentId])
+  @@map("student_account_links")
+}
+
+model NewsItem {
+  id          String                @id @default(uuid())
+  title       String
+  summary     String
+  content     String
+  imageUrl    String?               @map("image_url")
+  category    String
+  status      NewsPublicationStatus @default(draft)
+  isPinned    Boolean               @default(false) @map("is_pinned")
+  sortOrder   Int                   @default(0) @map("sort_order")
+  publishedAt DateTime?             @map("published_at")
+  createdById String                @map("created_by_id")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  createdBy   Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  audiences   NewsAudience[]
+
+  @@index([status, isPinned, sortOrder, publishedAt])
+  @@index([createdById])
+  @@map("news_items")
+}
+
+model NewsAudience {
+  id     String           @id @default(uuid())
+  newsId String           @map("news_id")
+  type   NewsAudienceType
+  value  String?
+  news   NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, type, value])
+  @@index([type, value])
+  @@map("news_audiences")
+}
+
+model AcademicYear {
+  id          String        @id
+  code        String        @unique
+  displayName String        @map("display_name")
+  startsOn    DateTime      @map("starts_on") @db.Date
+  endsOn      DateTime      @map("ends_on") @db.Date
+  isCurrent   Boolean       @default(false) @map("is_current")
+  semesters   Semester[]
+  classes     SchoolClass[]
+
+  @@map("academic_years")
+}
+
+model Semester {
+  id                 String              @id
+  academicYearId     String              @map("academic_year_id")
+  code               String
+  displayName        String              @map("display_name")
+  startsOn           DateTime            @map("starts_on") @db.Date
+  endsOn             DateTime            @map("ends_on") @db.Date
+  sortOrder          Int                 @map("sort_order")
+  isCurrent          Boolean             @default(false) @map("is_current")
+  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  attendanceSessions AttendanceSession[]
+  tuitionCharges     TuitionCharge[]
+
+  @@unique([academicYearId, code])
+  @@unique([academicYearId, sortOrder])
+  @@index([academicYearId])
+  @@map("semesters")
+}
+
+model GradeLevel {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  displayName String        @map("display_name")
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  classes     SchoolClass[]
+
+  @@map("grade_levels")
+}
+
+model SchoolClass {
+  id                String            @id @default(uuid())
+  academicYearId    String            @map("academic_year_id")
+  gradeLevelId      String            @map("grade_level_id")
+  code              String
+  displayName       String            @map("display_name")
+  homeroomTeacherId String?           @map("homeroom_teacher_id")
+  isActive          Boolean           @default(true) @map("is_active")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  academicYear      AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  gradeLevel        GradeLevel        @relation(fields: [gradeLevelId], references: [id], onDelete: Restrict)
+  homeroomTeacher   Account?          @relation("ClassHomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: Restrict)
+  enrollments       ClassEnrollment[]
+
+  @@unique([academicYearId, code])
+  @@index([academicYearId])
+  @@index([gradeLevelId])
+  @@index([homeroomTeacherId])
+  @@map("school_classes")
+}
+
+model ClassEnrollment {
+  id        String      @id @default(uuid())
+  studentId String      @map("student_id")
+  classId   String      @map("class_id")
+  startsOn  DateTime?   @map("starts_on") @db.Date
+  endsOn    DateTime?   @map("ends_on") @db.Date
+  isActive  Boolean     @default(true) @map("is_active")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  student   Student     @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([classId])
+  @@index([isActive])
+  @@map("class_enrollments")
+}
+
+model AttendanceSession {
+  id             String             @id @default(uuid())
+  semesterId     String             @map("semester_id")
+  attendanceDate DateTime           @map("attendance_date") @db.Date
+  period         AttendancePeriod
+  className      String             @map("class_name")
+  createdById    String             @map("created_by_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  semester       Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy      Account            @relation("AttendanceSessionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  records        AttendanceRecord[]
+
+  @@unique([semesterId, attendanceDate, period, className])
+  @@index([attendanceDate, className])
+  @@index([createdById])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id         String            @id @default(uuid())
+  sessionId  String            @map("session_id")
+  studentId  String            @map("student_id")
+  status     AttendanceStatus
+  note       String?
+  markedById String            @map("marked_by_id")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  session    AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  markedBy   Account           @relation("AttendanceRecordMarker", fields: [markedById], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId, createdAt])
+  @@index([markedById])
+  @@map("attendance_records")
+}
+
+model TuitionCharge {
+  id          String              @id @default(uuid())
+  studentId   String              @map("student_id")
+  semesterId  String              @map("semester_id")
+  title       String
+  amountDue   Int                 @map("amount_due")
+  amountPaid  Int                 @default(0) @map("amount_paid")
+  status      TuitionChargeStatus @default(unpaid)
+  dueDate     DateTime?           @map("due_date") @db.Date
+  note        String?
+  isWaived    Boolean             @default(false) @map("is_waived")
+  createdById String              @map("created_by_id")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  semester    Semester            @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy   Account             @relation("TuitionChargeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([studentId, semesterId, title])
+  @@index([semesterId, status])
+  @@index([studentId, status])
+  @@index([dueDate])
+  @@index([createdById])
+  @@map("tuition_charges")
+}
+
+model Notification {
+  id          String             @id @default(uuid())
+  title       String
+  sender      String
+  sentAt      DateTime           @default(now()) @map("sent_at")
+  content     String
+  tag         String             @default("Quan trong")
+  createdById String?            @map("created_by_id")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  reads       NotificationRead[]
+
+  @@index([sentAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             String       @id @default(uuid())
+  notificationId String       @map("notification_id")
+  studentId      String?      @map("student_id")
+  accountId      String?      @map("account_id")
+  readAt         DateTime     @default(now()) @map("read_at")
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId, accountId])
+  @@map("notification_reads")
+}
+
+model FeedbackItem {
+  id              String   @id @default(uuid())
+  studentId       String?  @map("student_id")
+  accountId       String?  @map("account_id")
+  title           String
+  content         String
+  category        String   @default("khac")
+  status          String   @default("new")
+  attachmentsJson Json?    @map("attachments_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("feedback_items")
+}
+
+model StudentScoreRecord {
+  id                   String   @id @default(uuid())
+  studentId            String   @map("student_id")
+  semesterId           String   @map("semester_id")
+  schoolYear           String   @default("2026-2027") @map("school_year")
+  semesterCode         String   @default("1") @map("semester_code")
+  subjectId            String   @map("subject_id")
+  subjectName          String   @map("subject_name")
+  oralScoresJson       Json?    @map("oral_scores_json")
+  fifteenMinScoresJson Json?    @map("fifteen_min_scores_json")
+  midtermScore         Float?   @map("midterm_score")
+  finalScore           Float?   @map("final_score")
+  averageScore         Float?   @map("average_score")
+  teacherComment       String?  @map("teacher_comment")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, semesterId, subjectId])
+  @@map("student_score_records")
+}
+
+model RewardDisciplineRecord {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  semesterId String?  @map("semester_id")
+  schoolYear String?  @map("school_year")
+  type       String   @default("reward")
+  title      String
+  content    String
+  date       DateTime @db.Date
+  issuer     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, type])
+  @@map("reward_discipline_records")
+}
+
+model TimetableSchedule {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  weekStart DateTime @map("week_start") @db.Date
+  daysJson  Json     @map("days_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, weekStart])
+  @@map("timetable_schedules")
+}
+
+model HomeworkAssignment {
+  id          String               @id @default(uuid())
+  studentId   String?              @map("student_id")
+  targetType  String               @default("students") @map("target_type")
+  classId     String?              @map("class_id")
+  studentIds  Json?                @map("student_ids")
+  subjectId   String?              @map("subject_id")
+  subject     String
+  title       String
+  content     String
+  teacher     String
+  assignedAt  DateTime             @default(now()) @map("assigned_at")
+  deadline    DateTime
+  status      String               @default("pending")
+  archivedAt  DateTime?            @map("archived_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  submissions HomeworkSubmission[]
+
+  @@index([studentId, status])
+  @@index([classId, archivedAt])
+  @@map("homework_assignments")
+}
+
+model HomeworkSubmission {
+  id              String             @id @default(uuid())
+  homeworkId      String             @map("homework_id")
+  studentId       String             @map("student_id")
+  content         String?
+  attachmentsJson Json?              @map("attachments_json")
+  submittedAt     DateTime           @default(now()) @map("submitted_at")
+  status          String             @default("submitted")
+  homework        HomeworkAssignment @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@unique([homeworkId, studentId])
+  @@index([studentId])
+  @@map("homework_submissions")
+}
+
+model OnlineStudySession {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  title      String
+  subject    String
+  teacher    String
+  startAt    DateTime @map("start_at")
+  endAt      DateTime @map("end_at")
+  meetingUrl String   @map("meeting_url")
+  status     String   @default("upcoming")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, status])
+  @@map("online_study_sessions")
+}
+
+model MealRegistration {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  date      DateTime @db.Date
+  breakfast String?
+  lunch     String?
+  snack     String?
+  status    String   @default("registered")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, date])
+  @@map("meal_registrations")
+}
+
+model CoinFundTransaction {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  type        String   @default("deposit")
+  amount      Int      @default(0)
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, createdAt])
+  @@map("coin_fund_transactions")
+}
+
+model SchoolEvent {
+  id                   String              @id @default(uuid())
+  title                String
+  description          String
+  startAt              DateTime            @map("start_at")
+  endAt                DateTime            @map("end_at")
+  location             String?
+  registrationDeadline DateTime?           @map("registration_deadline")
+  status               String              @default("open")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  registrations        EventRegistration[]
+
+  @@map("school_events")
+}
+
+model EventRegistration {
+  id           String      @id @default(uuid())
+  eventId      String      @map("event_id")
+  studentId    String      @map("student_id")
+  note         String?
+  registeredAt DateTime    @default(now()) @map("registered_at")
+  event        SchoolEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, studentId])
+  @@map("event_registrations")
+}
+
+model SurveyForm {
+  id          String             @id @default(uuid())
+  title       String
+  description String
+  deadline    DateTime
+  status      String             @default("pending")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  questions   SurveyQuestion[]
+  submissions SurveySubmission[]
+
+  @@map("survey_forms")
+}
+
+model SurveyQuestion {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  type        String     @default("text")
+  content     String
+  optionsJson Json?      @map("options_json")
+  required    Boolean    @default(true)
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_questions")
+}
+
+model SurveySubmission {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  studentId   String     @map("student_id")
+  answersJson Json       @map("answers_json")
+  submittedAt DateTime   @default(now()) @map("submitted_at")
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@unique([surveyId, studentId])
+  @@map("survey_submissions")
+}
+
+model SchoolClub {
+  id            String             @id @default(uuid())
+  name          String
+  description   String
+  teacher       String?
+  schedule      String?
+  location      String?
+  fee           Int                @default(0)
+  status        String             @default("open")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  registrations ClubRegistration[]
+
+  @@map("school_clubs")
+}
+
+model ClubRegistration {
+  id           String     @id @default(uuid())
+  clubId       String     @map("club_id")
+  studentId    String     @map("student_id")
+  note         String?
+  registeredAt DateTime   @default(now()) @map("registered_at")
+  club         SchoolClub @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, studentId])
+  @@map("club_registrations")
+}
+
+model BusRouteInfo {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  routeId       String   @map("route_id")
+  routeName     String   @map("route_name")
+  pickupPoint   String?  @map("pickup_point")
+  dropoffPoint  String?  @map("dropoff_point")
+  pickupTime    String?  @map("pickup_time")
+  dropoffTime   String?  @map("dropoff_time")
+  driverName    String?  @map("driver_name")
+  driverPhone   String?  @map("driver_phone")
+  busPlate      String?  @map("bus_plate")
+  currentLat    Float?   @map("current_lat")
+  currentLng    Float?   @map("current_lng")
+  nextStop      String?  @map("next_stop")
+  estimatedTime String?  @map("estimated_time")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, routeId])
+  @@map("bus_route_infos")
+}
+
+model UniformProduct {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  price     Int      @default(0)
+  sizesJson Json     @map("sizes_json")
+  imageUrl  String?  @map("image_url")
+  stock     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_products")
+}
+
+model UniformOrder {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  itemsJson   Json     @map("items_json")
+  totalAmount Int      @map("total_amount")
+  status      String   @default("pending")
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_orders")
+}
+
+model AttachmentFile {
+  id        String   @id @default(uuid())
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  mimeType  String   @map("mime_type")
+  size      Int      @default(0)
+  folder    String   @default("attachment")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("attachment_files")
+}
+</file>
+
+<file path="backend/src/prisma/seed.ts">
+import 'dotenv/config';
+import { AttendanceStatus, PrismaClient } from '@prisma/client';
+import { seedIdentityAccess } from '../modules/identity-access/bootstrap/seed-identity-access';
+import { seedAcademicContext } from '../modules/academics/bootstrap/seed-academic-context';
+import { seedUatAccounts } from '../modules/identity-access/bootstrap/seed-uat-accounts';
+import { createPrismaClientOptions } from './prisma-client-options';
+
+async function main() {
+  const username = process.env.BOOTSTRAP_ADMIN_USERNAME ?? 'admin';
+  const password = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? 'admin123';
+
+  const prisma = new PrismaClient(createPrismaClientOptions());
+
+  try {
+    console.log('🌱 Starting database seeding...');
+    await seedIdentityAccess(prisma, { username, password });
+    await seedDynamicRoles(prisma);
+    await seedAcademicContext(prisma);
+    await seedAcademicStructure(prisma);
+    await seedUatStudents(prisma);
+    const accountPassword =
+      process.env.UAT_ACCOUNT_PASSWORD ?? 'password123456';
+    await seedUatAccounts(prisma, accountPassword);
+    await seedUatAttendance(prisma, username);
+    await seedUatTuition(prisma);
+    await seedNewsAndNotifications(prisma);
+    await seedStudentServices(prisma);
+
+    console.log('✅ All Database Seed Data Inserted Successfully!');
+  } catch (error) {
+    console.error('❌ Error during seeding:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+import { PERMISSIONS } from '../modules/identity-access/permissions/permission.registry';
+
+async function seedDynamicRoles(prisma: PrismaClient): Promise<void> {
+  const builtInRoles = [
+    {
+      id: 'role-super-admin',
+      code: 'super_admin',
+      name: 'Super Admin',
+      description: 'Built-in Super Administrator role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-admin',
+      code: 'admin',
+      name: 'Administrator',
+      description: 'Built-in Administrator role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-teacher',
+      code: 'teacher',
+      name: 'Teacher',
+      description: 'Built-in Teacher role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-student',
+      code: 'student',
+      name: 'Student',
+      description: 'Built-in Student role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-parent',
+      code: 'parent',
+      name: 'Parent',
+      description: 'Built-in Parent role',
+      isSystem: true,
+      isActive: true,
+    },
+  ];
+
+  for (const roleDef of builtInRoles) {
+    await prisma.role.upsert({
+      where: { code: roleDef.code },
+      update: {
+        name: roleDef.name,
+        description: roleDef.description,
+        isSystem: true,
+        isActive: true,
+      },
+      create: roleDef,
+    });
+  }
+
+  const superAdminRole = await prisma.role.findUnique({
+    where: { code: 'super_admin' },
+    select: { id: true },
+  });
+
+  if (superAdminRole) {
+    for (const permission of PERMISSIONS) {
+      await prisma.rolePermission.upsert({
+        where: {
+          roleId_permissionKey: {
+            roleId: superAdminRole.id,
+            permissionKey: permission.key,
+          },
+        },
+        update: {},
+        create: {
+          roleId: superAdminRole.id,
+          permissionKey: permission.key,
+        },
+      });
+    }
+  }
+
+  const allAccounts = await prisma.account.findMany({
+    select: { id: true, role: true },
+  });
+
+  const allRoles = await prisma.role.findMany({
+    select: { id: true, code: true },
+  });
+
+  const roleMap = new Map(allRoles.map((r) => [r.code, r.id]));
+
+  for (const account of allAccounts) {
+    const roleId = roleMap.get(account.role);
+    if (roleId) {
+      await prisma.accountRoleAssignment.upsert({
+        where: {
+          accountId_roleId: {
+            accountId: account.id,
+            roleId,
+          },
+        },
+        update: {},
+        create: {
+          accountId: account.id,
+          roleId,
+        },
+      });
+    }
+  }
+}
+
+const uatStudents = [
+  ['UAT-HS-001', 'Nguyễn Minh Anh', '6', '6A1', true, '2013-04-12', 'female'],
+  ['UAT-HS-002', 'Trần Gia Bảo', '6', '6A2', true, '2013-08-23', 'male'],
+  ['UAT-HS-003', 'Lê Hoàng Duy', '7', '7A1', true, '2012-01-17', 'male'],
+  ['UAT-HS-004', 'Phạm Khánh Linh', '7', '7A2', true, '2012-11-05', 'female'],
+  ['UAT-HS-005', 'Vũ Đức Anh', '8', '8A1', true, '2011-03-19', 'male'],
+  ['UAT-HS-006', 'Đỗ Ngọc Mai', '8', '8A2', true, '2011-09-28', 'female'],
+  ['UAT-HS-007', 'Bùi Quang Huy', '9', '9A1', true, '2010-06-14', 'male'],
+  ['UAT-HS-008', 'Hoàng Thu Trang', '9', '9A2', true, '2010-12-02', 'female'],
 ] as const;
 
-export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
+async function seedUatStudents(prisma: PrismaClient): Promise<void> {
+  for (const [
+    code,
+    fullName,
+    grade,
+    className,
+    isActive,
+    birthDate,
+    gender,
+  ] of uatStudents) {
+    const student = await prisma.student.upsert({
+      where: { code },
+      update: {
+        fullName,
+        grade,
+        className,
+        schoolName: 'Sổ Liên Lạc Điện Tử',
+        isActive,
+        dateOfBirth: new Date(`${birthDate}T00:00:00.000Z`),
+        gender,
+        ethnicity: 'Kinh',
+        birthPlace: 'Hà Nội',
+        permanentAddress: 'Hà Nội',
+        cohortStartYear: 2025,
+        cohortEndYear: 2029,
+      },
+      create: {
+        code,
+        fullName,
+        grade,
+        className,
+        isActive,
+        schoolName: 'Sổ Liên Lạc Điện Tử',
+        dateOfBirth: new Date(`${birthDate}T00:00:00.000Z`),
+        gender,
+        ethnicity: 'Kinh',
+        birthPlace: 'Hà Nội',
+        permanentAddress: 'Hà Nội',
+        cohortStartYear: 2025,
+        cohortEndYear: 2029,
+      },
+      select: { id: true },
+    });
 
-export function isPermissionKey(value: string): value is PermissionKey {
-  return PERMISSIONS.some((permission) => permission.key === value);
+    const guardianId = `uat-guardian-${code.toLowerCase()}`;
+    await prisma.studentGuardianContact.upsert({
+      where: { id: guardianId },
+      update: {
+        studentId: student.id,
+        relationship: 'guardian',
+        relationshipLabel: 'Người giám hộ',
+        fullName: `Người giám hộ ${fullName}`,
+        phone: '0900000000',
+        isEmergencyContact: true,
+      },
+      create: {
+        id: guardianId,
+        studentId: student.id,
+        relationship: 'guardian',
+        relationshipLabel: 'Người giám hộ',
+        fullName: `Người giám hộ ${fullName}`,
+        phone: '0900000000',
+        isEmergencyContact: true,
+      },
+    });
+
+    const currentAcademicYear = await prisma.academicYear.findFirst({
+      where: { isCurrent: true },
+      select: { id: true, startsOn: true },
+    });
+
+    if (currentAcademicYear) {
+      const targetClass = await prisma.schoolClass.findUnique({
+        where: {
+          academicYearId_code: {
+            academicYearId: currentAcademicYear.id,
+            code: className,
+          },
+        },
+        select: { id: true },
+      });
+
+      if (targetClass) {
+        const existingActiveEnrollment = await prisma.classEnrollment.findFirst(
+          {
+            where: {
+              studentId: student.id,
+              isActive: true,
+            },
+            select: { id: true, classId: true },
+          },
+        );
+
+        if (existingActiveEnrollment) {
+          if (existingActiveEnrollment.classId !== targetClass.id) {
+            await prisma.classEnrollment.update({
+              where: { id: existingActiveEnrollment.id },
+              data: { isActive: false, endsOn: new Date() },
+            });
+            await prisma.classEnrollment.create({
+              data: {
+                id: `enrollment-${student.id}-${targetClass.id}`,
+                studentId: student.id,
+                classId: targetClass.id,
+                startsOn: currentAcademicYear.startsOn,
+                isActive,
+              },
+            });
+          }
+        } else {
+          const enrollmentId = `enrollment-${student.id}-${targetClass.id}`;
+          await prisma.classEnrollment.upsert({
+            where: { id: enrollmentId },
+            update: {
+              isActive,
+              startsOn: currentAcademicYear.startsOn,
+            },
+            create: {
+              id: enrollmentId,
+              studentId: student.id,
+              classId: targetClass.id,
+              startsOn: currentAcademicYear.startsOn,
+              isActive,
+            },
+          });
+        }
+      }
+    }
+  }
 }
+
+async function seedAcademicStructure(prisma: PrismaClient): Promise<void> {
+  const gradeLevelsData = [
+    { id: 'grade-level-6', code: '6', displayName: 'Khối 6', sortOrder: 6 },
+    { id: 'grade-level-7', code: '7', displayName: 'Khối 7', sortOrder: 7 },
+    { id: 'grade-level-8', code: '8', displayName: 'Khối 8', sortOrder: 8 },
+    { id: 'grade-level-9', code: '9', displayName: 'Khối 9', sortOrder: 9 },
+  ];
+
+  for (const level of gradeLevelsData) {
+    await prisma.gradeLevel.upsert({
+      where: { code: level.code },
+      update: {
+        displayName: level.displayName,
+        sortOrder: level.sortOrder,
+      },
+      create: {
+        id: level.id,
+        code: level.code,
+        displayName: level.displayName,
+        sortOrder: level.sortOrder,
+      },
+    });
+  }
+
+  const currentAcademicYear = await prisma.academicYear.findFirst({
+    where: { isCurrent: true },
+    select: { id: true, startsOn: true },
+  });
+
+  if (!currentAcademicYear) return;
+
+  const classesData = [
+    { code: '6A1', gradeCode: '6', displayName: 'Lớp 6A1' },
+    { code: '6A2', gradeCode: '6', displayName: 'Lớp 6A2' },
+    { code: '7A1', gradeCode: '7', displayName: 'Lớp 7A1' },
+    { code: '7A2', gradeCode: '7', displayName: 'Lớp 7A2' },
+    { code: '8A1', gradeCode: '8', displayName: 'Lớp 8A1' },
+    { code: '8A2', gradeCode: '8', displayName: 'Lớp 8A2' },
+    { code: '9A1', gradeCode: '9', displayName: 'Lớp 9A1' },
+    { code: '9A2', gradeCode: '9', displayName: 'Lớp 9A2' },
+  ];
+
+  for (const cls of classesData) {
+    const gradeLevel = await prisma.gradeLevel.findUnique({
+      where: { code: cls.gradeCode },
+      select: { id: true },
+    });
+    if (!gradeLevel) continue;
+
+    await prisma.schoolClass.upsert({
+      where: {
+        academicYearId_code: {
+          academicYearId: currentAcademicYear.id,
+          code: cls.code,
+        },
+      },
+      update: {
+        gradeLevelId: gradeLevel.id,
+        displayName: cls.displayName,
+        isActive: true,
+      },
+      create: {
+        id: `school-class-${currentAcademicYear.id}-${cls.code}`,
+        academicYearId: currentAcademicYear.id,
+        gradeLevelId: gradeLevel.id,
+        code: cls.code,
+        displayName: cls.displayName,
+        isActive: true,
+      },
+    });
+  }
+}
+
+async function seedUatAttendance(
+  prisma: PrismaClient,
+  username: string,
+): Promise<void> {
+  const [actor, semester, students] = await Promise.all([
+    prisma.account.findUnique({ where: { username }, select: { id: true } }),
+    prisma.semester.findFirst({
+      where: { isCurrent: true },
+      select: { id: true },
+    }),
+    prisma.student.findMany({
+      where: { className: '6A1', isActive: true },
+      orderBy: { code: 'asc' },
+      select: { id: true },
+    }),
+  ]);
+  if (!actor || !semester || students.length === 0) return;
+
+  const fixtureSessions: Array<{
+    dateStr: string;
+    getStatus: (index: number) => {
+      status: AttendanceStatus;
+      note: string | null;
+    };
+  }> = [
+    {
+      dateStr: '2026-07-18T00:00:00.000Z',
+      getStatus: (index: number) =>
+        index === 0
+          ? { status: 'late', note: 'Đến muộn 5 phút' }
+          : { status: 'present', note: null },
+    },
+    {
+      dateStr: '2026-07-19T00:00:00.000Z',
+      getStatus: (index: number) => {
+        if (index === 0) return { status: 'present', note: null };
+        if (index === 1)
+          return { status: 'absent', note: 'Nghỉ học không lý do' };
+        if (index === 2)
+          return { status: 'excused', note: 'Nghỉ học có phép (ốm)' };
+        return { status: 'present', note: null };
+      },
+    },
+    {
+      dateStr: '2026-07-20T00:00:00.000Z',
+      getStatus: (index: number) =>
+        index === 0
+          ? { status: 'absent', note: 'Nghỉ học không lý do' }
+          : { status: 'present', note: null },
+    },
+    {
+      dateStr: '2026-07-21T00:00:00.000Z',
+      getStatus: () => ({ status: 'present', note: null }),
+    },
+  ];
+
+  for (const fixture of fixtureSessions) {
+    const attendanceDate = new Date(fixture.dateStr);
+    const session = await prisma.attendanceSession.upsert({
+      where: {
+        semesterId_attendanceDate_period_className: {
+          semesterId: semester.id,
+          attendanceDate,
+          period: 'morning',
+          className: '6A1',
+        },
+      },
+      update: {},
+      create: {
+        semesterId: semester.id,
+        attendanceDate,
+        period: 'morning',
+        className: '6A1',
+        createdById: actor.id,
+      },
+      select: { id: true },
+    });
+    await prisma.$transaction(async (tx) => {
+      await tx.attendanceRecord.deleteMany({
+        where: { sessionId: session.id },
+      });
+      await tx.attendanceRecord.createMany({
+        data: students.map((student, index) => {
+          const { status, note } = fixture.getStatus(index);
+          return {
+            sessionId: session.id,
+            studentId: student.id,
+            status,
+            note,
+            markedById: actor.id,
+          };
+        }),
+      });
+    });
+  }
+}
+
+async function seedUatTuition(prisma: PrismaClient): Promise<void> {
+  const [actor, semester, students] = await Promise.all([
+    prisma.account.findFirst({ select: { id: true } }),
+    prisma.semester.findFirst({
+      where: { isCurrent: true },
+      select: { id: true },
+    }),
+    prisma.student.findMany({
+      where: { code: { in: ['UAT-HS-001', 'UAT-HS-002'] }, isActive: true },
+      orderBy: { code: 'asc' },
+      select: { id: true },
+    }),
+  ]);
+  if (!actor || !semester || students.length === 0) return;
+
+  for (const [index, student] of students.entries()) {
+    await prisma.tuitionCharge.upsert({
+      where: {
+        studentId_semesterId_title: {
+          studentId: student.id,
+          semesterId: semester.id,
+          title: 'Học phí Học kỳ 1',
+        },
+      },
+      update: tuitionSeedData(actor.id, index),
+      create: {
+        studentId: student.id,
+        semesterId: semester.id,
+        title: 'Học phí Học kỳ 1',
+        ...tuitionSeedData(actor.id, index),
+      },
+    });
+  }
+}
+
+function tuitionSeedData(createdById: string, index: number) {
+  const amountPaid = index === 0 ? 4_000_000 : 0;
+  return {
+    amountDue: 10_000_000,
+    amountPaid,
+    status: index === 0 ? ('partial' as const) : ('unpaid' as const),
+    dueDate: new Date('2026-09-15T00:00:00.000Z'),
+    note: 'Hạn nộp học phí đầu năm',
+    isWaived: false,
+    createdById,
+  };
+}
+
+async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void> {
+  const admin = await prisma.account.findFirst({ select: { id: true } });
+  if (!admin) return;
+
+  // News 1: Event Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-1' },
+    update: {
+      title: 'Lễ Khai Giảng Trọng Thể Năm Học Mới 2026-2027',
+      summary:
+        'Trường Trung Học phổ thông trọng thể tổ chức Lễ Khai Giảng Năm Học 2026-2027 dành cho toàn thể học sinh và phụ huynh.',
+      content:
+        'Nhà trường trân trọng kính mời Quý phụ huynh, các thầy cô giáo cùng toàn thể các em học sinh tới tham dự Lễ Khai Giảng Năm Học Mới 2026-2027.\n\n⏰ Thời gian: 07h30 - 10h30, Thứ Sáu ngày 05/09/2026.\n📍 Địa điểm: Sân trường chính - Khuôn viên nhà trường.\n👗 Trang phục: Học sinh mặc đồng phục chính thức (áo sơ mi trắng, quần/chân váy tối màu, đeo khăn quàng/cà vạt).\n\nChương trình gồm các hoạt động:\n- Lễ chào cờ & Hát Quốc ca trọng thể\n- Đọc thư mừng năm học mới của Chủ tịch nước\n- Tiếng trống khai trường chào đón năm học mới\n- Văn nghệ chào mừng đặc sắc từ các câu lạc bộ học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
+      category: 'Sự kiện',
+      status: 'published',
+      isPinned: true,
+      publishedAt: new Date('2026-07-20T08:00:00Z'),
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-1',
+      title: 'Lễ Khai Giảng Trọng Thể Năm Học Mới 2026-2027',
+      summary:
+        'Trường Trung Học phổ thông trọng thể tổ chức Lễ Khai Giảng Năm Học 2026-2027 dành cho toàn thể học sinh và phụ huynh.',
+      content:
+        'Nhà trường trân trọng kính mời Quý phụ huynh, các thầy cô giáo cùng toàn thể các em học sinh tới tham dự Lễ Khai Giảng Năm Học Mới 2026-2027.\n\n⏰ Thời gian: 07h30 - 10h30, Thứ Sáu ngày 05/09/2026.\n📍 Địa điểm: Sân trường chính - Khuôn viên nhà trường.\n👗 Trang phục: Học sinh mặc đồng phục chính thức (áo sơ mi trắng, quần/chân váy tối màu, đeo khăn quàng/cà vạt).\n\nChương trình gồm các hoạt động:\n- Lễ chào cờ & Hát Quốc ca trọng thể\n- Đọc thư mừng năm học mới của Chủ tịch nước\n- Tiếng trống khai trường chào đón năm học mới\n- Văn nghệ chào mừng đặc sắc từ các câu lạc bộ học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
+      category: 'Sự kiện',
+      status: 'published',
+      isPinned: true,
+      publishedAt: new Date('2026-07-20T08:00:00Z'),
+      createdById: admin.id,
+    },
+  });
+
+  // News 2: Academic Timetable Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-2' },
+    update: {
+      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu Chính Thức',
+      summary:
+        'Lịch học chính thức và thời khóa biểu toàn bộ các khối lớp áp dụng từ tuần thứ nhất của năm học mới.',
+      content:
+        'Ban Giám hiệu nhà trường xin thông báo thời khóa biểu chính thức Kỳ 1 Năm học 2026-2027 đã được hoàn tất và cập nhật trên Sổ Liên Lạc Điện Tử.\n\n📌 Quý phụ huynh và các em học sinh có thể theo dõi thời khóa biểu chi tiết từng ngày tại mục "Thời khóa biểu" trên ứng dụng.\n📌 Thời gian học sinh có mặt tại trường: Buổi sáng từ 07h15, Buổi chiều từ 13h45.\n📌 Trường hợp học sinh nghỉ học có lý do, Quý phụ huynh vui lòng gửi đơn xin nghỉ phép qua ứng dụng trước 07h30 sáng cùng ngày.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-22T09:30:00Z'),
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-2',
+      title: 'Thông Báo Lịch Học Kỳ 1 & Thời Khóa Biểu Chính Thức',
+      summary:
+        'Lịch học chính thức và thời khóa biểu toàn bộ các khối lớp áp dụng từ tuần thứ nhất của năm học mới.',
+      content:
+        'Ban Giám hiệu nhà trường xin thông báo thời khóa biểu chính thức Kỳ 1 Năm học 2026-2027 đã được hoàn tất và cập nhật trên Sổ Liên Lạc Điện Tử.\n\n📌 Quý phụ huynh và các em học sinh có thể theo dõi thời khóa biểu chi tiết từng ngày tại mục "Thời khóa biểu" trên ứng dụng.\n📌 Thời gian học sinh có mặt tại trường: Buổi sáng từ 07h15, Buổi chiều từ 13h45.\n📌 Trường hợp học sinh nghỉ học có lý do, Quý phụ huynh vui lòng gửi đơn xin nghỉ phép qua ứng dụng trước 07h30 sáng cùng ngày.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-22T09:30:00Z'),
+      createdById: admin.id,
+    },
+  });
+
+  // News 3: Extracurricular & Sports Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-3' },
+    update: {
+      title: 'Đăng Ký Câu Lạc Bộ Ngoại Khóa & Hội Thao Thể Dục Thể Thao 2026',
+      summary:
+        'Mở đơn đăng ký tham gia các CLB kỹ năng, nghệ thuật, thể thao và Hội thao chào mừng mùa thu năm 2026.',
+      content:
+        'Nhằm tạo sân chơi lành mạnh, phát triển toàn diện thể chất và năng khiếu cho học sinh, nhà trường chính thức mở cổng đăng ký tham gia các Câu lạc bộ ngoại khóa và Hội thao học sinh 2026.\n\n🏆 Danh sách Câu lạc bộ mở tuyển sinh mùa thu:\n- CLB STEM & Robotics (Lập trình & Mô hình sáng tạo)\n- CLB Bóng Đá, Bóng Rổ & Cầu Lông\n- CLB Nghệ Thuật & Âm Nhạc\n\n📅 Thời gian đăng ký: Từ 26/07/2026 đến hết 15/08/2026.\nLink đăng ký và thông tin lệ phí xin xem chi tiết tại mục "Dịch vụ học sinh > Câu lạc bộ" trên hệ thống.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop',
+      category: 'Tin tức',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-25T14:00:00Z'),
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-3',
+      title: 'Đăng Ký Câu Lạc Bộ Ngoại Khóa & Hội Thao Thể Dục Thể Thao 2026',
+      summary:
+        'Mở đơn đăng ký tham gia các CLB kỹ năng, nghệ thuật, thể thao và Hội thao chào mừng mùa thu năm 2026.',
+      content:
+        'Nhằm tạo sân chơi lành mạnh, phát triển toàn diện thể chất và năng khiếu cho học sinh, nhà trường chính thức mở cổng đăng ký tham gia các Câu lạc bộ ngoại khóa và Hội thao học sinh 2026.\n\n🏆 Danh sách Câu lạc bộ mở tuyển sinh mùa thu:\n- CLB STEM & Robotics (Lập trình & Mô hình sáng tạo)\n- CLB Bóng Đá, Bóng Rổ & Cầu Lông\n- CLB Nghệ Thuật & Âm Nhạc\n\n📅 Thời gian đăng ký: Từ 26/07/2026 đến hết 15/08/2026.\nLink đăng ký và thông tin lệ phí xin xem chi tiết tại mục "Dịch vụ học sinh > Câu lạc bộ" trên hệ thống.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop',
+      category: 'Tin tức',
+      status: 'published',
+      isPinned: false,
+      publishedAt: new Date('2026-07-25T14:00:00Z'),
+      createdById: admin.id,
+    },
+  });
+
+  // News 4: Draft Announcement
+  await prisma.newsItem.upsert({
+    where: { id: 'news-sample-4' },
+    update: {
+      title:
+        'Dự Thảo Quy Định Sử Dụng Thiết Bị Điện Tử & Điện Thoại Trong Lớp Học',
+      summary:
+        'Bản thảo lấy ý kiến phụ huynh và giáo viên về quy định quản lý thiết bị công nghệ trong giờ học.',
+      content:
+        'Nhà trường đang xây dựng dự thảo quy chế sử dụng điện thoại thông minh và máy tính bảng trong khuôn viên trường học nhằm nâng cao mức độ tập trung cho học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'draft',
+      isPinned: false,
+      publishedAt: null,
+      createdById: admin.id,
+    },
+    create: {
+      id: 'news-sample-4',
+      title:
+        'Dự Thảo Quy Định Sử Dụng Thiết Bị Điện Tử & Điện Thoại Trong Lớp Học',
+      summary:
+        'Bản thảo lấy ý kiến phụ huynh và giáo viên về quy định quản lý thiết bị công nghệ trong giờ học.',
+      content:
+        'Nhà trường đang xây dựng dự thảo quy chế sử dụng điện thoại thông minh và máy tính bảng trong khuôn viên trường học nhằm nâng cao mức độ tập trung cho học sinh.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+      category: 'Thông báo',
+      status: 'draft',
+      isPinned: false,
+      publishedAt: null,
+      createdById: admin.id,
+    },
+  });
+
+  // Notification
+  await prisma.notification.upsert({
+    where: { id: 'notif-sample-1' },
+    update: {
+      title: 'Nhắc nhở đóng học phí Kỳ 1',
+      sender: 'Phòng Tài Chính',
+      content:
+        'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
+      tag: 'Học phí',
+    },
+    create: {
+      id: 'notif-sample-1',
+      title: 'Nhắc nhở đóng học phí Kỳ 1',
+      sender: 'Phòng Tài Chính',
+      content:
+        'Kính mời phụ huynh kiểm tra thông tin khoản thu và hoàn tất đóng học phí trước ngày 15/09/2026.',
+      tag: 'Học phí',
+    },
+  });
+
+  // FeedbackItem
+  await prisma.feedbackItem.upsert({
+    where: { id: 'feedback-sample-1' },
+    update: {
+      title: 'Góp ý chất lượng thực đơn bán trú',
+      content:
+        'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
+      category: 'Bán trú',
+      status: 'new',
+    },
+    create: {
+      id: 'feedback-sample-1',
+      title: 'Góp ý chất lượng thực đơn bán trú',
+      content:
+        'Mong nhà trường bổ sung thêm trái cây và rau xanh trong bữa trưa.',
+      category: 'Bán trú',
+      status: 'new',
+    },
+  });
+}
+
+async function seedStudentServices(prisma: PrismaClient): Promise<void> {
+  const student = await prisma.student.findFirst({
+    where: { code: 'UAT-HS-001' },
+  });
+  const semester = await prisma.semester.findFirst({
+    where: { isCurrent: true },
+  });
+  if (!student || !semester) return;
+
+  // MealRegistration
+  await prisma.mealRegistration.upsert({
+    where: {
+      studentId_date: {
+        studentId: student.id,
+        date: new Date('2026-07-25T00:00:00Z'),
+      },
+    },
+    update: {
+      breakfast: 'Phở bò Hà Nội',
+      lunch: 'Cơm sườn nướng, canh rau cải, chuối chín',
+      snack: 'Sữa tươi & Bánh su kem',
+      status: 'registered',
+    },
+    create: {
+      studentId: student.id,
+      date: new Date('2026-07-25T00:00:00Z'),
+      breakfast: 'Phở bò Hà Nội',
+      lunch: 'Cơm sườn nướng, canh rau cải, chuối chín',
+      snack: 'Sữa tươi & Bánh su kem',
+      status: 'registered',
+    },
+  });
+
+  // SchoolEvent
+  await prisma.schoolEvent.upsert({
+    where: { id: 'event-sample-1' },
+    update: {
+      title: 'Hội Thao Học Sinh 2026',
+      description: 'Giải thi đấu bóng đá, cầu lông và điền kinh toàn trường.',
+      startAt: new Date('2026-10-10T08:00:00Z'),
+      endAt: new Date('2026-10-12T17:00:00Z'),
+      location: 'Sân vận động nhà trường',
+      status: 'open',
+    },
+    create: {
+      id: 'event-sample-1',
+      title: 'Hội Thao Học Sinh 2026',
+      description: 'Giải thi đấu bóng đá, cầu lông và điền kinh toàn trường.',
+      startAt: new Date('2026-10-10T08:00:00Z'),
+      endAt: new Date('2026-10-12T17:00:00Z'),
+      location: 'Sân vận động nhà trường',
+      status: 'open',
+    },
+  });
+
+  // SchoolClub
+  await prisma.schoolClub.upsert({
+    where: { id: 'club-sample-1' },
+    update: {
+      name: 'Câu Lạc Bộ STEM & Robotics',
+      description: 'Lập trình robot, trải nghiệm mô hình khoa học sáng tạo.',
+      teacher: 'Thầy Nguyễn Văn Nam',
+      schedule: 'Chiều thứ 5 hàng tuần (16h00 - 17h30)',
+      location: 'Phòng Lab 3',
+      fee: 200000,
+      status: 'open',
+    },
+    create: {
+      id: 'club-sample-1',
+      name: 'Câu Lạc Bộ STEM & Robotics',
+      description: 'Lập trình robot, trải nghiệm mô hình khoa học sáng tạo.',
+      teacher: 'Thầy Nguyễn Văn Nam',
+      schedule: 'Chiều thứ 5 hàng tuần (16h00 - 17h30)',
+      location: 'Phòng Lab 3',
+      fee: 200000,
+      status: 'open',
+    },
+  });
+
+  // BusRouteInfo (UAT-HS-001 stable assigned bus route, no fake GPS)
+  await prisma.busRouteInfo.upsert({
+    where: {
+      studentId_routeId: {
+        studentId: student.id,
+        routeId: 'route-01',
+      },
+    },
+    update: {
+      routeName: 'Tuyến Bus 01 - Thanh Xuân - Cầu Giấy',
+      pickupPoint: '128 Nguyễn Trãi',
+      dropoffPoint: 'Cổng Trường',
+      pickupTime: '06:45',
+      dropoffTime: '17:15',
+      driverName: 'Bác Bùi Văn Thắng',
+      driverPhone: '0987654321',
+      busPlate: '29B-12345',
+    },
+    create: {
+      studentId: student.id,
+      routeId: 'route-01',
+      routeName: 'Tuyến Bus 01 - Thanh Xuân - Cầu Giấy',
+      pickupPoint: '128 Nguyễn Trãi',
+      dropoffPoint: 'Cổng Trường',
+      pickupTime: '06:45',
+      dropoffTime: '17:15',
+      driverName: 'Bác Bùi Văn Thắng',
+      driverPhone: '0987654321',
+      busPlate: '29B-12345',
+    },
+  });
+
+  // UniformProduct
+  await prisma.uniformProduct.upsert({
+    where: { id: 'uniform-prod-1' },
+    update: {
+      name: 'Áo Sơ Mi Đồng Phục Nam/Nữ',
+      category: 'Áo sơ mi',
+      price: 180000,
+      sizesJson: ['S', 'M', 'L', 'XL'],
+      stock: 100,
+    },
+    create: {
+      id: 'uniform-prod-1',
+      name: 'Áo Sơ Mi Đồng Phục Nam/Nữ',
+      category: 'Áo sơ mi',
+      price: 180000,
+      sizesJson: ['S', 'M', 'L', 'XL'],
+      stock: 100,
+    },
+  });
+
+  // TimetableSchedule
+  await prisma.timetableSchedule.upsert({
+    where: {
+      studentId_weekStart: {
+        studentId: student.id,
+        weekStart: new Date('2026-07-20T00:00:00Z'),
+      },
+    },
+    update: {
+      daysJson: [
+        {
+          day_of_week: 1,
+          period: 1,
+          subject: 'Toán Học',
+          teacher: 'Cô Mai',
+          room: '201',
+        },
+        {
+          day_of_week: 1,
+          period: 2,
+          subject: 'Ngữ Văn',
+          teacher: 'Thầy Đức',
+          room: '201',
+        },
+      ],
+    },
+    create: {
+      studentId: student.id,
+      weekStart: new Date('2026-07-20T00:00:00Z'),
+      daysJson: [
+        {
+          day_of_week: 1,
+          period: 1,
+          subject: 'Toán Học',
+          teacher: 'Cô Mai',
+          room: '201',
+        },
+        {
+          day_of_week: 1,
+          period: 2,
+          subject: 'Ngữ Văn',
+          teacher: 'Thầy Đức',
+          room: '201',
+        },
+      ],
+    },
+  });
+
+  // HomeworkAssignment
+  const homework = await prisma.homeworkAssignment.upsert({
+    where: { id: 'uat-homework-math-1' },
+    update: {
+      studentId: student.id,
+      targetType: 'students',
+      studentIds: [student.id],
+      title: 'Bài tập Đại số tuần 1',
+      subject: 'Toán Học',
+      content: 'Làm bài 1 đến 5 trang 24 sách bài tập.',
+      teacher: 'Cô Mai',
+      deadline: new Date('2026-09-20T23:59:59Z'),
+      status: 'pending',
+      archivedAt: null,
+    },
+    create: {
+      id: 'uat-homework-math-1',
+      studentId: student.id,
+      targetType: 'students',
+      studentIds: [student.id],
+      title: 'Bài tập Đại số tuần 1',
+      subject: 'Toán Học',
+      content: 'Làm bài 1 đến 5 trang 24 sách bài tập.',
+      teacher: 'Cô Mai',
+      deadline: new Date('2026-09-20T23:59:59Z'),
+      status: 'pending',
+    },
+  });
+  await prisma.homeworkSubmission.upsert({
+    where: {
+      homeworkId_studentId: { homeworkId: homework.id, studentId: student.id },
+    },
+    update: { content: 'Bài làm UAT đã nộp.', status: 'submitted' },
+    create: {
+      homeworkId: homework.id,
+      studentId: student.id,
+      content: 'Bài làm UAT đã nộp.',
+      status: 'submitted',
+    },
+  });
+
+  // StudentScoreRecord
+  await prisma.studentScoreRecord.upsert({
+    where: {
+      studentId_semesterId_subjectId: {
+        studentId: student.id,
+        semesterId: semester.id,
+        subjectId: 'toan-hoc',
+      },
+    },
+    update: {
+      subjectName: 'Toán Học',
+      fifteenMinScoresJson: [9.5, 9.0],
+      midtermScore: 9.0,
+      finalScore: 9.5,
+      averageScore: 9.3,
+      teacherComment: 'Bài làm rất tốt, tiếp tục phát huy.',
+    },
+    create: {
+      studentId: student.id,
+      semesterId: semester.id,
+      subjectId: 'toan-hoc',
+      subjectName: 'Toán Học',
+      fifteenMinScoresJson: [9.5, 9.0],
+      midtermScore: 9.0,
+      finalScore: 9.5,
+      averageScore: 9.3,
+      teacherComment: 'Bài làm rất tốt, tiếp tục phát huy.',
+    },
+  });
+
+  await prisma.studentScoreRecord.upsert({
+    where: {
+      studentId_semesterId_subjectId: {
+        studentId: student.id,
+        semesterId: semester.id,
+        subjectId: 'ngu-van',
+      },
+    },
+    update: {
+      subjectName: 'Ngữ Văn',
+      fifteenMinScoresJson: [8.5, 9.0],
+      midtermScore: 8.5,
+      finalScore: 9.0,
+      averageScore: 8.7,
+      teacherComment: 'Cảm thụ tác phẩm tốt, diễn đạt mượt mà.',
+    },
+    create: {
+      studentId: student.id,
+      semesterId: semester.id,
+      subjectId: 'ngu-van',
+      subjectName: 'Ngữ Văn',
+      fifteenMinScoresJson: [8.5, 9.0],
+      midtermScore: 8.5,
+      finalScore: 9.0,
+      averageScore: 8.7,
+      teacherComment: 'Cảm thụ tác phẩm tốt, diễn đạt mượt mà.',
+    },
+  });
+
+  // RewardDisciplineRecord
+  await prisma.rewardDisciplineRecord.upsert({
+    where: { id: 'reward-uat-hs-001-1' },
+    update: {
+      studentId: student.id,
+      semesterId: semester.id,
+      schoolYear: '2026-2027',
+      type: 'reward',
+      title: 'Khen thưởng Học sinh Giỏi Học kỳ 1',
+      content:
+        'Đạt thành tích xuất sắc trong học tập và rèn luyện môn Toán và Ngữ Văn.',
+      date: new Date('2026-01-15T00:00:00Z'),
+      issuer: 'Hiệu trưởng',
+    },
+    create: {
+      id: 'reward-uat-hs-001-1',
+      studentId: student.id,
+      semesterId: semester.id,
+      schoolYear: '2026-2027',
+      type: 'reward',
+      title: 'Khen thưởng Học sinh Giỏi Học kỳ 1',
+      content:
+        'Đạt thành tích xuất sắc trong học tập và rèn luyện môn Toán và Ngữ Văn.',
+      date: new Date('2026-01-15T00:00:00Z'),
+      issuer: 'Hiệu trưởng',
+    },
+  });
+
+  // CoinFundTransaction
+  await prisma.coinFundTransaction.upsert({
+    where: { id: 'coin-tx-1' },
+    update: {
+      studentId: student.id,
+      amount: 100,
+      description: 'Thưởng học sinh giỏi môn Toán Học',
+    },
+    create: {
+      id: 'coin-tx-1',
+      studentId: student.id,
+      amount: 100,
+      description: 'Thưởng học sinh giỏi môn Toán Học',
+    },
+  });
+}
+
+void main();
 </file>
 
 </files>

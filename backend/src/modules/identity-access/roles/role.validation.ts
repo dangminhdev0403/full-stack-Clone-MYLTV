@@ -5,13 +5,16 @@ const nonEmptyString = z.string().trim().min(1, 'Field cannot be empty');
 
 const booleanCoerce = z
   .union([z.boolean(), z.string()])
-  .transform((val) => {
-    if (val === undefined || val === null || val === '') return undefined;
+  .transform((val, ctx) => {
     if (typeof val === 'boolean') return val;
-    const str = String(val).toLowerCase();
+    const str = val.trim().toLowerCase();
     if (str === 'true') return true;
     if (str === 'false') return false;
-    return undefined;
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Must be a boolean or "true"/"false"',
+    });
+    return z.NEVER;
   });
 
 const listRolesQuerySchema = z.object({

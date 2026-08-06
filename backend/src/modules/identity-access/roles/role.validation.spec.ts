@@ -1,12 +1,34 @@
 import { BadRequestException } from '@nestjs/common';
 import {
   validateCreateRole,
+  validateListRolesQuery,
   validateReplaceRolePermissions,
   validateUpdateRole,
   validateUpdateRoleStatus,
 } from './role.validation';
 
 describe('role.validation', () => {
+  describe('validateListRolesQuery', () => {
+    it('throws BadRequestException when is_active is invalid like "yes"', () => {
+      expect(() =>
+        validateListRolesQuery({ is_active: 'yes' as unknown as boolean }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows valid boolean and string booleans or missing is_active', () => {
+      expect(validateListRolesQuery({})).toEqual({});
+      expect(validateListRolesQuery({ is_active: true })).toEqual({
+        is_active: true,
+      });
+      expect(validateListRolesQuery({ is_active: 'true' })).toEqual({
+        is_active: true,
+      });
+      expect(validateListRolesQuery({ is_active: 'false' })).toEqual({
+        is_active: false,
+      });
+    });
+  });
+
   describe('permission_keys uniqueness', () => {
     it('throws BadRequestException when createRole receives duplicate permission_keys', () => {
       expect(() =>
