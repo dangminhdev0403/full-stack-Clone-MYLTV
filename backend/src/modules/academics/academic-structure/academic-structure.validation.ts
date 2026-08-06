@@ -83,6 +83,20 @@ const assignStudentEnrollmentSchema = z.object({
   starts_on: dateSchema.optional(),
 });
 
+const transferStudentsSchema = z.object({
+  student_ids: z
+    .array(nonEmptyString)
+    .min(1, 'At least one student must be selected'),
+  target_class_id: nonEmptyString,
+  reason: z.string().trim().optional(),
+});
+
+const promoteCohortSchema = z.object({
+  source_class_id: nonEmptyString,
+  target_class_id: nonEmptyString,
+  student_ids: z.array(nonEmptyString).optional(),
+});
+
 export type CreateGradeLevelDto = z.infer<typeof createGradeLevelSchema>;
 export type UpdateGradeLevelDto = z.infer<typeof updateGradeLevelSchema>;
 export type ListClassesQueryDto = z.infer<typeof listClassesQuerySchema>;
@@ -91,6 +105,8 @@ export type UpdateSchoolClassDto = z.infer<typeof updateSchoolClassSchema>;
 export type AssignStudentEnrollmentDto = z.infer<
   typeof assignStudentEnrollmentSchema
 >;
+export type TransferStudentsDto = z.infer<typeof transferStudentsSchema>;
+export type PromoteCohortDto = z.infer<typeof promoteCohortSchema>;
 
 export function validateCreateGradeLevel(
   payload: unknown,
@@ -126,6 +142,16 @@ export function validateAssignStudentEnrollment(
   payload: unknown,
 ): AssignStudentEnrollmentDto {
   return parseRequest(assignStudentEnrollmentSchema, payload, 'body');
+}
+
+export function validateTransferStudents(
+  payload: unknown,
+): TransferStudentsDto {
+  return parseRequest(transferStudentsSchema, payload, 'body');
+}
+
+export function validatePromoteCohort(payload: unknown): PromoteCohortDto {
+  return parseRequest(promoteCohortSchema, payload, 'body');
 }
 
 function parseRequest<T>(

@@ -1389,6 +1389,24 @@
       "bounded_context": "Academics",
       "auth_required": true,
       "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/transfers",
+      "method": "POST",
+      "path": "/admin/academic-structure/transfers",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/promotions",
+      "method": "POST",
+      "path": "/admin/academic-structure/promotions",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
     }
   ],
   "common_error_response": {

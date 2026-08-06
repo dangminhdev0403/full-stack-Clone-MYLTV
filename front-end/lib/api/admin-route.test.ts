@@ -31,6 +31,8 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "roster"], "GET")).toBe("/api/v1/admin/academic-structure/classes/class-1/roster");
     expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "enrollments"], "POST")).toBe("/api/v1/admin/academic-structure/classes/class-1/enrollments");
     expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "enrollments", "student-1", "deactivate"], "POST")).toBe("/api/v1/admin/academic-structure/classes/class-1/enrollments/student-1/deactivate");
+    expect(resolveAdminEndpoint("academic-structure", ["transfers"], "POST")).toBe("/api/v1/admin/academic-structure/transfers");
+    expect(resolveAdminEndpoint("academic-structure", ["promotions"], "POST")).toBe("/api/v1/admin/academic-structure/promotions");
   });
 
   it("allows attendance, tuition and feedback domain routes", () => {
@@ -72,5 +74,11 @@ describe("admin BFF allowlist", () => {
     expect(() => resolveAdminEndpoint("timetable", ["student-1"], "GET")).toThrow();
     expect(() => resolveAdminEndpoint("homeworks", ["student-1", "submit"], "POST")).toThrow();
     expect(() => resolveAdminEndpoint("meals", [], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["transfers"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["transfers"], "PUT")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["transfers"], "DELETE")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["promotions"], "GET")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["promotions"], "PUT")).toThrow();
+    expect(() => resolveAdminEndpoint("academic-structure", ["promotions"], "DELETE")).toThrow();
   });
 });

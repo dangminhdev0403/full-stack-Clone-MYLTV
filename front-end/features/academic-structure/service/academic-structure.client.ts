@@ -347,3 +347,48 @@ export async function deactivateStudentEnrollment(classId: string, studentId: st
   );
   return (await parseApiResponse(response, successSchema(classEnrollmentSchema))).data;
 }
+
+export type TransferStudentsPayload = {
+  student_ids: string[];
+  target_class_id: string;
+  reason?: string;
+};
+
+export type PromoteCohortPayload = {
+  source_class_id: string;
+  target_class_id: string;
+  student_ids?: string[];
+};
+
+export const transferStudentsResponseSchema = z.object({
+  transferred_count: z.number(),
+  target_class_id: z.string(),
+  student_ids: z.array(z.string()),
+});
+
+export const promoteCohortResponseSchema = z.object({
+  promoted_count: z.number(),
+  source_class_id: z.string(),
+  target_class_id: z.string(),
+});
+
+export type TransferStudentsResponse = z.infer<typeof transferStudentsResponseSchema>;
+export type PromoteCohortResponse = z.infer<typeof promoteCohortResponseSchema>;
+
+export async function transferStudents(payload: TransferStudentsPayload): Promise<TransferStudentsResponse> {
+  const response = await fetch("/api/admin/academic-structure/transfers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return (await parseApiResponse(response, successSchema(transferStudentsResponseSchema))).data;
+}
+
+export async function promoteCohort(payload: PromoteCohortPayload): Promise<PromoteCohortResponse> {
+  const response = await fetch("/api/admin/academic-structure/promotions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return (await parseApiResponse(response, successSchema(promoteCohortResponseSchema))).data;
+}

@@ -15,6 +15,8 @@ import type {
   CreateGradeLevelDto,
   CreateSchoolClassDto,
   ListClassesQueryDto,
+  PromoteCohortDto,
+  TransferStudentsDto,
   UpdateGradeLevelDto,
   UpdateSchoolClassDto,
 } from './academic-structure.validation';
@@ -694,6 +696,167 @@ export class AcademicStructureService {
       created_at: e.createdAt.toISOString(),
       updated_at: e.updatedAt.toISOString(),
     };
+  }
+
+  async transferStudents(dto: TransferStudentsDto, actor?: AuthenticatedUser) {
+    const actorId = this.requireActorId(actor);
+    const targetClass = await this.prisma.schoolClass.findUnique({
+      where: { id: dto.target_class_id },
+      include: { gradeLevel: true },
+    });
+    if (!targetClass) {
+      throw new NotFoundException('School class not found');
+    }
+    if (!targetClass.isActive) {
+      throw new BadRequestException(
+        'Cannot transfer students to an inactive class',
+      );
+    }
+
+    const students = await this.prisma.student.findMany({
+      where: { id: { in: dto.student_ids } },
+    });
+    if (students.length !== dto.student_ids.length) {
+      throw new NotFoundException('Student not found');
+    }
+    if (students.some((s) => !s.isActive)) {
+      throw new BadRequestException('Cannot transfer an inactive student');
+    }
+
+    const now = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      for (const studentId of dto.student_ids) {
+        await tx.classEnrollment.updateMany({
+          where: { studentId, isActive: true },
+          data: { isActive: false, endsOn: now },
+        });
+        await tx.classEnrollment.create({
+          data: {
+            studentId,
+            classId: dto.target_class_id,
+            startsOn: now,
+            isActive: true,
+          },
+        });
+        await tx.student.update({
+          where: { id: studentId },
+          data: {
+            className: targetClass.code,
+            grade: targetClass.gradeLevel.code,
+          },
+        });
+      }
+
+      await this.audit.record(
+        {
+          actorId,
+          action: 'academics.structure.transfer',
+          boundedContext: 'Academics',
+          resourceType: 'school_class',
+          resourceId: dto.target_class_id,
+          metadata: {
+            student_count: dto.student_ids.length,
+            student_ids: dto.student_ids,
+            reason: dto.reason,
+          },
+        },
+        tx,
+      );
+    });
+
+    return ok({
+      transferred_count: dto.student_ids.length,
+      target_class_id: dto.target_class_id,
+      student_ids: dto.student_ids,
+    });
+  }
+
+  async promoteClassCohort(dto: PromoteCohortDto, actor?: AuthenticatedUser) {
+    const actorId = this.requireActorId(actor);
+    const [sourceClass, targetClass] = await Promise.all([
+      this.prisma.schoolClass.findUnique({
+        where: { id: dto.source_class_id },
+      }),
+      this.prisma.schoolClass.findUnique({
+        where: { id: dto.target_class_id },
+        include: { gradeLevel: true },
+      }),
+    ]);
+    if (!sourceClass || !targetClass) {
+      throw new NotFoundException('School class not found');
+    }
+    if (!sourceClass.isActive || !targetClass.isActive) {
+      throw new BadRequestException(
+        'Cannot promote cohort with inactive source or target class',
+      );
+    }
+
+    const activeEnrollments = await this.prisma.classEnrollment.findMany({
+      where: {
+        classId: dto.source_class_id,
+        isActive: true,
+        ...(dto.student_ids ? { studentId: { in: dto.student_ids } } : {}),
+      },
+    });
+
+    if (dto.student_ids) {
+      if (activeEnrollments.length !== dto.student_ids.length) {
+        throw new BadRequestException(
+          'One or more requested students are not actively enrolled in source class',
+        );
+      }
+    } else if (activeEnrollments.length === 0) {
+      throw new BadRequestException(
+        'No active students found in source class to promote',
+      );
+    }
+
+    const now = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      for (const enrollment of activeEnrollments) {
+        await tx.classEnrollment.update({
+          where: { id: enrollment.id },
+          data: { isActive: false, endsOn: now },
+        });
+        await tx.classEnrollment.create({
+          data: {
+            studentId: enrollment.studentId,
+            classId: dto.target_class_id,
+            startsOn: now,
+            isActive: true,
+          },
+        });
+        await tx.student.update({
+          where: { id: enrollment.studentId },
+          data: {
+            className: targetClass.code,
+            grade: targetClass.gradeLevel.code,
+          },
+        });
+      }
+
+      await this.audit.record(
+        {
+          actorId,
+          action: 'academics.structure.promote',
+          boundedContext: 'Academics',
+          resourceType: 'school_class',
+          resourceId: dto.target_class_id,
+          metadata: {
+            source_class_id: dto.source_class_id,
+            target_class_id: dto.target_class_id,
+            promoted_count: activeEnrollments.length,
+          },
+        },
+        tx,
+      );
+    });
+
+    return ok({
+      promoted_count: activeEnrollments.length,
+      source_class_id: dto.source_class_id,
+      target_class_id: dto.target_class_id,
+    });
   }
 
   private requireActorId(actor?: AuthenticatedUser): string {

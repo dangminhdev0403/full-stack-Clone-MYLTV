@@ -98,6 +98,12 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 5 && segments[0] === "classes" && segments[2] === "enrollments" && segments[4] === "deactivate" && method === "POST") {
       return `/api/v1/admin/academic-structure/classes/${segments[1]}/enrollments/${segments[3]}/deactivate`;
     }
+    if (segments.length === 1 && segments[0] === "transfers" && method === "POST") {
+      return "/api/v1/admin/academic-structure/transfers";
+    }
+    if (segments.length === 1 && segments[0] === "promotions" && method === "POST") {
+      return "/api/v1/admin/academic-structure/promotions";
+    }
   }
   throw new Error("Unsupported admin endpoint");
 }

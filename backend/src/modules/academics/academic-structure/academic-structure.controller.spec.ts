@@ -20,6 +20,8 @@ import {
   validateCreateGradeLevel,
   validateCreateSchoolClass,
   validateListClassesQuery,
+  validatePromoteCohort,
+  validateTransferStudents,
   validateUpdateGradeLevel,
   validateUpdateSchoolClass,
 } from './academic-structure.validation';
@@ -47,6 +49,8 @@ describe('AcademicStructureController', () => {
       deactivateStudentEnrollment: jest
         .fn()
         .mockResolvedValue({ success: true }),
+      transferStudents: jest.fn().mockResolvedValue({ success: true }),
+      promoteClassCohort: jest.fn().mockResolvedValue({ success: true }),
     };
 
     controller = new AcademicStructureController(
@@ -221,6 +225,52 @@ describe('AcademicStructureController', () => {
     ]);
   });
 
+  it('delegates transferStudents with academics.structure.manage permission', async () => {
+    const payload = {
+      student_ids: ['student-1'],
+      target_class_id: 'class-1',
+    };
+
+    await expect(
+      controller.transferStudents(payload, mockActor),
+    ).resolves.toEqual({ success: true });
+    expect(mockService.transferStudents).toHaveBeenCalledWith(
+      payload,
+      mockActor,
+    );
+
+    const handler = Object.getOwnPropertyDescriptor(
+      AcademicStructureController.prototype,
+      'transferStudents',
+    )?.value as object;
+    expect(Reflect.getMetadata(REQUIRED_PERMISSIONS_KEY, handler)).toEqual([
+      'academics.structure.manage',
+    ]);
+  });
+
+  it('delegates promoteCohort with academics.structure.manage permission', async () => {
+    const payload = {
+      source_class_id: 'class-1',
+      target_class_id: 'class-2',
+    };
+
+    await expect(controller.promoteCohort(payload, mockActor)).resolves.toEqual(
+      { success: true },
+    );
+    expect(mockService.promoteClassCohort).toHaveBeenCalledWith(
+      payload,
+      mockActor,
+    );
+
+    const handler = Object.getOwnPropertyDescriptor(
+      AcademicStructureController.prototype,
+      'promoteCohort',
+    )?.value as object;
+    expect(Reflect.getMetadata(REQUIRED_PERMISSIONS_KEY, handler)).toEqual([
+      'academics.structure.manage',
+    ]);
+  });
+
   it('rejects an unauthenticated request before authorization', () => {
     const guard = new JwtAuthenticationGuard(new Reflector());
     expect(() => guard.handleRequest(null, false)).toThrow(
@@ -302,6 +352,35 @@ describe('AcademicStructureController', () => {
       ).toEqual({
         academic_year_id: 'ay-1',
         is_active: true,
+      });
+    });
+
+    it('validates validateTransferStudents payload', () => {
+      expect(() => validateTransferStudents({})).toThrow(BadRequestException);
+      expect(() =>
+        validateTransferStudents({ student_ids: [], target_class_id: 'c1' }),
+      ).toThrow(BadRequestException);
+      expect(
+        validateTransferStudents({
+          student_ids: ['s1'],
+          target_class_id: 'c1',
+        }),
+      ).toEqual({
+        student_ids: ['s1'],
+        target_class_id: 'c1',
+      });
+    });
+
+    it('validates validatePromoteCohort payload', () => {
+      expect(() => validatePromoteCohort({})).toThrow(BadRequestException);
+      expect(
+        validatePromoteCohort({
+          source_class_id: 'c1',
+          target_class_id: 'c2',
+        }),
+      ).toEqual({
+        source_class_id: 'c1',
+        target_class_id: 'c2',
       });
     });
   });

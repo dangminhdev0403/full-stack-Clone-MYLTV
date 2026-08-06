@@ -13268,6 +13268,152 @@
         "x-implementation-status": "implemented"
       }
     },
+    "/admin/academic-structure/transfers": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminTransferStudents",
+        "summary": "Transfer students to target class",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferStudentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/TransferStudentsResponse"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
+    },
+    "/admin/academic-structure/promotions": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminPromoteClassCohort",
+        "summary": "Promote class cohort to target class",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoteCohortRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PromoteCohortResponse"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
+    },
     "/admin/homeworks": {
       "get": {
         "tags": [
@@ -13754,6 +13900,16 @@
       },
       "ServerError": {
         "description": "Server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Conflict or version mismatch",
         "content": {
           "application/json": {
             "schema": {
@@ -16629,6 +16785,90 @@
           },
           "is_active": {
             "type": "boolean"
+          }
+        }
+      },
+      "TransferStudentsRequest": {
+        "type": "object",
+        "required": [
+          "student_ids",
+          "target_class_id"
+        ],
+        "properties": {
+          "student_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "target_class_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "TransferStudentsResponse": {
+        "type": "object",
+        "required": [
+          "transferred_count",
+          "target_class_id",
+          "student_ids"
+        ],
+        "properties": {
+          "transferred_count": {
+            "type": "integer"
+          },
+          "target_class_id": {
+            "type": "string"
+          },
+          "student_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PromoteCohortRequest": {
+        "type": "object",
+        "required": [
+          "source_class_id",
+          "target_class_id"
+        ],
+        "properties": {
+          "source_class_id": {
+            "type": "string"
+          },
+          "target_class_id": {
+            "type": "string"
+          },
+          "student_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PromoteCohortResponse": {
+        "type": "object",
+        "required": [
+          "promoted_count",
+          "source_class_id",
+          "target_class_id"
+        ],
+        "properties": {
+          "promoted_count": {
+            "type": "integer"
+          },
+          "source_class_id": {
+            "type": "string"
+          },
+          "target_class_id": {
+            "type": "string"
           }
         }
       },

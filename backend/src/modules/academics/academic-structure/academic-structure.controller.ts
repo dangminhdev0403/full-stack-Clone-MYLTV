@@ -18,6 +18,8 @@ import {
   validateCreateGradeLevel,
   validateCreateSchoolClass,
   validateListClassesQuery,
+  validatePromoteCohort,
+  validateTransferStudents,
   validateUpdateGradeLevel,
   validateUpdateSchoolClass,
 } from './academic-structure.validation';
@@ -137,6 +139,30 @@ export class AcademicStructureController {
     return this.academicStructure.deactivateStudentEnrollment(
       id,
       studentId,
+      actor,
+    );
+  }
+
+  @Post('transfers')
+  @RequirePermission('academics.structure.manage')
+  transferStudents(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
+    return this.academicStructure.transferStudents(
+      validateTransferStudents(payload),
+      actor,
+    );
+  }
+
+  @Post('promotions')
+  @RequirePermission('academics.structure.manage')
+  promoteCohort(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+  ) {
+    return this.academicStructure.promoteClassCohort(
+      validatePromoteCohort(payload),
       actor,
     );
   }

@@ -2,10 +2,11 @@ import { createResource, defineMutation, defineQuery } from "@dangminhdev0403200
 import {
   assignStudentEnrollment, createAcademicYear, createGradeLevel, createSchoolClass,
   createSemester, deactivateStudentEnrollment, getClassRoster, getCurrentAcademicContext,
-  listAcademicYears, listClasses, listGradeLevels, listSemesters, setAcademicYearCurrent,
-  setSemesterCurrent, updateAcademicYear, updateGradeLevel, updateSchoolClass, updateSemester,
+  listAcademicYears, listClasses, listGradeLevels, listSemesters, promoteCohort, setAcademicYearCurrent,
+  setSemesterCurrent, transferStudents, updateAcademicYear, updateGradeLevel, updateSchoolClass, updateSemester,
   type AssignStudentEnrollmentPayload, type CreateAcademicYearPayload, type CreateGradeLevelPayload,
   type CreateSchoolClassPayload, type CreateSemesterPayload, type ListClassesQuery,
+  type PromoteCohortPayload, type TransferStudentsPayload,
   type UpdateAcademicYearPayload, type UpdateGradeLevelPayload, type UpdateSchoolClassPayload,
   type UpdateSemesterPayload,
 } from "./academic-structure.client";
@@ -33,5 +34,7 @@ export const academicStructureResource = createResource<void>()({
     updateClass: defineMutation({ mutationFn: ({ variables }: { variables: { id: string; payload: UpdateSchoolClassPayload } }) => updateSchoolClass(variables.id, variables.payload), invalidates: [{ type: "query", operation: "classes" }] }),
     assignEnrollment: defineMutation({ mutationFn: ({ variables }: { variables: { classId: string; payload: AssignStudentEnrollmentPayload } }) => assignStudentEnrollment(variables.classId, variables.payload), invalidates: [{ type: "query", operation: "classRoster" }, { type: "query", operation: "classes" }] }),
     deactivateEnrollment: defineMutation({ mutationFn: ({ variables }: { variables: { classId: string; studentId: string } }) => deactivateStudentEnrollment(variables.classId, variables.studentId), invalidates: [{ type: "query", operation: "classRoster" }, { type: "query", operation: "classes" }] }),
+    transfer: defineMutation({ mutationFn: ({ variables }: { variables: TransferStudentsPayload }) => transferStudents(variables), invalidates: [{ type: "query", operation: "classRoster" }, { type: "query", operation: "classes" }] }),
+    promote: defineMutation({ mutationFn: ({ variables }: { variables: PromoteCohortPayload }) => promoteCohort(variables), invalidates: [{ type: "query", operation: "classRoster" }, { type: "query", operation: "classes" }] }),
   },
 });

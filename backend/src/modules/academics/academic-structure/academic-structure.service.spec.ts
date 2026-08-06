@@ -29,6 +29,7 @@ interface MockClassEnrollmentDelegate {
   findFirst: MockFn;
   create: MockFn;
   update: MockFn;
+  updateMany: MockFn;
 }
 
 interface MockAcademicYearDelegate {
@@ -37,6 +38,7 @@ interface MockAcademicYearDelegate {
 
 interface MockStudentDelegate {
   findUnique: MockFn;
+  findMany: MockFn;
   update: MockFn;
 }
 
@@ -153,12 +155,14 @@ describe('AcademicStructureService', () => {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        updateMany: jest.fn(),
       },
       academicYear: {
         findUnique: jest.fn(),
       },
       student: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
         update: jest.fn(),
       },
       account: {
@@ -439,6 +443,176 @@ describe('AcademicStructureService', () => {
           undefined,
         ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
+    it('transferStudents deactivates old enrollment, creates new enrollment, updates student, and audits', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue(sampleClass);
+      mockPrisma.student.findMany.mockResolvedValue([sampleStudent]);
+      mockPrisma.student.update.mockResolvedValue({});
+      mockPrisma.classEnrollment.updateMany.mockResolvedValue({ count: 1 });
+      mockPrisma.classEnrollment.create.mockResolvedValue({ id: 'en-new' });
+
+      const res = await service.transferStudents(
+        { student_ids: ['student-1'], target_class_id: 'class-10a1' },
+        mockActor,
+      );
+
+      expect(res.data.transferred_count).toBe(1);
+      expect(mockAudit.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'academics.structure.transfer',
+        }),
+        expect.anything(),
+      );
+    });
+
+    it('transferStudents throws NotFoundException if target class does not exist', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue(null);
+      await expect(
+        service.transferStudents(
+          { student_ids: ['student-1'], target_class_id: 'class-missing' },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('transferStudents throws BadRequestException if target class is inactive', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue({
+        ...sampleClass,
+        isActive: false,
+      });
+      await expect(
+        service.transferStudents(
+          { student_ids: ['student-1'], target_class_id: 'class-10a1' },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('transferStudents throws NotFoundException if any student is missing', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue(sampleClass);
+      mockPrisma.student.findMany.mockResolvedValue([]); // No students found
+      await expect(
+        service.transferStudents(
+          { student_ids: ['student-missing'], target_class_id: 'class-10a1' },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('transferStudents throws BadRequestException if any student is inactive', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue(sampleClass);
+      mockPrisma.student.findMany.mockResolvedValue([
+        { ...sampleStudent, isActive: false },
+      ]);
+      await expect(
+        service.transferStudents(
+          { student_ids: ['student-1'], target_class_id: 'class-10a1' },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('promoteClassCohort promotes active cohort from source class to target class and records audit', async () => {
+      const targetClass = {
+        ...sampleClass,
+        id: 'class-11a1',
+        code: '11A1',
+        gradeLevel: { id: 'gl-11', code: 'G11' },
+      };
+      mockPrisma.schoolClass.findUnique
+        .mockResolvedValueOnce(sampleClass) // sourceClass
+        .mockResolvedValueOnce(targetClass); // targetClass
+      mockPrisma.classEnrollment.findMany.mockResolvedValue([sampleEnrollment]);
+      mockPrisma.classEnrollment.update.mockResolvedValue({
+        ...sampleEnrollment,
+        isActive: false,
+      });
+      mockPrisma.classEnrollment.create.mockResolvedValue({ id: 'enr-2' });
+      mockPrisma.student.update.mockResolvedValue({});
+
+      const res = await service.promoteClassCohort(
+        {
+          source_class_id: 'class-10a1',
+          target_class_id: 'class-11a1',
+        },
+        mockActor,
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.data.promoted_count).toBe(1);
+      expect(mockAudit.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'academics.structure.promote',
+          resourceId: 'class-11a1',
+        }),
+        expect.anything(),
+      );
+    });
+
+    it('promoteClassCohort throws NotFoundException if source or target class is missing', async () => {
+      mockPrisma.schoolClass.findUnique.mockResolvedValue(null);
+      await expect(
+        service.promoteClassCohort(
+          {
+            source_class_id: 'class-missing',
+            target_class_id: 'class-11a1',
+          },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('promoteClassCohort throws BadRequestException if source or target class is inactive', async () => {
+      mockPrisma.schoolClass.findUnique
+        .mockResolvedValueOnce({ ...sampleClass, isActive: false })
+        .mockResolvedValueOnce(sampleClass);
+
+      await expect(
+        service.promoteClassCohort(
+          {
+            source_class_id: 'class-10a1',
+            target_class_id: 'class-11a1',
+          },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('promoteClassCohort throws error when requested student_ids are not actively enrolled in source class', async () => {
+      mockPrisma.schoolClass.findUnique
+        .mockResolvedValueOnce(sampleClass)
+        .mockResolvedValueOnce(sampleClass);
+      // Requested student-1 and student-2, but only student-1 is found
+      mockPrisma.classEnrollment.findMany.mockResolvedValue([sampleEnrollment]);
+
+      await expect(
+        service.promoteClassCohort(
+          {
+            source_class_id: 'class-10a1',
+            target_class_id: 'class-11a1',
+            student_ids: ['student-1', 'student-2'],
+          },
+          mockActor,
+        ),
+      ).rejects.toThrow();
+    });
+
+    it('promoteClassCohort throws BadRequestException if no active students found in source class', async () => {
+      mockPrisma.schoolClass.findUnique
+        .mockResolvedValueOnce(sampleClass)
+        .mockResolvedValueOnce(sampleClass);
+      mockPrisma.classEnrollment.findMany.mockResolvedValue([]);
+
+      await expect(
+        service.promoteClassCohort(
+          {
+            source_class_id: 'class-10a1',
+            target_class_id: 'class-11a1',
+          },
+          mockActor,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 });

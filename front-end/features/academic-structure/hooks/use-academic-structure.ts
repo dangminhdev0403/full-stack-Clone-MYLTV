@@ -92,3 +92,11 @@ export function useAssignEnrollmentMutation() {
 export function useDeactivateEnrollmentMutation() {
   return useMutation(boundResource.mutations.deactivateEnrollment.options());
 }
+
+export function useTransferStudentsMutation() {
+  return useMutation(boundResource.mutations.transfer.options());
+}
+
+export function usePromoteCohortMutation() {
+  return useMutation(boundResource.mutations.promote.options());
+}
