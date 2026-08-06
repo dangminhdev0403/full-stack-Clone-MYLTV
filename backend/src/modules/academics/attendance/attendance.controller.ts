@@ -22,18 +22,18 @@ import {
   validateAttendanceUpdate,
 } from './attendance.validation';
 
-@Controller('api/v1/admin/attendance')
+@Controller('api/v1/admin')
 @RequireRole('admin', 'super_admin')
 export class AttendanceController {
   constructor(private readonly attendance: AttendanceService) {}
 
-  @Get()
+  @Get('attendance')
   @RequirePermission('academics.attendance.read')
   list(@Query() query: AttendanceListQueryDto) {
     return this.attendance.listSessions(validateAttendanceList(query));
   }
 
-  @Post()
+  @Post('attendance')
   @RequirePermission('academics.attendance.manage')
   create(
     @Body() payload: AttendanceSessionWriteDto,
@@ -45,13 +45,13 @@ export class AttendanceController {
     );
   }
 
-  @Get(':id')
+  @Get('attendance/:id')
   @RequirePermission('academics.attendance.read')
   get(@Param('id') id: string) {
     return this.attendance.getSession(id);
   }
 
-  @Patch(':id')
+  @Patch('attendance/:id')
   @RequirePermission('academics.attendance.manage')
   update(
     @Param('id') id: string,
@@ -63,6 +63,12 @@ export class AttendanceController {
       validateAttendanceUpdate(payload),
       actor,
     );
+  }
+
+  @Get('students/:student_id/attendance')
+  @RequirePermission('academics.attendance.read')
+  getStudentAttendance(@Param('student_id') studentId: string) {
+    return this.attendance.getStudentAttendanceHistory(studentId);
   }
 }
 

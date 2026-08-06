@@ -97,6 +97,21 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'academics.scores.read',
+    label: 'Read student scores',
+    description: 'Read student score records and reward discipline history.',
+    boundedContext: 'Academics',
+    risk: 'medium',
+  },
+  {
+    key: 'academics.scores.manage',
+    label: 'Manage student scores',
+    description:
+      'Create and update student score records and reward discipline history.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
     key: 'billing.tuition.read',
     label: 'Read tuition charges',
     description: 'Read student tuition charges and outstanding balances.',
@@ -158,6 +173,13 @@ export const PERMISSIONS = [
     description: 'Create and update school notifications.',
     boundedContext: 'Communication',
     risk: 'high',
+  },
+  {
+    key: 'student_services.bus.read',
+    label: 'Read student bus route',
+    description: 'Read student bus route and transportation details.',
+    boundedContext: 'Student Services',
+    risk: 'medium',
   },
 ] as const;
 

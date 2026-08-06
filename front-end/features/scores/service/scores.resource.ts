@@ -1,5 +1,5 @@
 import { createResource, defineMutation, defineQuery } from "@dangminhdev04032005/query-resource";
-import { getStudentRewards, getStudentScores, saveRewardDiscipline, saveScore, type RewardDiscipline, type ScoreRecord } from "./scores.client";
+import { getStudentRewards, getStudentScores, getStudentScoreSummary, saveRewardDiscipline, saveScore, type RewardDiscipline, type ScoreRecord } from "./scores.client";
 
 export const scoresResource = createResource<void>()({
   namespace: ["clone-myltv"],
@@ -13,6 +13,10 @@ export const scoresResource = createResource<void>()({
     rewardsList: defineQuery({
       inputKey: (studentId: string) => [studentId],
       queryFn: ({ input }) => getStudentRewards(input),
+    }),
+    studentDetail: defineQuery({
+      inputKey: (studentId: string) => [studentId],
+      queryFn: ({ input }) => getStudentScoreSummary(input),
     }),
   },
   mutations: {

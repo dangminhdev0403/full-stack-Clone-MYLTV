@@ -15,6 +15,9 @@ describe('AttendanceController', () => {
       createSession: jest.fn().mockResolvedValue({ success: true }),
       getSession: jest.fn().mockResolvedValue({ success: true }),
       updateSession: jest.fn().mockResolvedValue({ success: true }),
+      getStudentAttendanceHistory: jest
+        .fn()
+        .mockResolvedValue({ success: true }),
     };
     const controller = new AttendanceController(
       service as unknown as AttendanceService,
@@ -35,10 +38,14 @@ describe('AttendanceController', () => {
       { records: [{ student_id: 'student-1', status: 'present', note: null }] },
       actor,
     );
+    await controller.getStudentAttendance('student-1');
     expect(service.listSessions).toHaveBeenCalled();
     expect(service.createSession).toHaveBeenCalled();
     expect(service.getSession).toHaveBeenCalledWith('session-1');
     expect(service.updateSession).toHaveBeenCalled();
+    expect(service.getStudentAttendanceHistory).toHaveBeenCalledWith(
+      'student-1',
+    );
     expect(
       Reflect.getMetadata(REQUIRED_ROLES_KEY, AttendanceController),
     ).toEqual(['admin', 'super_admin']);
@@ -47,6 +54,7 @@ describe('AttendanceController', () => {
       ['get', 'academics.attendance.read'],
       ['create', 'academics.attendance.manage'],
       ['update', 'academics.attendance.manage'],
+      ['getStudentAttendance', 'academics.attendance.read'],
     ] as const) {
       const handler = Object.getOwnPropertyDescriptor(
         AttendanceController.prototype,

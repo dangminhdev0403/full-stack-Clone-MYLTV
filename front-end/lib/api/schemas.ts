@@ -63,6 +63,13 @@ export const attendanceSessionSchema = z.object({
   counts: z.object({ present: z.number(), absent: z.number(), late: z.number(), excused: z.number() }),
   records: z.array(attendanceRecordSchema),
 });
+export const studentAttendanceHistorySchema = z.object({
+  student_id: z.string(),
+  history: z.array(z.object({
+    date: z.string(), period: attendancePeriodSchema, status: attendanceStatusSchema,
+    check_in_at: z.string().nullable(), check_out_at: z.string().nullable(), note: z.string().nullable(),
+  })),
+});
 
 export const tuitionStatusSchema = z.enum(["unpaid", "partial", "paid", "waived"]);
 export const tuitionChargeSchema = z.object({

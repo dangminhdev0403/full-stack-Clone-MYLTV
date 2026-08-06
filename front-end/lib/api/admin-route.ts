@@ -12,6 +12,9 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/students";
     if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/students/${id}`;
     if (segments.length === 2 && id && segments[1] === "accounts" && method === "PUT") return `/api/v1/admin/students/${id}/accounts`;
+    if (segments.length === 2 && id && segments[1] === "attendance" && method === "GET") return `/api/v1/admin/students/${id}/attendance`;
+    if (segments.length === 2 && id && segments[1] === "scores" && method === "GET") return `/api/v1/admin/students/${id}/scores`;
+    if (segments.length === 2 && id && segments[1] === "bus-route" && method === "GET") return `/api/v1/admin/students/${id}/bus-route`;
   }
   if (resource === "attendance") {
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/attendance";

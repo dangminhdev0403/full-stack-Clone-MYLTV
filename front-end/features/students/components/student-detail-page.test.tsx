@@ -7,10 +7,13 @@ import { ApiClientError } from "@/lib/api/schemas";
 import { StudentDetailPage } from "./student-detail-page";
 import { getStudent, updateStudent } from "../service/students.client";
 import { listTuitionCharges } from "@/features/tuition/service/tuition.client";
+import { getStudentAttendance } from "@/features/attendance/service/attendance.client";
+import { getStudentScoreSummary } from "@/features/scores/service/scores.client";
+import { getStudentBusRoute } from "../service/student-transport.client";
 
 const sessionUser = {
   role: "admin",
-  permissions: ["students.read", "students.manage", "billing.tuition.read"],
+  permissions: ["students.read", "students.manage", "billing.tuition.read", "academics.attendance.read", "academics.scores.read", "student_services.bus.read"],
 };
 vi.mock("next-auth/react", () => ({
   useSession: () => ({ data: { user: sessionUser }, status: "authenticated" }),
@@ -37,10 +40,18 @@ vi.mock("../service/students.client", () => ({
 vi.mock("@/features/tuition/service/tuition.client", () => ({
   listTuitionCharges: vi.fn(),
 }));
+vi.mock("@/features/attendance/service/attendance.client", () => ({
+  getStudentAttendance: vi.fn(),
+}));
+vi.mock("@/features/scores/service/scores.client", () => ({ getStudentScoreSummary: vi.fn() }));
+vi.mock("../service/student-transport.client", () => ({ getStudentBusRoute: vi.fn() }));
 
 const getStudentMock = vi.mocked(getStudent);
 const updateStudentMock = vi.mocked(updateStudent);
 const listTuitionMock = vi.mocked(listTuitionCharges);
+const getAttendanceMock = vi.mocked(getStudentAttendance);
+const getScoresMock = vi.mocked(getStudentScoreSummary);
+const getBusMock = vi.mocked(getStudentBusRoute);
 
 beforeEach(() => {
   window.history.replaceState({}, "", "/admin/students/student-1");
@@ -49,6 +60,9 @@ beforeEach(() => {
     "students.read",
     "students.manage",
     "billing.tuition.read",
+    "academics.attendance.read",
+    "academics.scores.read",
+    "student_services.bus.read",
   ];
   getStudentMock.mockResolvedValue(student());
   updateStudentMock.mockResolvedValue(student());
@@ -60,6 +74,12 @@ beforeEach(() => {
     has_next: false,
     summary: { amount_due: 0, amount_paid: 0, amount_outstanding: 0 },
   });
+  getAttendanceMock.mockResolvedValue({
+    student_id: "student-1",
+    history: [{ date: "2026-07-18", period: "morning", status: "late", check_in_at: "07:02", check_out_at: "11:30", note: "Đến muộn 5 phút" }],
+  });
+  getScoresMock.mockResolvedValue({ student_id: "student-1", school_year: "2026-2027", semester: "1", subjects: [{ subject_id: "math", subject_name: "Toán", oral_scores: [8], fifteen_minute_scores: [9], midterm_score: 8, final_score: 9, average_score: 8.5, teacher_comment: "Tốt" }] });
+  getBusMock.mockResolvedValue({ route_id: "route-1", route_name: "Tuyến 01", pickup_point: "Cổng trường", dropoff_point: "Nhà", pickup_time: "06:30", dropoff_time: "17:00", driver_name: "Tài xế UAT", driver_phone: null, bus_plate: "29B-UAT" });
 });
 afterEach(() => vi.clearAllMocks());
 
@@ -97,24 +117,15 @@ describe("StudentDetailPage", () => {
     expect(listTuitionMock).not.toHaveBeenCalled();
   });
 
-  it.each([
-    [
-      "Chuyên cần",
-      "Dữ liệu chuyên cần theo từng học sinh đang được phát triển.",
-    ],
-    ["Điểm số", "Dữ liệu điểm số và kết quả học tập đang được phát triển."],
-    ["Xe tuyến", "Thông tin xe tuyến của học sinh đang được phát triển."],
-  ])("renders %s as a zero-fetch planned tab", async (tabName, message) => {
+  it("lazy-loads real attendance only after its tab is selected", async () => {
     const user = userEvent.setup();
     renderPage();
     await screen.findByText("Vũ Văn Nam");
-    await user.click(screen.getByRole("tab", { name: tabName }));
-    expect(screen.getByText(message)).toBeInTheDocument();
-    expect(screen.getByRole("tabpanel")).toHaveAttribute(
-      "data-readiness",
-      "planned",
-    );
-    expect(listTuitionMock).not.toHaveBeenCalled();
+    expect(getAttendanceMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("tab", { name: "Chuyên cần" }));
+    expect(await screen.findByText("Đi muộn")).toBeInTheDocument();
+    expect(getAttendanceMock).toHaveBeenCalledWith("student-1");
+    expect(window.location.search).toBe("?tab=attendance");
   });
 
   it("lazy-loads tuition only after its tab is selected and keeps URL state", async () => {
@@ -159,7 +170,7 @@ describe("StudentDetailPage", () => {
     expect(
       screen.getByRole("tab", { name: "Chuyên cần", selected: true }),
     ).toHaveFocus();
-    expect(screen.getByText(/Dữ liệu chuyên cần/)).toBeInTheDocument();
+    expect(await screen.findByText("Đi muộn")).toBeInTheDocument();
     expect(listTuitionMock).not.toHaveBeenCalled();
 
     await user.keyboard("{End}");
@@ -183,7 +194,7 @@ describe("StudentDetailPage", () => {
     expect(
       await screen.findByRole("tab", { name: "Điểm số", selected: true }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Dữ liệu điểm số/)).toBeInTheDocument();
+    expect(await screen.findByText("Toán")).toBeInTheDocument();
 
     act(() => {
       window.history.pushState(
@@ -196,7 +207,7 @@ describe("StudentDetailPage", () => {
     expect(
       screen.getByRole("tab", { name: "Xe tuyến", selected: true }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Thông tin xe tuyến/)).toBeInTheDocument();
+    expect(await screen.findByText("Tuyến 01")).toBeInTheDocument();
     expect(listTuitionMock).not.toHaveBeenCalled();
   });
 

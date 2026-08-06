@@ -17,9 +17,11 @@ import {
   StudentDetailTabs,
   type StudentDetailTab,
 } from "./student-detail-tabs";
-import { StudentPlannedTabPanel } from "./student-planned-tab-panel";
 import { StudentProfileHeader } from "./student-profile-header";
 import { StudentProfilePanel } from "./student-profile-panel";
+import { StudentAttendancePanel } from "./student-attendance-panel";
+import { StudentGradesPanel } from "./student-grades-panel";
+import { StudentTransportPanel } from "./student-transport-panel";
 
 const validTabs = new Set<StudentDetailTab>([
   "profile",
@@ -39,6 +41,9 @@ export function StudentDetailPage({ id }: Readonly<{ id: string }>) {
   const permissions = session?.user?.permissions ?? [];
   const canManage = permissions.includes("students.manage");
   const canReadTuition = permissions.includes("billing.tuition.read");
+  const canReadAttendance = permissions.includes("academics.attendance.read");
+  const canReadScores = permissions.includes("academics.scores.read");
+  const canReadTransport = permissions.includes("student_services.bus.read");
   const updateMutation = useUpdateStudentMutation();
   const mutation = {
     ...updateMutation,
@@ -98,6 +103,9 @@ export function StudentDetailPage({ id }: Readonly<{ id: string }>) {
             tab={activeTab}
             student={student}
             canReadTuition={canReadTuition}
+            canReadAttendance={canReadAttendance}
+            canReadScores={canReadScores}
+            canReadTransport={canReadTransport}
           />
           {editing ? (
             <EditDialog
@@ -126,17 +134,24 @@ function ActiveStudentPanel({
   tab,
   student,
   canReadTuition,
+  canReadAttendance,
+  canReadScores,
+  canReadTransport,
 }: Readonly<{
   tab: StudentDetailTab;
   student: StudentDetail;
   canReadTuition: boolean;
+  canReadAttendance: boolean;
+  canReadScores: boolean;
+  canReadTransport: boolean;
 }>) {
   if (tab === "profile") return <StudentProfilePanel student={student} />;
-  if (tab === "tuition")
-    return (
-      <StudentTuitionPanel studentId={student.id} canRead={canReadTuition} />
-    );
-  return <StudentPlannedTabPanel tab={tab} />;
+  if (tab === "attendance") return <StudentAttendancePanel studentId={student.id} canRead={canReadAttendance} />;
+  if (tab === "grades") return <StudentGradesPanel studentId={student.id} canRead={canReadScores} />;
+  if (tab === "transport") return <StudentTransportPanel studentId={student.id} canRead={canReadTransport} />;
+  return (
+    <StudentTuitionPanel studentId={student.id} canRead={canReadTuition} />
+  );
 }
 
 function EditDialog({

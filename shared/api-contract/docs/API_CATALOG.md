@@ -65,11 +65,11 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 
 | Management UI | App/mobile | Purpose |
 | --- | --- | --- |
-| `/admin/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management and student display. |
+| `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
 | `/admin/timetable` | `GET /students/{id}/timetable` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
-| `/admin/scores` | `GET /students/{id}/scores` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `/admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Score mutations plus protected student-detail score history; broad admin list/filter remains planned. |
 | `/admin/homework` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Admin list/detail/update/delete remains planned; student assignment/submission routes are separate. |
-| `/admin/reward-discipline` | `GET /students/{id}/reward-discipline` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `/admin/reward-discipline`, `GET /admin/students/{student_id}/reward-discipline` | `GET /students/{id}/reward-discipline` | Protected student-detail reward/discipline history; broad admin list/filter remains planned. |
 | `/admin/online-study` | `GET /students/{id}/online-study` | Online study sessions. |
 
 ### Billing
@@ -87,7 +87,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | `/admin/events` | `GET /services/events`, `POST /services/events/{id}/register` | Events. |
 | `/admin/surveys` | `GET /services/surveys`, `POST /services/surveys/{id}/submit` | Surveys. |
 | `/admin/clubs` | `GET /services/clubs`, `POST /services/clubs/{id}/register` | Clubs. |
-| `/admin/bus` | `GET /students/{id}/bus-route`, `GET /services/bus-tracking` | Bus assignment and tracking. |
+| `/admin/bus`, `GET /admin/students/{student_id}/bus-route` | `GET /students/{id}/bus-route`, `GET /services/bus-tracking` | Protected student-profile bus assignment; broad management remains planned. |
 | `/admin/uniforms` | `GET /services/uniforms`, `POST /services/uniforms/orders` | Uniform catalog and orders. |
 | `/admin/coin-fund` | `GET /services/coin-fund` | Coin fund balance and transactions. |
 

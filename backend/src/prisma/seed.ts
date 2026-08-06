@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { AttendanceStatus, PrismaClient } from '@prisma/client';
 import { seedIdentityAccess } from '../modules/identity-access/bootstrap/seed-identity-access';
 import { seedAcademicContext } from '../modules/academics/bootstrap/seed-academic-context';
 import { seedUatAccounts } from '../modules/identity-access/bootstrap/seed-uat-accounts';
@@ -130,38 +130,83 @@ async function seedUatAttendance(
   ]);
   if (!actor || !semester || students.length === 0) return;
 
-  const attendanceDate = new Date('2026-07-18T00:00:00.000Z');
-  const session = await prisma.attendanceSession.upsert({
-    where: {
-      semesterId_attendanceDate_period_className: {
+  const fixtureSessions: Array<{
+    dateStr: string;
+    getStatus: (index: number) => {
+      status: AttendanceStatus;
+      note: string | null;
+    };
+  }> = [
+    {
+      dateStr: '2026-07-18T00:00:00.000Z',
+      getStatus: (index: number) =>
+        index === 0
+          ? { status: 'late', note: 'Đến muộn 5 phút' }
+          : { status: 'present', note: null },
+    },
+    {
+      dateStr: '2026-07-19T00:00:00.000Z',
+      getStatus: (index: number) => {
+        if (index === 0) return { status: 'present', note: null };
+        if (index === 1)
+          return { status: 'absent', note: 'Nghỉ học không lý do' };
+        if (index === 2)
+          return { status: 'excused', note: 'Nghỉ học có phép (ốm)' };
+        return { status: 'present', note: null };
+      },
+    },
+    {
+      dateStr: '2026-07-20T00:00:00.000Z',
+      getStatus: (index: number) =>
+        index === 0
+          ? { status: 'absent', note: 'Nghỉ học không lý do' }
+          : { status: 'present', note: null },
+    },
+    {
+      dateStr: '2026-07-21T00:00:00.000Z',
+      getStatus: () => ({ status: 'present', note: null }),
+    },
+  ];
+
+  for (const fixture of fixtureSessions) {
+    const attendanceDate = new Date(fixture.dateStr);
+    const session = await prisma.attendanceSession.upsert({
+      where: {
+        semesterId_attendanceDate_period_className: {
+          semesterId: semester.id,
+          attendanceDate,
+          period: 'morning',
+          className: '6A1',
+        },
+      },
+      update: {},
+      create: {
         semesterId: semester.id,
         attendanceDate,
         period: 'morning',
         className: '6A1',
+        createdById: actor.id,
       },
-    },
-    update: {},
-    create: {
-      semesterId: semester.id,
-      attendanceDate,
-      period: 'morning',
-      className: '6A1',
-      createdById: actor.id,
-    },
-    select: { id: true },
-  });
-  await prisma.$transaction(async (tx) => {
-    await tx.attendanceRecord.deleteMany({ where: { sessionId: session.id } });
-    await tx.attendanceRecord.createMany({
-      data: students.map((student, index) => ({
-        sessionId: session.id,
-        studentId: student.id,
-        status: index === 0 ? 'late' : 'present',
-        note: index === 0 ? 'Đến muộn 5 phút' : null,
-        markedById: actor.id,
-      })),
+      select: { id: true },
     });
-  });
+    await prisma.$transaction(async (tx) => {
+      await tx.attendanceRecord.deleteMany({
+        where: { sessionId: session.id },
+      });
+      await tx.attendanceRecord.createMany({
+        data: students.map((student, index) => {
+          const { status, note } = fixture.getStatus(index);
+          return {
+            sessionId: session.id,
+            studentId: student.id,
+            status,
+            note,
+            markedById: actor.id,
+          };
+        }),
+      });
+    });
+  }
 }
 
 async function seedUatTuition(prisma: PrismaClient): Promise<void> {
@@ -474,7 +519,7 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
     },
   });
 
-  // BusRouteInfo
+  // BusRouteInfo (UAT-HS-001 stable assigned bus route, no fake GPS)
   await prisma.busRouteInfo.upsert({
     where: {
       studentId_routeId: {
@@ -491,10 +536,6 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
       driverName: 'Bác Bùi Văn Thắng',
       driverPhone: '0987654321',
       busPlate: '29B-12345',
-      currentLat: 21.0025,
-      currentLng: 105.8152,
-      nextStop: 'Ngã Tư Sở',
-      estimatedTime: '10 phút',
     },
     create: {
       studentId: student.id,
@@ -507,10 +548,6 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
       driverName: 'Bác Bùi Văn Thắng',
       driverPhone: '0987654321',
       busPlate: '29B-12345',
-      currentLat: 21.0025,
-      currentLng: 105.8152,
-      nextStop: 'Ngã Tư Sở',
-      estimatedTime: '10 phút',
     },
   });
 
@@ -619,6 +656,63 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
       finalScore: 9.5,
       averageScore: 9.3,
       teacherComment: 'Bài làm rất tốt, tiếp tục phát huy.',
+    },
+  });
+
+  await prisma.studentScoreRecord.upsert({
+    where: {
+      studentId_semesterId_subjectId: {
+        studentId: student.id,
+        semesterId: semester.id,
+        subjectId: 'ngu-van',
+      },
+    },
+    update: {
+      subjectName: 'Ngữ Văn',
+      fifteenMinScoresJson: [8.5, 9.0],
+      midtermScore: 8.5,
+      finalScore: 9.0,
+      averageScore: 8.7,
+      teacherComment: 'Cảm thụ tác phẩm tốt, diễn đạt mượt mà.',
+    },
+    create: {
+      studentId: student.id,
+      semesterId: semester.id,
+      subjectId: 'ngu-van',
+      subjectName: 'Ngữ Văn',
+      fifteenMinScoresJson: [8.5, 9.0],
+      midtermScore: 8.5,
+      finalScore: 9.0,
+      averageScore: 8.7,
+      teacherComment: 'Cảm thụ tác phẩm tốt, diễn đạt mượt mà.',
+    },
+  });
+
+  // RewardDisciplineRecord
+  await prisma.rewardDisciplineRecord.upsert({
+    where: { id: 'reward-uat-hs-001-1' },
+    update: {
+      studentId: student.id,
+      semesterId: semester.id,
+      schoolYear: '2026-2027',
+      type: 'reward',
+      title: 'Khen thưởng Học sinh Giỏi Học kỳ 1',
+      content:
+        'Đạt thành tích xuất sắc trong học tập và rèn luyện môn Toán và Ngữ Văn.',
+      date: new Date('2026-01-15T00:00:00Z'),
+      issuer: 'Hiệu trưởng',
+    },
+    create: {
+      id: 'reward-uat-hs-001-1',
+      studentId: student.id,
+      semesterId: semester.id,
+      schoolYear: '2026-2027',
+      type: 'reward',
+      title: 'Khen thưởng Học sinh Giỏi Học kỳ 1',
+      content:
+        'Đạt thành tích xuất sắc trong học tập và rèn luyện môn Toán và Ngữ Văn.',
+      date: new Date('2026-01-15T00:00:00Z'),
+      issuer: 'Hiệu trưởng',
     },
   });
 

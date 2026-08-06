@@ -17,6 +17,10 @@ export function useStudentRewardsQuery(studentId: string, options?: { enabled?: 
   });
 }
 
+export function useStudentScoreSummaryQuery(studentId: string, enabled = true) {
+  return useQuery({ ...scores.queries.studentDetail.options(studentId), enabled: enabled && Boolean(studentId) });
+}
+
 export function useSaveScoreMutation() {
   return useMutation(scores.mutations.saveScore.options());
 }

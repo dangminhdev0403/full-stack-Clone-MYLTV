@@ -5,6 +5,7 @@ import {
 } from "@dangminhdev04032005/query-resource";
 import {
   createAttendanceSession,
+  getStudentAttendance,
   listAttendanceSessions,
   updateAttendanceSession,
   type AttendanceWritePayload,
@@ -18,6 +19,10 @@ export const attendanceResource = createResource<void>()({
     list: defineQuery({
       inputKey: (query?: string) => [query ?? ""],
       queryFn: ({ input }) => listAttendanceSessions(input),
+    }),
+    student: defineQuery({
+      inputKey: (studentId: string) => [studentId],
+      queryFn: ({ input }) => getStudentAttendance(input),
     }),
   },
   mutations: {

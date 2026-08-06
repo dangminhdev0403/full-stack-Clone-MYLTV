@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createAttendanceSession,
+  getStudentAttendance,
   listAttendanceSessions,
   updateAttendanceSession,
 } from "./attendance.client";
@@ -50,6 +51,36 @@ describe("attendance client", () => {
       "/api/admin/attendance/session-1",
       expect.objectContaining({ method: "PATCH" }),
     );
+  });
+
+  it("loads one student's protected attendance history through the admin BFF", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      response({
+        success: true,
+        data: {
+          student_id: "student-1",
+          history: [
+            {
+              date: "2026-07-18",
+              period: "morning",
+              status: "late",
+              check_in_at: "07:02",
+              check_out_at: "11:30",
+              note: "Đến muộn 5 phút",
+            },
+          ],
+        },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getStudentAttendance("student-1");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/admin/students/student-1/attendance",
+      { cache: "no-store" },
+    );
+    expect(result.history[0].status).toBe("late");
   });
 });
 

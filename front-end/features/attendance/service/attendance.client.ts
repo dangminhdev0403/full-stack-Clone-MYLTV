@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   attendanceSessionSchema,
   parseApiResponse,
+  studentAttendanceHistorySchema,
   successSchema,
 } from "@/lib/api/schemas";
 
@@ -16,6 +17,7 @@ const listSchema = successSchema(
 );
 export type AttendanceSession = z.infer<typeof attendanceSessionSchema>;
 export type AttendanceStatus = AttendanceSession["records"][number]["status"];
+export type StudentAttendanceHistory = z.infer<typeof studentAttendanceHistorySchema>;
 export type AttendanceWritePayload = {
   date?: string;
   class_name?: string;
@@ -32,6 +34,10 @@ export async function listAttendanceSessions(query = "") {
     cache: "no-store",
   });
   return (await parseApiResponse(response, listSchema)).data;
+}
+export async function getStudentAttendance(studentId: string): Promise<StudentAttendanceHistory> {
+  const response = await fetch(`/api/admin/students/${encodeURIComponent(studentId)}/attendance`, { cache: "no-store" });
+  return (await parseApiResponse(response, successSchema(studentAttendanceHistorySchema))).data;
 }
 export async function createAttendanceSession(payload: AttendanceWritePayload) {
   return mutate("/api/admin/attendance", "POST", payload);

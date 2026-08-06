@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
 import { RequireRole } from '../../../common/auth/require-role.decorator';
 import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
 import {
@@ -42,12 +43,40 @@ export class AppScoresController {
 export class AdminScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
+  @Get('students/:student_id/scores')
+  @RequirePermission('academics.scores.read')
+  getScores(
+    @Param('student_id') studentId: string,
+    @Query('school_year') schoolYear?: string,
+    @Query('semester') semester?: string,
+  ) {
+    return this.scoresService.getStudentScores(studentId, schoolYear, semester);
+  }
+
+  @Get('students/:student_id/reward-discipline')
+  @RequirePermission('academics.scores.read')
+  getRewardDiscipline(
+    @Param('student_id') studentId: string,
+    @Query('school_year') schoolYear?: string,
+    @Query('semester') semester?: string,
+    @Query('type') type?: string,
+  ) {
+    return this.scoresService.getRewardDiscipline(
+      studentId,
+      schoolYear,
+      semester,
+      type,
+    );
+  }
+
   @Post('scores')
+  @RequirePermission('academics.scores.manage')
   saveScore(@Body() body: SaveScoreDto) {
     return this.scoresService.saveScoreRecord(body);
   }
 
   @Post('reward-discipline')
+  @RequirePermission('academics.scores.manage')
   saveRewardDiscipline(@Body() body: SaveRewardDisciplineDto) {
     return this.scoresService.saveRewardDisciplineRecord(body);
   }

@@ -21,10 +21,10 @@ This file tracks backend availability for the draft v1 OpenAPI contract. It is c
 | User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
 | Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
 | Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |
-| Academics (Attendance, Scores, Timetable, Homework) | `contracted` | Attendance `implemented`; Scores/Timetable/Homework `partial` | Attendance is live. Other admin routes are mutation-only or still reuse app/student reads; admin list/filter/detail contracts remain planned. |
+| Academics (Attendance, Scores, Timetable, Homework) | `contracted` | Attendance and protected student score detail `implemented`; broad Scores/Timetable/Homework admin surfaces `partial` | Student profile attendance and scores are live through protected admin endpoints. Broad admin list/filter/detail contracts remain planned. |
 | Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
 | Student Services (Events) | `contracted` | `partial` at `/admin/events` | Persistent CRUD routes exist, but DTO validation, dedicated permission/audit, registration-list contract, migrations, and negative tests remain incomplete. |
-| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | `blocked` (for Admin CRUD) | Mobile app endpoints are live. Admin management surfaces display PlannedSurface until full admin API contracts are finalized. |
+| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | Protected student bus detail `implemented`; Admin CRUD `blocked` | Student profile bus assignment is live. Broad service management surfaces remain planned until full admin contracts are finalized. |
 | Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
 
 ## Status Change Rule

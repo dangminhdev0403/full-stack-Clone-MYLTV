@@ -17,6 +17,15 @@ describe("admin BFF allowlist", () => {
 
   it("allows attendance, tuition and feedback domain routes", () => {
     expect(resolveAdminEndpoint("attendance", [], "GET")).toBe("/api/v1/admin/attendance");
+    expect(resolveAdminEndpoint("students", ["student-1", "attendance"], "GET")).toBe(
+      "/api/v1/admin/students/student-1/attendance",
+    );
+    expect(resolveAdminEndpoint("students", ["student-1", "scores"], "GET")).toBe(
+      "/api/v1/admin/students/student-1/scores",
+    );
+    expect(resolveAdminEndpoint("students", ["student-1", "bus-route"], "GET")).toBe(
+      "/api/v1/admin/students/student-1/bus-route",
+    );
     expect(resolveAdminEndpoint("tuition", [], "GET")).toBe("/api/v1/admin/tuition");
     expect(resolveAdminEndpoint("tuition", [], "POST")).toBe("/api/v1/admin/tuition");
     expect(resolveAdminEndpoint("tuition", ["charge-1"], "GET")).toBe("/api/v1/admin/tuition/charge-1");

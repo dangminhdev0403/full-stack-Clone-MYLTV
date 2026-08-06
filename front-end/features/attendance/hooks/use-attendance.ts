@@ -7,6 +7,13 @@ export function useAttendanceQuery(query = "") {
   return useQuery(attendance.queries.list.options(query));
 }
 
+export function useStudentAttendanceQuery(studentId: string, enabled = true) {
+  return useQuery({
+    ...attendance.queries.student.options(studentId),
+    enabled: enabled && Boolean(studentId),
+  });
+}
+
 export function useCreateAttendanceMutation() {
   return useMutation(attendance.mutations.create.options());
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+import { parseApiResponse, studentScoresSchema, successSchema } from "@/lib/api/schemas";
 
 export const scoreRecordSchema = z.object({
   id: z.string().optional(),
@@ -25,6 +25,12 @@ export const rewardDisciplineSchema = z.object({
 
 export type ScoreRecord = z.infer<typeof scoreRecordSchema>;
 export type RewardDiscipline = z.infer<typeof rewardDisciplineSchema>;
+export type StudentScoreSummary = z.infer<typeof studentScoresSchema>;
+
+export async function getStudentScoreSummary(studentId: string): Promise<StudentScoreSummary> {
+  const response = await fetch(`/api/admin/students/${encodeURIComponent(studentId)}/scores`, { cache: "no-store" });
+  return (await parseApiResponse(response, successSchema(studentScoresSchema))).data;
+}
 
 export async function getStudentScores(studentId: string): Promise<ScoreRecord[]> {
   const response = await fetch(`/api/admin/scores/${encodeURIComponent(studentId)}`, { cache: "no-store" });

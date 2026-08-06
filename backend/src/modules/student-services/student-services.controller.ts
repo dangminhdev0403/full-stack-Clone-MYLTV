@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../common/auth/require-permission.decorator';
 import { RequireRole } from '../../common/auth/require-role.decorator';
 import { SkipAuthorization } from '../../common/auth/skip-authorization.decorator';
 import {
@@ -17,13 +18,13 @@ import {
   type SubmitFeedbackDto,
 } from './student-services.service';
 
-@SkipAuthorization()
 @Controller('api/v1')
 export class StudentServicesController {
   constructor(private readonly services: StudentServicesService) {}
 
   // Meals
   @Get('services/meals')
+  @SkipAuthorization()
   getMeals(
     @Query('student_id') studentId?: string,
     @Query('from_date') fromDate?: string,
@@ -33,6 +34,7 @@ export class StudentServicesController {
   }
 
   @Post('services/meals/register')
+  @SkipAuthorization()
   registerMeals(
     @Body()
     body: {
@@ -46,17 +48,20 @@ export class StudentServicesController {
 
   // Coin Fund
   @Get('services/coin-fund')
+  @SkipAuthorization()
   getCoinFund(@Query('student_id') studentId?: string) {
     return this.services.getCoinFund(studentId);
   }
 
   // Events
   @Get('services/events')
+  @SkipAuthorization()
   getEvents(@Query('student_id') studentId?: string) {
     return this.services.getEvents(studentId);
   }
 
   @Post('services/events/:id/register')
+  @SkipAuthorization()
   registerEvent(
     @Param('id') eventId: string,
     @Body() body: { student_id: string; note?: string },
@@ -66,11 +71,13 @@ export class StudentServicesController {
 
   // Surveys
   @Get('services/surveys')
+  @SkipAuthorization()
   getSurveys(@Query('student_id') studentId?: string) {
     return this.services.getSurveys(studentId);
   }
 
   @Post('services/surveys/:id/submit')
+  @SkipAuthorization()
   submitSurvey(
     @Param('id') surveyId: string,
     @Body() body: { student_id: string; answers: any[] },
@@ -80,11 +87,13 @@ export class StudentServicesController {
 
   // Clubs
   @Get('services/clubs')
+  @SkipAuthorization()
   getClubs(@Query('student_id') studentId?: string) {
     return this.services.getClubs(studentId);
   }
 
   @Post('services/clubs/:id/register')
+  @SkipAuthorization()
   registerClub(
     @Param('id') clubId: string,
     @Body() body: { student_id: string; note?: string },
@@ -94,11 +103,20 @@ export class StudentServicesController {
 
   // Bus
   @Get('students/:student_id/bus-route')
+  @SkipAuthorization()
   getBusRoute(@Param('student_id') studentId: string) {
     return this.services.getBusRoute(studentId);
   }
 
+  @Get('admin/students/:student_id/bus-route')
+  @RequireRole('admin', 'super_admin')
+  @RequirePermission('student_services.bus.read')
+  getAdminBusRoute(@Param('student_id') studentId: string) {
+    return this.services.getBusRoute(studentId);
+  }
+
   @Get('services/bus-tracking')
+  @SkipAuthorization()
   getBusTracking(
     @Query('student_id') studentId?: string,
     @Query('route_id') routeId?: string,
@@ -108,11 +126,13 @@ export class StudentServicesController {
 
   // Uniforms
   @Get('services/uniforms')
+  @SkipAuthorization()
   getUniforms() {
     return this.services.getUniforms();
   }
 
   @Post('services/uniforms/orders')
+  @SkipAuthorization()
   orderUniforms(
     @Body() body: { student_id: string; items: any[]; note?: string },
   ) {
@@ -121,6 +141,7 @@ export class StudentServicesController {
 
   // Uploads
   @Post('uploads')
+  @SkipAuthorization()
   upload(
     @Body()
     body: {
@@ -140,6 +161,7 @@ export class StudentServicesController {
 
   // Feedback
   @Post('feedback')
+  @SkipAuthorization()
   submitFeedback(
     @Body() body: SubmitFeedbackDto,
     @CurrentUser() actor: AuthenticatedUser | undefined,
