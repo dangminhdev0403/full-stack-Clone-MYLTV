@@ -405,8 +405,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/audit/audit.service.ts": {
-    "mtime": 1786005072.9346833,
-    "ast_hash": "a32e05cd5b8cb5221d4761fb820eed1b",
+    "mtime": 1786006887.6982026,
+    "ast_hash": "799d993942cd241d93ff2e3e39b5413e",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/auth-token.service.ts": {
@@ -445,14 +445,14 @@
     "semantic_hash": "1f91935418faf70a6d2ea07a7609b796"
   },
   "backend/src/modules/identity-access/bootstrap/seed-identity-access.spec.ts": {
-    "mtime": 1784916544.0437403,
-    "ast_hash": "4ad477a7ec040e2c022e494556740f04",
-    "semantic_hash": "4ad477a7ec040e2c022e494556740f04"
+    "mtime": 1786019126.5920124,
+    "ast_hash": "707894d7c4c39dc16b8ee53e0fb121f6",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/bootstrap/seed-identity-access.ts": {
-    "mtime": 1784916544.0577395,
-    "ast_hash": "33aca9d999ff1a794f771c763551b9e7",
-    "semantic_hash": "33aca9d999ff1a794f771c763551b9e7"
+    "mtime": 1786019107.4293926,
+    "ast_hash": "d1094821d639f08bbb72e213b3699428",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/bootstrap/seed-uat-accounts.ts": {
     "mtime": 1785101091.4663832,
@@ -715,19 +715,19 @@
     "semantic_hash": "982a29105edb3d702aeca539da659363"
   },
   "front-end/app/admin/reports/page.tsx": {
-    "mtime": 1784983896.2724917,
-    "ast_hash": "f97b2c9d4a7bd8b6c12d320de00098e5",
-    "semantic_hash": "f97b2c9d4a7bd8b6c12d320de00098e5"
+    "mtime": 1786014320.702091,
+    "ast_hash": "0692f04f9e18bd73bd2c46de11ea0023",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/bus/page.tsx": {
-    "mtime": 1784983913.6427617,
-    "ast_hash": "739d02e0f0d58ca6891176bf56023f71",
-    "semantic_hash": "739d02e0f0d58ca6891176bf56023f71"
+    "mtime": 1786014243.352605,
+    "ast_hash": "abc97559e78ca0900b15f97b32f98ef9",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/clubs/page.tsx": {
-    "mtime": 1784983910.3498816,
-    "ast_hash": "1b749a4bd44c7a6b5745aa204bf59a92",
-    "semantic_hash": "1b749a4bd44c7a6b5745aa204bf59a92"
+    "mtime": 1786014262.5320542,
+    "ast_hash": "cefa7f912ea3d779a91b2bd2a8189765",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/events/page.tsx": {
     "mtime": 1784983867.9820604,
@@ -735,24 +735,24 @@
     "semantic_hash": "6f3c130667d1f92b0e6e4c6ed1334239"
   },
   "front-end/app/admin/services/meals/page.tsx": {
-    "mtime": 1784983905.027745,
-    "ast_hash": "a929fb5a7bb5be3b63a1f091a3f3c384",
-    "semantic_hash": "a929fb5a7bb5be3b63a1f091a3f3c384"
+    "mtime": 1786014229.0706327,
+    "ast_hash": "5353378ff977d253601fb44c68b23d1f",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/page.tsx": {
-    "mtime": 1785036180.281396,
-    "ast_hash": "02f73c2d74b8a5aea4c4dc43a69f10c9",
-    "semantic_hash": "02f73c2d74b8a5aea4c4dc43a69f10c9"
+    "mtime": 1786014305.7534475,
+    "ast_hash": "87c1e67113d2ea758c92799b82b5a890",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/surveys/page.tsx": {
-    "mtime": 1784983908.0192647,
-    "ast_hash": "39487eb4b35f8a946ff7f05396007c3d",
-    "semantic_hash": "39487eb4b35f8a946ff7f05396007c3d"
+    "mtime": 1786014276.8926215,
+    "ast_hash": "ef41aab30fe2511773a1f2c8a233a3fb",
+    "semantic_hash": ""
   },
   "front-end/app/admin/services/uniforms/page.tsx": {
-    "mtime": 1784983916.7820268,
-    "ast_hash": "62f53d4fe2dddf9180be5d356d756c84",
-    "semantic_hash": "62f53d4fe2dddf9180be5d356d756c84"
+    "mtime": 1786014286.641255,
+    "ast_hash": "1894bb0506d06cd98d2582534397354a",
+    "semantic_hash": ""
   },
   "front-end/app/admin/students/[id]/page.tsx": {
     "mtime": 1784095455.1866212,
@@ -1345,8 +1345,8 @@
     "semantic_hash": ""
   },
   "front-end/lib/api/admin-route.ts": {
-    "mtime": 1786002236.042796,
-    "ast_hash": "454084ba615c2418976c2b2467ac8136",
+    "mtime": 1786008679.2326064,
+    "ast_hash": "67d04ff778e58f2a70ebeea6dc2f0456",
     "semantic_hash": ""
   },
   "front-end/lib/api/authenticated-backend.test.ts": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": "a48ce65b9ecc2be10f4633bd7f31317d"
   },
   "shared/api-contract/openapi/v1/openapi.json": {
-    "mtime": 1786006662.5016112,
-    "ast_hash": "6db185afa55f51279df18f1874fe59f0",
+    "mtime": 1786019475.7709806,
+    "ast_hash": "7b751c4b850a1266cc2e1182b384a487",
     "semantic_hash": ""
   },
   "shared/api-contract/package.json": {
@@ -1660,13 +1660,13 @@
     "semantic_hash": "903124707afc5990d585fe77c668deb2"
   },
   "shared/api-contract/docs/API_CATALOG.md": {
-    "mtime": 1786006708.6747315,
-    "ast_hash": "db9802960f54b459a70f3b92bcc3ba4a",
+    "mtime": 1786019508.0708015,
+    "ast_hash": "d543aa74bec30dd41d28a13b743aaaa1",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/CONTRACT_CHANGES.md": {
-    "mtime": 1786006685.8138099,
-    "ast_hash": "8f2c57b2e8b44859108d441768b7f9fa",
+    "mtime": 1786019479.5628607,
+    "ast_hash": "bc3e3759a7eb0f2d26a788b9c45fa83f",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/FRONTEND_HANDOFF.md": {
@@ -1675,13 +1675,13 @@
     "semantic_hash": "676590a5d1b8011c3dc3d671276545f5"
   },
   "shared/api-contract/docs/IMPLEMENTATION_STATUS.md": {
-    "mtime": 1786006708.6747315,
-    "ast_hash": "3e24c920a45a6cc8e31b440348389787",
+    "mtime": 1786019481.9970918,
+    "ast_hash": "35be20d8f2125a689f520735d1d737ab",
     "semantic_hash": ""
   },
   "shared/api-contract/openapi/v1/openapi.yaml": {
-    "mtime": 1786006662.502741,
-    "ast_hash": "6db185afa55f51279df18f1874fe59f0",
+    "mtime": 1786019477.7004135,
+    "ast_hash": "7b751c4b850a1266cc2e1182b384a487",
     "semantic_hash": ""
   },
   "front-end/public/file.svg": {
@@ -1935,8 +1935,8 @@
     "semantic_hash": ""
   },
   "front-end/features/system-audit/components/system-audit-page.tsx": {
-    "mtime": 1786006434.981282,
-    "ast_hash": "5b27404a61fcd58c66222e764b60d2e0",
+    "mtime": 1786006893.5960531,
+    "ast_hash": "57239f6bfbe4c6bfcbfccdb535298196",
     "semantic_hash": ""
   },
   "front-end/features/system-audit/hooks/use-system-audit.ts": {
@@ -1960,8 +1960,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.controller.spec.ts": {
-    "mtime": 1786003354.082027,
-    "ast_hash": "55a90acebe992bc4c886cd52ab2e73ec",
+    "mtime": 1786018916.9778678,
+    "ast_hash": "c401d97fcf626c3d0618e50437599487",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.controller.ts": {
@@ -1970,18 +1970,18 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.service.spec.ts": {
-    "mtime": 1786003450.0555012,
-    "ast_hash": "db0f726f1212e580dc11944a8092805e",
+    "mtime": 1786019759.1853354,
+    "ast_hash": "9b6b8be53999a0d5d173e3076f0a3ca5",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.service.ts": {
-    "mtime": 1786003348.3044224,
-    "ast_hash": "898408a81dde8d615fdf92a1d77b79b7",
+    "mtime": 1786018907.7668445,
+    "ast_hash": "81db73ccb1eaec5e7a6b02a8b79646b1",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/roles/role.validation.ts": {
-    "mtime": 1786001337.3920183,
-    "ast_hash": "573b336c472140f94667be25b16ab931",
+    "mtime": 1786018903.952696,
+    "ast_hash": "1314bca731a5781f8645fd56a9a88c8c",
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/service/academic-structure.client.test.ts": {
@@ -1995,13 +1995,28 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/audit/audit.service.spec.ts": {
-    "mtime": 1786005084.2848492,
-    "ast_hash": "d7f111b7e0879b1594bf06abdbaec3b6",
+    "mtime": 1786006890.5949414,
+    "ast_hash": "dc147f329d167b5d5fef2989c6e3a249",
     "semantic_hash": ""
   },
   "front-end/features/system-audit/components/system-audit-page.test.tsx": {
     "mtime": 1786006580.7264366,
     "ast_hash": "0de84128f453b10052d342feeaa6b40c",
+    "semantic_hash": ""
+  },
+  "front-end/features/student-services/hooks/use-student-services.ts": {
+    "mtime": 1786014212.577719,
+    "ast_hash": "7c0e622e8cb0343fc3da9870db46320a",
+    "semantic_hash": ""
+  },
+  "front-end/features/student-services/service/student-services.client.ts": {
+    "mtime": 1786011223.7982872,
+    "ast_hash": "f6bc968b2b47f3abd43c981634ede1c5",
+    "semantic_hash": ""
+  },
+  "front-end/features/student-services/service/student-services.resource.ts": {
+    "mtime": 1786014197.9585881,
+    "ast_hash": "0901668bf322d7ff6628f23d057b08b2",
     "semantic_hash": ""
   }
 }

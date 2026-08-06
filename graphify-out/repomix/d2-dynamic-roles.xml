@@ -32,7 +32,7 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: backend/prisma/schema.prisma, backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/modules/identity-access/roles/*.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/modules/identity-access/permissions/permission.service.ts, backend/src/modules/identity-access/auth.service.ts, shared/api-contract/docs/API_CATALOG.md, shared/api-contract/docs/IMPLEMENTATION_STATUS.md, shared/api-contract/docs/CONTRACT_CHANGES.md
+- Only files matching these patterns are included: backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql, backend/src/modules/identity-access/roles/*.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/modules/identity-access/permissions/permission.service.ts
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Files are sorted by Git change count (files with more changes are at the bottom)
@@ -46,7 +46,6 @@ backend/
     migrations/
       20260806160000_add_dynamic_roles/
         migration.sql
-    schema.prisma
   src/
     modules/
       identity-access/
@@ -58,18 +57,146 @@ backend/
           role.controller.ts
           role.service.spec.ts
           role.service.ts
+          role.validation.spec.ts
           role.validation.ts
-        auth.service.ts
-shared/
-  api-contract/
-    docs/
-      API_CATALOG.md
-      CONTRACT_CHANGES.md
-      IMPLEMENTATION_STATUS.md
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="backend/src/modules/identity-access/roles/role.validation.spec.ts">
+import { BadRequestException } from '@nestjs/common';
+import {
+  validateCreateRole,
+  validateReplaceRolePermissions,
+  validateUpdateRole,
+  validateUpdateRoleStatus,
+} from './role.validation';
+
+describe('role.validation', () => {
+  describe('permission_keys uniqueness', () => {
+    it('throws BadRequestException when createRole receives duplicate permission_keys', () => {
+      expect(() =>
+        validateCreateRole({
+          code: 'test_role',
+          name: 'Test Role',
+          permission_keys: ['identity.roles.read', 'identity.roles.read'],
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows createRole with unique permission_keys or without permission_keys', () => {
+      const result = validateCreateRole({
+        code: 'test_role',
+        name: 'Test Role',
+        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
+      });
+      expect(result.permission_keys).toEqual([
+        'identity.roles.read',
+        'identity.roles.manage',
+      ]);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions receives duplicate permission_keys', () => {
+      expect(() =>
+        validateReplaceRolePermissions({
+          permission_keys: ['identity.roles.read', 'identity.roles.read'],
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows replaceRolePermissions with unique permission_keys', () => {
+      const result = validateReplaceRolePermissions({
+        permission_keys: ['identity.roles.read', 'identity.roles.manage'],
+      });
+      expect(result.permission_keys).toEqual([
+        'identity.roles.read',
+        'identity.roles.manage',
+      ]);
+    });
+  });
+
+  describe('version positive integer requirement', () => {
+    it('throws BadRequestException when updateRole has version = 0', () => {
+      expect(() =>
+        validateUpdateRole({
+          name: 'Updated Name',
+          version: 0,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when updateRole has version < 0', () => {
+      expect(() =>
+        validateUpdateRole({
+          name: 'Updated Name',
+          version: -1,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows updateRole with positive integer version', () => {
+      const result = validateUpdateRole({
+        name: 'Updated Name',
+        version: 1,
+      });
+      expect(result.version).toBe(1);
+    });
+
+    it('throws BadRequestException when updateRoleStatus has version = 0', () => {
+      expect(() =>
+        validateUpdateRoleStatus({
+          is_active: false,
+          version: 0,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when updateRoleStatus has version < 0', () => {
+      expect(() =>
+        validateUpdateRoleStatus({
+          is_active: false,
+          version: -5,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows updateRoleStatus with positive integer version', () => {
+      const result = validateUpdateRoleStatus({
+        is_active: false,
+        version: 2,
+      });
+      expect(result.version).toBe(2);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions has version = 0', () => {
+      expect(() =>
+        validateReplaceRolePermissions({
+          permission_keys: ['identity.roles.read'],
+          version: 0,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when replaceRolePermissions has version < 0', () => {
+      expect(() =>
+        validateReplaceRolePermissions({
+          permission_keys: ['identity.roles.read'],
+          version: -2,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('allows replaceRolePermissions with positive integer version', () => {
+      const result = validateReplaceRolePermissions({
+        permission_keys: ['identity.roles.read'],
+        version: 3,
+      });
+      expect(result.version).toBe(3);
+    });
+  });
+});
+</file>
 
 <file path="backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql">
 -- CreateTable
@@ -162,6 +289,222 @@ SELECT a."id", r."id", CURRENT_TIMESTAMP
 FROM "accounts" a
 JOIN "roles" r ON r."code" = a."role"::text
 ON CONFLICT ("account_id", "role_id") DO NOTHING;
+</file>
+
+<file path="backend/src/modules/identity-access/roles/role.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { RoleService } from './role.service';
+import {
+  validateAssignAccountRoles,
+  validateCreateRole,
+  validateListRolesQuery,
+  validateReplaceRolePermissions,
+  validateUpdateRole,
+  validateUpdateRoleStatus,
+} from './role.validation';
+
+@Controller('api/v1/admin')
+@RequireRole('admin', 'super_admin')
+export class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+
+  private getActorId(actor: AuthenticatedUser | undefined): string {
+    if (!actor?.id) {
+      throw new UnauthorizedException('Authentication required');
+    }
+    return actor.id;
+  }
+
+  @Get('roles')
+  @RequirePermission('identity.roles.read')
+  listRoles(@Query() query: unknown) {
+    const dto = validateListRolesQuery(query);
+    return this.roleService.listRoles(dto);
+  }
+
+  @Get('roles/:id')
+  @RequirePermission('identity.roles.read')
+  getRoleById(@Param('id') id: string) {
+    return this.roleService.getRoleById(id);
+  }
+
+  @Post('roles')
+  @RequirePermission('identity.roles.manage')
+  createRole(
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+    @Body() body: unknown,
+  ) {
+    const dto = validateCreateRole(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.createRole(actorId, dto);
+  }
+
+  @Patch('roles/:id')
+  @RequirePermission('identity.roles.manage')
+  updateRole(
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const dto = validateUpdateRole(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.updateRole(actorId, id, dto);
+  }
+
+  @Patch('roles/:id/status')
+  @RequirePermission('identity.roles.manage')
+  updateRoleStatus(
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const dto = validateUpdateRoleStatus(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.updateRoleStatus(actorId, id, dto);
+  }
+
+  @Put('roles/:id/permissions')
+  @RequirePermission('identity.roles.manage')
+  replaceRolePermissions(
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const dto = validateReplaceRolePermissions(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.replaceRolePermissions(actorId, id, dto);
+  }
+
+  @Put('accounts/:account_id/roles')
+  @RequirePermission('identity.roles.manage')
+  assignAccountRoles(
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+    @Param('account_id') accountId: string,
+    @Body() body: unknown,
+  ) {
+    const dto = validateAssignAccountRoles(body);
+    const actorId = this.getActorId(actor);
+    return this.roleService.assignAccountRoles(actorId, accountId, dto);
+  }
+}
+</file>
+
+<file path="backend/src/modules/identity-access/permissions/permission.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { PERMISSIONS, type PermissionKey } from './permission.registry';
+
+@Injectable()
+export class PermissionService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async userHasPermission(
+    accountId: string,
+    permissionKey: PermissionKey,
+  ): Promise<boolean> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return true;
+    }
+
+    const [directPermission, roleAssignment] = await Promise.all([
+      this.prisma.accountPermission.findUnique({
+        where: {
+          accountId_permissionKey: {
+            accountId,
+            permissionKey,
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+      this.prisma.accountRoleAssignment.findFirst({
+        where: {
+          accountId,
+          role: {
+            isActive: true,
+            rolePermissions: {
+              some: {
+                permissionKey,
+              },
+            },
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+    ]);
+
+    return directPermission !== null || roleAssignment !== null;
+  }
+
+  async getAccountPermissions(accountId: string): Promise<string[]> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return PERMISSIONS.map((p) => p.key).sort();
+    }
+
+    const [directPermissions, roleAssignments] = await Promise.all([
+      this.prisma.accountPermission.findMany({
+        where: { accountId },
+        select: { permissionKey: true },
+      }),
+      this.prisma.accountRoleAssignment.findMany({
+        where: {
+          accountId,
+          role: { isActive: true },
+        },
+        select: {
+          role: {
+            select: {
+              rolePermissions: {
+                select: { permissionKey: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const set = new Set<string>();
+
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+
+    for (const ra of roleAssignments) {
+      if (ra.role?.rolePermissions) {
+        for (const rp of ra.role.rolePermissions) {
+          set.add(rp.permissionKey);
+        }
+      }
+    }
+
+    return Array.from(set).sort();
+  }
+}
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.controller.spec.ts">
@@ -449,118 +792,6 @@ describe('RoleController', () => {
     });
   });
 });
-</file>
-
-<file path="backend/src/modules/identity-access/roles/role.controller.ts">
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-  UnauthorizedException,
-} from '@nestjs/common';
-import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
-import { CurrentUser } from '../../../common/auth/current-user.decorator';
-import { RequirePermission } from '../../../common/auth/require-permission.decorator';
-import { RequireRole } from '../../../common/auth/require-role.decorator';
-import { RoleService } from './role.service';
-import {
-  validateAssignAccountRoles,
-  validateCreateRole,
-  validateListRolesQuery,
-  validateReplaceRolePermissions,
-  validateUpdateRole,
-  validateUpdateRoleStatus,
-} from './role.validation';
-
-@Controller('api/v1/admin')
-@RequireRole('admin', 'super_admin')
-export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
-
-  private getActorId(actor: AuthenticatedUser | undefined): string {
-    if (!actor?.id) {
-      throw new UnauthorizedException('Authentication required');
-    }
-    return actor.id;
-  }
-
-  @Get('roles')
-  @RequirePermission('identity.roles.read')
-  listRoles(@Query() query: unknown) {
-    const dto = validateListRolesQuery(query);
-    return this.roleService.listRoles(dto);
-  }
-
-  @Get('roles/:id')
-  @RequirePermission('identity.roles.read')
-  getRoleById(@Param('id') id: string) {
-    return this.roleService.getRoleById(id);
-  }
-
-  @Post('roles')
-  @RequirePermission('identity.roles.manage')
-  createRole(
-    @CurrentUser() actor: AuthenticatedUser | undefined,
-    @Body() body: unknown,
-  ) {
-    const dto = validateCreateRole(body);
-    const actorId = this.getActorId(actor);
-    return this.roleService.createRole(actorId, dto);
-  }
-
-  @Patch('roles/:id')
-  @RequirePermission('identity.roles.manage')
-  updateRole(
-    @CurrentUser() actor: AuthenticatedUser | undefined,
-    @Param('id') id: string,
-    @Body() body: unknown,
-  ) {
-    const dto = validateUpdateRole(body);
-    const actorId = this.getActorId(actor);
-    return this.roleService.updateRole(actorId, id, dto);
-  }
-
-  @Patch('roles/:id/status')
-  @RequirePermission('identity.roles.manage')
-  updateRoleStatus(
-    @CurrentUser() actor: AuthenticatedUser | undefined,
-    @Param('id') id: string,
-    @Body() body: unknown,
-  ) {
-    const dto = validateUpdateRoleStatus(body);
-    const actorId = this.getActorId(actor);
-    return this.roleService.updateRoleStatus(actorId, id, dto);
-  }
-
-  @Put('roles/:id/permissions')
-  @RequirePermission('identity.roles.manage')
-  replaceRolePermissions(
-    @CurrentUser() actor: AuthenticatedUser | undefined,
-    @Param('id') id: string,
-    @Body() body: unknown,
-  ) {
-    const dto = validateReplaceRolePermissions(body);
-    const actorId = this.getActorId(actor);
-    return this.roleService.replaceRolePermissions(actorId, id, dto);
-  }
-
-  @Put('accounts/:account_id/roles')
-  @RequirePermission('identity.roles.manage')
-  assignAccountRoles(
-    @CurrentUser() actor: AuthenticatedUser | undefined,
-    @Param('account_id') accountId: string,
-    @Body() body: unknown,
-  ) {
-    const dto = validateAssignAccountRoles(body);
-    const actorId = this.getActorId(actor);
-    return this.roleService.assignAccountRoles(actorId, accountId, dto);
-  }
-}
 </file>
 
 <file path="backend/src/modules/identity-access/roles/role.service.spec.ts">
@@ -1879,6 +2110,18 @@ const listRolesQuerySchema = z.object({
   is_active: booleanCoerce,
 });
 
+const uniquePermissionKeys = z
+  .array(z.string().trim())
+  .refine((keys) => new Set(keys).size === keys.length, {
+    message: 'Permission keys must be unique',
+  });
+
+const positiveIntVersion = z
+  .number()
+  .int('Version must be an integer')
+  .positive('Version must be a positive integer')
+  .optional();
+
 const createRoleSchema = z.object({
   code: z
     .string()
@@ -1892,7 +2135,7 @@ const createRoleSchema = z.object({
     ),
   name: nonEmptyString,
   description: z.string().trim().optional(),
-  permission_keys: z.array(z.string().trim()).optional(),
+  permission_keys: uniquePermissionKeys.optional(),
   confirm_critical: z.boolean().optional(),
 });
 
@@ -1900,7 +2143,7 @@ const updateRoleSchema = z
   .object({
     name: nonEmptyString.optional(),
     description: z.string().trim().optional(),
-    version: z.number().int().optional(),
+    version: positiveIntVersion,
   })
   .refine(
     (payload) =>
@@ -1913,13 +2156,13 @@ const updateRoleSchema = z
 
 const updateRoleStatusSchema = z.object({
   is_active: z.boolean(),
-  version: z.number().int().optional(),
+  version: positiveIntVersion,
 });
 
 const replaceRolePermissionsSchema = z.object({
-  permission_keys: z.array(z.string().trim()),
+  permission_keys: uniquePermissionKeys,
   confirm_critical: z.boolean().optional(),
-  version: z.number().int().optional(),
+  version: positiveIntVersion,
 });
 
 const assignAccountRolesSchema = z.object({
@@ -1991,1069 +2234,6 @@ function parseRequest<T>(
     }
     throw error;
   }
-}
-</file>
-
-<file path="backend/src/modules/identity-access/permissions/permission.service.ts">
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
-import type { PermissionKey } from './permission.registry';
-
-@Injectable()
-export class PermissionService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async userHasPermission(
-    accountId: string,
-    permissionKey: PermissionKey,
-  ): Promise<boolean> {
-    const [directPermission, roleAssignment] = await Promise.all([
-      this.prisma.accountPermission.findUnique({
-        where: {
-          accountId_permissionKey: {
-            accountId,
-            permissionKey,
-          },
-        },
-        select: {
-          accountId: true,
-        },
-      }),
-      this.prisma.accountRoleAssignment.findFirst({
-        where: {
-          accountId,
-          role: {
-            isActive: true,
-            rolePermissions: {
-              some: {
-                permissionKey,
-              },
-            },
-          },
-        },
-        select: {
-          accountId: true,
-        },
-      }),
-    ]);
-
-    return directPermission !== null || roleAssignment !== null;
-  }
-
-  async getAccountPermissions(accountId: string): Promise<string[]> {
-    const [directPermissions, roleAssignments] = await Promise.all([
-      this.prisma.accountPermission.findMany({
-        where: { accountId },
-        select: { permissionKey: true },
-      }),
-      this.prisma.accountRoleAssignment.findMany({
-        where: {
-          accountId,
-          role: { isActive: true },
-        },
-        select: {
-          role: {
-            select: {
-              rolePermissions: {
-                select: { permissionKey: true },
-              },
-            },
-          },
-        },
-      }),
-    ]);
-
-    const set = new Set<string>();
-
-    for (const dp of directPermissions) {
-      set.add(dp.permissionKey);
-    }
-
-    for (const ra of roleAssignments) {
-      if (ra.role?.rolePermissions) {
-        for (const rp of ra.role.rolePermissions) {
-          set.add(rp.permissionKey);
-        }
-      }
-    }
-
-    return Array.from(set).sort();
-  }
-}
-</file>
-
-<file path="backend/src/modules/identity-access/auth.service.ts">
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { compare } from 'bcrypt';
-import { createHash, randomBytes } from 'crypto';
-import { ok } from '../../common/http/api-response';
-import { PrismaService } from '../../prisma/prisma.service';
-import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
-import type { ApiSuccessEnvelope } from '../../common/http/api-response';
-import { AuthConfigService } from './config/auth-config.service';
-import { AuthTokenService } from './auth-token.service';
-import { isPermissionKey } from './permissions/permission.registry';
-import { PermissionService } from './permissions/permission.service';
-import type {
-  AuthAccountDto,
-  LoginRequestDto,
-  LoginResponseDto,
-  LogoutRequestDto,
-  LogoutResponseDto,
-  RefreshTokenRequestDto,
-  RefreshTokenResponseDto,
-} from './dto/auth.dto';
-
-type AccountWithPermissions = {
-  id: string;
-  username: string;
-  passwordHash: string;
-  displayName: string;
-  role: AuthAccountDto['role'];
-  isActive: boolean;
-  permissions?: Array<{ permissionKey: string }>;
-};
-
-@Injectable()
-export class AuthService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly authConfig: AuthConfigService,
-    private readonly authTokenService: AuthTokenService,
-    private readonly permissionService?: PermissionService,
-  ) {}
-
-  async login(
-    payload: LoginRequestDto,
-  ): Promise<ApiSuccessEnvelope<LoginResponseDto>> {
-    const account = await this.prisma.account.findFirst({
-      where: { username: payload.username, isActive: true },
-      include: { permissions: { select: { permissionKey: true } } },
-    });
-
-    if (!account || !(await compare(payload.password, account.passwordHash))) {
-      throw new UnauthorizedException('Invalid username or password');
-    }
-
-    const effectivePermissions = await this.getEffectivePermissions(account);
-    const tokens = await this.issueTokens(account);
-
-    return ok({
-      ...tokens,
-      account: {
-        id: account.id,
-        username: account.username,
-        display_name: account.displayName,
-        role: account.role,
-        permissions: effectivePermissions.filter(isPermissionKey),
-      },
-    });
-  }
-
-  async refreshToken(
-    payload: RefreshTokenRequestDto,
-  ): Promise<ApiSuccessEnvelope<RefreshTokenResponseDto>> {
-    const session = await this.prisma.refreshSession.findUnique({
-      where: { tokenHash: this.hashToken(payload.refresh_token) },
-      include: {
-        account: {
-          include: { permissions: { select: { permissionKey: true } } },
-        },
-      },
-    });
-
-    if (
-      !session ||
-      session.revokedAt ||
-      session.expiresAt <= new Date() ||
-      !session.account.isActive
-    ) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    const claim = await this.prisma.refreshSession.updateMany({
-      where: { id: session.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-    if (claim.count !== 1) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    const tokens = await this.issueTokens(session.account);
-
-    return ok(tokens);
-  }
-
-  async logout(
-    user: AuthenticatedUser | undefined,
-    payload: LogoutRequestDto,
-  ): Promise<ApiSuccessEnvelope<LogoutResponseDto>> {
-    void payload;
-
-    if (!user) {
-      throw new UnauthorizedException('Authentication required');
-    }
-
-    await this.prisma.refreshSession.updateMany({
-      where: { accountId: user.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-
-    return ok({ logged_out: true });
-  }
-
-  private async issueTokens(
-    account: AccountWithPermissions,
-  ): Promise<RefreshTokenResponseDto> {
-    let activeStudentId: string | null = null;
-    if (account.role === 'parent' || account.role === 'student') {
-      const link = await this.prisma.studentAccountLink.findFirst({
-        where: { accountId: account.id, isActive: true },
-        select: { studentId: true },
-      });
-      activeStudentId = link?.studentId ?? null;
-    }
-
-    const access_token = await this.authTokenService.issueAccessToken({
-      id: account.id,
-      username: account.username,
-      role: account.role,
-      activeStudentId,
-    });
-
-    const refresh_token = randomBytes(32).toString('base64url');
-    await this.prisma.refreshSession.create({
-      data: {
-        accountId: account.id,
-        tokenHash: this.hashToken(refresh_token),
-        expiresAt: this.refreshTokenExpiresAt(),
-      },
-    });
-
-    return {
-      access_token,
-      refresh_token,
-      expires_in: this.authConfig.jwtExpiresInSeconds,
-    };
-  }
-
-  private async getEffectivePermissions(account: {
-    id: string;
-    permissions?: Array<{ permissionKey: string }>;
-  }): Promise<string[]> {
-    if (this.permissionService) {
-      return this.permissionService.getAccountPermissions(account.id);
-    }
-
-    const [directPermissions, roleAssignments] = await Promise.all([
-      account.permissions
-        ? Promise.resolve(account.permissions)
-        : this.prisma.accountPermission?.findMany
-          ? this.prisma.accountPermission.findMany({
-              where: { accountId: account.id },
-              select: { permissionKey: true },
-            })
-          : Promise.resolve([]),
-      this.prisma.accountRoleAssignment?.findMany
-        ? this.prisma.accountRoleAssignment.findMany({
-            where: { accountId: account.id, role: { isActive: true } },
-            select: {
-              role: {
-                select: {
-                  rolePermissions: { select: { permissionKey: true } },
-                },
-              },
-            },
-          })
-        : Promise.resolve([]),
-    ]);
-
-    const set = new Set<string>();
-    for (const dp of directPermissions) {
-      set.add(dp.permissionKey);
-    }
-    for (const ra of roleAssignments) {
-      for (const rp of ra.role?.rolePermissions ?? []) {
-        set.add(rp.permissionKey);
-      }
-    }
-    return Array.from(set).sort();
-  }
-
-  private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
-  }
-
-  private refreshTokenExpiresAt(): Date {
-    return new Date(
-      Date.now() + this.authConfig.refreshTokenTtlDays * 24 * 60 * 60 * 1000,
-    );
-  }
-}
-</file>
-
-<file path="backend/prisma/schema.prisma">
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
-enum AccountRole {
-  parent
-  student
-  teacher
-  admin
-  super_admin
-}
-
-enum PermissionRisk {
-  low
-  medium
-  high
-  critical
-}
-
-enum StudentAccountRelationship {
-  guardian
-  student
-  teacher
-}
-
-enum StudentGender {
-  male
-  female
-  other
-}
-
-enum StudentGuardianRelationship {
-  father
-  mother
-  grandfather
-  grandmother
-  guardian
-  other
-}
-
-enum AttendancePeriod {
-  morning
-  afternoon
-}
-
-enum AttendanceStatus {
-  present
-  absent
-  late
-  excused
-}
-
-enum TuitionChargeStatus {
-  unpaid
-  partial
-  paid
-  waived
-}
-
-enum NewsPublicationStatus {
-  draft
-  published
-  hidden
-}
-
-enum NewsAudienceType {
-  all
-  grade
-  class
-  student
-}
-
-model Account {
-  id                 String               @id @default(uuid())
-  username           String               @unique
-  passwordHash       String               @map("password_hash")
-  displayName        String               @map("display_name")
-  role               AccountRole          @default(admin)
-  isActive           Boolean              @default(true) @map("is_active")
-  createdAt          DateTime             @default(now()) @map("created_at")
-  updatedAt          DateTime             @updatedAt @map("updated_at")
-  roleAssignments    AccountRoleAssignment[]
-  permissions        AccountPermission[]
-  refreshSessions    RefreshSession[]
-  studentLinks       StudentAccountLink[]
-  createdNews        NewsItem[]
-  auditEvents        AuditEvent[]
-  attendanceSessions AttendanceSession[]  @relation("AttendanceSessionCreator")
-  attendanceRecords  AttendanceRecord[]   @relation("AttendanceRecordMarker")
-  tuitionCharges     TuitionCharge[]      @relation("TuitionChargeCreator")
-  homeroomClasses    SchoolClass[]        @relation("ClassHomeroomTeacher")
-
-  @@map("accounts")
-}
-
-model Permission {
-  id             String              @id @default(uuid())
-  key            String              @unique
-  label          String
-  description    String
-  boundedContext String              @map("bounded_context")
-  risk           PermissionRisk      @default(low)
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
-  accounts       AccountPermission[]
-  rolePermissions RolePermission[]
-
-  @@map("permissions")
-}
-
-model Role {
-  id                 String                  @id @default(uuid())
-  code               String                  @unique
-  name               String
-  description        String?
-  isSystem           Boolean                 @default(false) @map("is_system")
-  isActive           Boolean                 @default(true) @map("is_active")
-  version            Int                     @default(1)
-  createdAt          DateTime                @default(now()) @map("created_at")
-  updatedAt          DateTime                @updatedAt @map("updated_at")
-  rolePermissions    RolePermission[]
-  accountAssignments AccountRoleAssignment[]
-
-  @@map("roles")
-}
-
-model RolePermission {
-  roleId        String     @map("role_id")
-  permissionKey String     @map("permission_key")
-  assignedAt    DateTime   @default(now()) @map("assigned_at")
-  role          Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
-
-  @@id([roleId, permissionKey])
-  @@map("role_permissions")
-}
-
-model AccountRoleAssignment {
-  accountId    String   @map("account_id")
-  roleId       String   @map("role_id")
-  assignedAt   DateTime @default(now()) @map("assigned_at")
-  assignedById String?  @map("assigned_by_id")
-  account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([accountId, roleId])
-  @@index([accountId])
-  @@index([roleId])
-  @@map("account_role_assignments")
-}
-
-model AccountPermission {
-  accountId     String     @map("account_id")
-  permissionKey String     @map("permission_key")
-  assignedAt    DateTime   @default(now()) @map("assigned_at")
-  account       Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
-
-  @@id([accountId, permissionKey])
-  @@map("account_permissions")
-}
-
-model RefreshSession {
-  id        String    @id @default(uuid())
-  accountId String    @map("account_id")
-  tokenHash String    @unique @map("token_hash")
-  expiresAt DateTime  @map("expires_at")
-  revokedAt DateTime? @map("revoked_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  @@index([accountId])
-  @@map("refresh_sessions")
-}
-
-model AuditEvent {
-  id             String   @id @default(uuid())
-  actorId        String   @map("actor_id")
-  action         String
-  boundedContext String   @map("bounded_context")
-  resourceType   String   @map("resource_type")
-  resourceId     String   @map("resource_id")
-  metadata       Json?
-  createdAt      DateTime @default(now()) @map("created_at")
-  actor          Account  @relation(fields: [actorId], references: [id], onDelete: Restrict)
-
-  @@index([actorId, createdAt])
-  @@index([boundedContext, resourceType, resourceId])
-  @@map("audit_events")
-}
-
-model Student {
-  id                String                   @id @default(uuid())
-  code              String                   @unique
-  fullName          String                   @map("full_name")
-  avatarUrl         String?                  @map("avatar_url")
-  grade             String?
-  className         String                   @map("class_name")
-  schoolName        String                   @default("Sổ Liên Lạc Điện Tử") @map("school_name")
-  isActive          Boolean                  @default(true) @map("is_active")
-  dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
-  gender            StudentGender?
-  ethnicity         String?
-  birthPlace        String?                  @map("birth_place")
-  permanentAddress  String?                  @map("permanent_address")
-  cohortStartYear   Int?                     @map("cohort_start_year")
-  cohortEndYear     Int?                     @map("cohort_end_year")
-  createdAt         DateTime                 @default(now()) @map("created_at")
-  updatedAt         DateTime                 @updatedAt @map("updated_at")
-  accountLinks      StudentAccountLink[]
-  guardianContacts  StudentGuardianContact[]
-  attendanceRecords AttendanceRecord[]
-  tuitionCharges    TuitionCharge[]
-  enrollments       ClassEnrollment[]
-
-  @@index([className])
-  @@index([grade])
-  @@index([isActive])
-  @@map("students")
-}
-
-model StudentGuardianContact {
-  id                 String                      @id @default(uuid())
-  studentId          String                      @map("student_id")
-  relationship       StudentGuardianRelationship
-  relationshipLabel  String?                     @map("relationship_label")
-  fullName           String                      @map("full_name")
-  phone              String
-  isEmergencyContact Boolean                     @default(false) @map("is_emergency_contact")
-  createdAt          DateTime                    @default(now()) @map("created_at")
-  updatedAt          DateTime                    @updatedAt @map("updated_at")
-  student            Student                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-  @@index([studentId, isEmergencyContact])
-  @@map("student_guardian_contacts")
-}
-
-model StudentAccountLink {
-  studentId    String                     @map("student_id")
-  accountId    String                     @map("account_id")
-  relationship StudentAccountRelationship @default(guardian)
-  isActive     Boolean                    @default(true) @map("is_active")
-  createdAt    DateTime                   @default(now()) @map("created_at")
-  student      Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  account      Account                    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  @@id([studentId, accountId, relationship])
-  @@index([accountId])
-  @@index([studentId])
-  @@map("student_account_links")
-}
-
-model NewsItem {
-  id          String                @id @default(uuid())
-  title       String
-  summary     String
-  content     String
-  imageUrl    String?               @map("image_url")
-  category    String
-  status      NewsPublicationStatus @default(draft)
-  isPinned    Boolean               @default(false) @map("is_pinned")
-  sortOrder   Int                   @default(0) @map("sort_order")
-  publishedAt DateTime?             @map("published_at")
-  createdById String                @map("created_by_id")
-  createdAt   DateTime              @default(now()) @map("created_at")
-  updatedAt   DateTime              @updatedAt @map("updated_at")
-  createdBy   Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  audiences   NewsAudience[]
-
-  @@index([status, isPinned, sortOrder, publishedAt])
-  @@index([createdById])
-  @@map("news_items")
-}
-
-model NewsAudience {
-  id     String           @id @default(uuid())
-  newsId String           @map("news_id")
-  type   NewsAudienceType
-  value  String?
-  news   NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
-
-  @@unique([newsId, type, value])
-  @@index([type, value])
-  @@map("news_audiences")
-}
-
-model AcademicYear {
-  id          String        @id
-  code        String        @unique
-  displayName String        @map("display_name")
-  startsOn    DateTime      @map("starts_on") @db.Date
-  endsOn      DateTime      @map("ends_on") @db.Date
-  isCurrent   Boolean       @default(false) @map("is_current")
-  semesters   Semester[]
-  classes     SchoolClass[]
-
-  @@map("academic_years")
-}
-
-model Semester {
-  id                 String              @id
-  academicYearId     String              @map("academic_year_id")
-  code               String
-  displayName        String              @map("display_name")
-  startsOn           DateTime            @map("starts_on") @db.Date
-  endsOn             DateTime            @map("ends_on") @db.Date
-  sortOrder          Int                 @map("sort_order")
-  isCurrent          Boolean             @default(false) @map("is_current")
-  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
-  attendanceSessions AttendanceSession[]
-  tuitionCharges     TuitionCharge[]
-
-  @@unique([academicYearId, code])
-  @@unique([academicYearId, sortOrder])
-  @@index([academicYearId])
-  @@map("semesters")
-}
-
-model GradeLevel {
-  id          String        @id @default(uuid())
-  code        String        @unique
-  displayName String        @map("display_name")
-  sortOrder   Int           @default(0) @map("sort_order")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  classes     SchoolClass[]
-
-  @@map("grade_levels")
-}
-
-model SchoolClass {
-  id                String            @id @default(uuid())
-  academicYearId    String            @map("academic_year_id")
-  gradeLevelId      String            @map("grade_level_id")
-  code              String
-  displayName       String            @map("display_name")
-  homeroomTeacherId String?           @map("homeroom_teacher_id")
-  isActive          Boolean           @default(true) @map("is_active")
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime          @updatedAt @map("updated_at")
-  academicYear      AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
-  gradeLevel        GradeLevel        @relation(fields: [gradeLevelId], references: [id], onDelete: Restrict)
-  homeroomTeacher   Account?          @relation("ClassHomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: Restrict)
-  enrollments       ClassEnrollment[]
-
-  @@unique([academicYearId, code])
-  @@index([academicYearId])
-  @@index([gradeLevelId])
-  @@index([homeroomTeacherId])
-  @@map("school_classes")
-}
-
-model ClassEnrollment {
-  id        String      @id @default(uuid())
-  studentId String      @map("student_id")
-  classId   String      @map("class_id")
-  startsOn  DateTime?   @map("starts_on") @db.Date
-  endsOn    DateTime?   @map("ends_on") @db.Date
-  isActive  Boolean     @default(true) @map("is_active")
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
-  student   Student     @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Restrict)
-
-  @@index([studentId])
-  @@index([classId])
-  @@index([isActive])
-  @@map("class_enrollments")
-}
-
-model AttendanceSession {
-  id             String             @id @default(uuid())
-  semesterId     String             @map("semester_id")
-  attendanceDate DateTime           @map("attendance_date") @db.Date
-  period         AttendancePeriod
-  className      String             @map("class_name")
-  createdById    String             @map("created_by_id")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-  semester       Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
-  createdBy      Account            @relation("AttendanceSessionCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  records        AttendanceRecord[]
-
-  @@unique([semesterId, attendanceDate, period, className])
-  @@index([attendanceDate, className])
-  @@index([createdById])
-  @@map("attendance_sessions")
-}
-
-model AttendanceRecord {
-  id         String            @id @default(uuid())
-  sessionId  String            @map("session_id")
-  studentId  String            @map("student_id")
-  status     AttendanceStatus
-  note       String?
-  markedById String            @map("marked_by_id")
-  createdAt  DateTime          @default(now()) @map("created_at")
-  updatedAt  DateTime          @updatedAt @map("updated_at")
-  session    AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  student    Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  markedBy   Account           @relation("AttendanceRecordMarker", fields: [markedById], references: [id], onDelete: Restrict)
-
-  @@unique([sessionId, studentId])
-  @@index([studentId, createdAt])
-  @@index([markedById])
-  @@map("attendance_records")
-}
-
-model TuitionCharge {
-  id          String              @id @default(uuid())
-  studentId   String              @map("student_id")
-  semesterId  String              @map("semester_id")
-  title       String
-  amountDue   Int                 @map("amount_due")
-  amountPaid  Int                 @default(0) @map("amount_paid")
-  status      TuitionChargeStatus @default(unpaid)
-  dueDate     DateTime?           @map("due_date") @db.Date
-  note        String?
-  isWaived    Boolean             @default(false) @map("is_waived")
-  createdById String              @map("created_by_id")
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
-  student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  semester    Semester            @relation(fields: [semesterId], references: [id], onDelete: Restrict)
-  createdBy   Account             @relation("TuitionChargeCreator", fields: [createdById], references: [id], onDelete: Restrict)
-
-  @@unique([studentId, semesterId, title])
-  @@index([semesterId, status])
-  @@index([studentId, status])
-  @@index([dueDate])
-  @@index([createdById])
-  @@map("tuition_charges")
-}
-
-model Notification {
-  id          String             @id @default(uuid())
-  title       String
-  sender      String
-  sentAt      DateTime           @default(now()) @map("sent_at")
-  content     String
-  tag         String             @default("Quan trong")
-  createdById String?            @map("created_by_id")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
-  reads       NotificationRead[]
-
-  @@index([sentAt])
-  @@map("notifications")
-}
-
-model NotificationRead {
-  id             String       @id @default(uuid())
-  notificationId String       @map("notification_id")
-  studentId      String?      @map("student_id")
-  accountId      String?      @map("account_id")
-  readAt         DateTime     @default(now()) @map("read_at")
-  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@unique([notificationId, studentId, accountId])
-  @@map("notification_reads")
-}
-
-model FeedbackItem {
-  id              String   @id @default(uuid())
-  studentId       String?  @map("student_id")
-  accountId       String?  @map("account_id")
-  title           String
-  content         String
-  category        String   @default("khac")
-  status          String   @default("new")
-  attachmentsJson Json?    @map("attachments_json")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  @@map("feedback_items")
-}
-
-model StudentScoreRecord {
-  id                   String   @id @default(uuid())
-  studentId            String   @map("student_id")
-  semesterId           String   @map("semester_id")
-  schoolYear           String   @default("2026-2027") @map("school_year")
-  semesterCode         String   @default("1") @map("semester_code")
-  subjectId            String   @map("subject_id")
-  subjectName          String   @map("subject_name")
-  oralScoresJson       Json?    @map("oral_scores_json")
-  fifteenMinScoresJson Json?    @map("fifteen_min_scores_json")
-  midtermScore         Float?   @map("midterm_score")
-  finalScore           Float?   @map("final_score")
-  averageScore         Float?   @map("average_score")
-  teacherComment       String?  @map("teacher_comment")
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
-
-  @@unique([studentId, semesterId, subjectId])
-  @@map("student_score_records")
-}
-
-model RewardDisciplineRecord {
-  id         String   @id @default(uuid())
-  studentId  String   @map("student_id")
-  semesterId String?  @map("semester_id")
-  schoolYear String?  @map("school_year")
-  type       String   @default("reward")
-  title      String
-  content    String
-  date       DateTime @db.Date
-  issuer     String?
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  @@index([studentId, type])
-  @@map("reward_discipline_records")
-}
-
-model TimetableSchedule {
-  id        String   @id @default(uuid())
-  studentId String   @map("student_id")
-  weekStart DateTime @map("week_start") @db.Date
-  daysJson  Json     @map("days_json")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([studentId, weekStart])
-  @@map("timetable_schedules")
-}
-
-model HomeworkAssignment {
-  id          String               @id @default(uuid())
-  studentId   String?              @map("student_id")
-  targetType  String               @default("students") @map("target_type")
-  classId     String?              @map("class_id")
-  studentIds  Json?                @map("student_ids")
-  subjectId   String?              @map("subject_id")
-  subject     String
-  title       String
-  content     String
-  teacher     String
-  assignedAt  DateTime             @default(now()) @map("assigned_at")
-  deadline    DateTime
-  status      String               @default("pending")
-  archivedAt  DateTime?            @map("archived_at")
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
-  submissions HomeworkSubmission[]
-
-  @@index([studentId, status])
-  @@index([classId, archivedAt])
-  @@map("homework_assignments")
-}
-
-model HomeworkSubmission {
-  id              String             @id @default(uuid())
-  homeworkId      String             @map("homework_id")
-  studentId       String             @map("student_id")
-  content         String?
-  attachmentsJson Json?              @map("attachments_json")
-  submittedAt     DateTime           @default(now()) @map("submitted_at")
-  status          String             @default("submitted")
-  homework        HomeworkAssignment @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
-
-  @@unique([homeworkId, studentId])
-  @@index([studentId])
-  @@map("homework_submissions")
-}
-
-model OnlineStudySession {
-  id         String   @id @default(uuid())
-  studentId  String   @map("student_id")
-  title      String
-  subject    String
-  teacher    String
-  startAt    DateTime @map("start_at")
-  endAt      DateTime @map("end_at")
-  meetingUrl String   @map("meeting_url")
-  status     String   @default("upcoming")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  @@index([studentId, status])
-  @@map("online_study_sessions")
-}
-
-model MealRegistration {
-  id        String   @id @default(uuid())
-  studentId String   @map("student_id")
-  date      DateTime @db.Date
-  breakfast String?
-  lunch     String?
-  snack     String?
-  status    String   @default("registered")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([studentId, date])
-  @@map("meal_registrations")
-}
-
-model CoinFundTransaction {
-  id          String   @id @default(uuid())
-  studentId   String   @map("student_id")
-  type        String   @default("deposit")
-  amount      Int      @default(0)
-  description String
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  @@index([studentId, createdAt])
-  @@map("coin_fund_transactions")
-}
-
-model SchoolEvent {
-  id                   String              @id @default(uuid())
-  title                String
-  description          String
-  startAt              DateTime            @map("start_at")
-  endAt                DateTime            @map("end_at")
-  location             String?
-  registrationDeadline DateTime?           @map("registration_deadline")
-  status               String              @default("open")
-  createdAt            DateTime            @default(now()) @map("created_at")
-  registrations        EventRegistration[]
-
-  @@map("school_events")
-}
-
-model EventRegistration {
-  id           String      @id @default(uuid())
-  eventId      String      @map("event_id")
-  studentId    String      @map("student_id")
-  note         String?
-  registeredAt DateTime    @default(now()) @map("registered_at")
-  event        SchoolEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  @@unique([eventId, studentId])
-  @@map("event_registrations")
-}
-
-model SurveyForm {
-  id          String             @id @default(uuid())
-  title       String
-  description String
-  deadline    DateTime
-  status      String             @default("pending")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  questions   SurveyQuestion[]
-  submissions SurveySubmission[]
-
-  @@map("survey_forms")
-}
-
-model SurveyQuestion {
-  id          String     @id @default(uuid())
-  surveyId    String     @map("survey_id")
-  type        String     @default("text")
-  content     String
-  optionsJson Json?      @map("options_json")
-  required    Boolean    @default(true)
-  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-
-  @@map("survey_questions")
-}
-
-model SurveySubmission {
-  id          String     @id @default(uuid())
-  surveyId    String     @map("survey_id")
-  studentId   String     @map("student_id")
-  answersJson Json       @map("answers_json")
-  submittedAt DateTime   @default(now()) @map("submitted_at")
-  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-
-  @@unique([surveyId, studentId])
-  @@map("survey_submissions")
-}
-
-model SchoolClub {
-  id            String             @id @default(uuid())
-  name          String
-  description   String
-  teacher       String?
-  schedule      String?
-  location      String?
-  fee           Int                @default(0)
-  status        String             @default("open")
-  createdAt     DateTime           @default(now()) @map("created_at")
-  registrations ClubRegistration[]
-
-  @@map("school_clubs")
-}
-
-model ClubRegistration {
-  id           String     @id @default(uuid())
-  clubId       String     @map("club_id")
-  studentId    String     @map("student_id")
-  note         String?
-  registeredAt DateTime   @default(now()) @map("registered_at")
-  club         SchoolClub @relation(fields: [clubId], references: [id], onDelete: Cascade)
-
-  @@unique([clubId, studentId])
-  @@map("club_registrations")
-}
-
-model BusRouteInfo {
-  id            String   @id @default(uuid())
-  studentId     String   @map("student_id")
-  routeId       String   @map("route_id")
-  routeName     String   @map("route_name")
-  pickupPoint   String?  @map("pickup_point")
-  dropoffPoint  String?  @map("dropoff_point")
-  pickupTime    String?  @map("pickup_time")
-  dropoffTime   String?  @map("dropoff_time")
-  driverName    String?  @map("driver_name")
-  driverPhone   String?  @map("driver_phone")
-  busPlate      String?  @map("bus_plate")
-  currentLat    Float?   @map("current_lat")
-  currentLng    Float?   @map("current_lng")
-  nextStop      String?  @map("next_stop")
-  estimatedTime String?  @map("estimated_time")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  @@unique([studentId, routeId])
-  @@map("bus_route_infos")
-}
-
-model UniformProduct {
-  id        String   @id @default(uuid())
-  name      String
-  category  String
-  price     Int      @default(0)
-  sizesJson Json     @map("sizes_json")
-  imageUrl  String?  @map("image_url")
-  stock     Int      @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("uniform_products")
-}
-
-model UniformOrder {
-  id          String   @id @default(uuid())
-  studentId   String   @map("student_id")
-  itemsJson   Json     @map("items_json")
-  totalAmount Int      @map("total_amount")
-  status      String   @default("pending")
-  note        String?
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  @@map("uniform_orders")
-}
-
-model AttachmentFile {
-  id        String   @id @default(uuid())
-  fileName  String   @map("file_name")
-  fileUrl   String   @map("file_url")
-  mimeType  String   @map("mime_type")
-  size      Int      @default(0)
-  folder    String   @default("attachment")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("attachment_files")
 }
 </file>
 
@@ -3321,250 +2501,6 @@ export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
 export function isPermissionKey(value: string): value is PermissionKey {
   return PERMISSIONS.some((permission) => permission.key === value);
 }
-</file>
-
-<file path="shared/api-contract/docs/API_CATALOG.md">
-# API Catalog v1 (School App)
-
-Dynamic role assignment: `PUT /admin/accounts/{account_id}/roles` accepts unique `role_ids`; critical role-derived permission changes require explicit `confirm_critical: true`.
-
-Shared contract for Sổ Liên Lạc Điện Tử. Base path is `/api/v1`; external JSON fields use `snake_case`.
-
-Path parameters use `{id}` for the primary resource when the resource segment already identifies it, such as `/students/{id}`. Do not put multiple IDs in one path; put secondary or action target IDs in the request body or query instead, such as `POST /students/{id}/homeworks/submit` with `homework_id` in the request body.
-
-## Envelope And Authorization
-
-All endpoints return:
-
-```json
-{ "success": true, "data": {}, "meta": {} }
-```
-
-Errors return:
-
-```json
-{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "Human-readable message", "details": [] }, "request_id": "opaque-request-id" }
-```
-
-Authorization is intentionally lean. The contract uses fixed role policy plus student/class ownership scopes through `x-allowed-roles` and `x-scope`; it does not define a full RBAC administration surface.
-
-## Bounded Context Endpoint Map
-
-### Identity & Access
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `POST /auth/login` | `POST /auth/login` | Login with username/password. |
-| `POST /auth/refresh-token` | `POST /auth/refresh-token` | Refresh token. |
-| `POST /auth/logout` | `POST /auth/logout` | Logout current device/session. |
-| `GET /me` | `GET /me` | Current actor and active student id. |
-| `PUT /me/password` | `PUT /me/password` | Change own password. |
-| `GET /admin/roles` | — | List system and dynamic roles with permission keys and assignment counts. |
-| `POST /admin/roles` | — | Create dynamic role with name, code, description, and permission keys. |
-| `GET /admin/roles/{id}` | — | Get role details and permission key mapping. |
-| `PATCH /admin/roles/{id}` | — | Rename and update role description. |
-| `PATCH /admin/roles/{id}/status` | — | Update active status of custom roles. |
-| `PUT /admin/roles/{id}/permissions` | — | Replace role permissions with critical-permission confirmation gate. |
-| `PUT /admin/accounts/{account_id}/roles` | — | Assign roles to account with super_admin protection rules. |
-| `GET /admin/audit-logs` | — | Search paginated, recursively redacted audit events with exact actor/action/context/resource/date filters. |
-
-### User Management
-
-| Management UI | Compatibility | Purpose |
-| --- | --- | --- |
-| `GET /admin/users` | `GET /users` | List users. |
-| `POST /admin/users` | `POST /users` | Create user. |
-| `GET /admin/users/{id}` | `GET /users/{id}` | Read user detail. |
-| `PATCH /admin/users/{id}` | `PATCH /users/{id}` | Update user. |
-| `POST /admin/users/{id}/disable` | `POST /users/{id}/disable` | Disable user. |
-| `POST /admin/users/{id}/reset-password` | `POST /users/{id}/reset-password` | Reset password with placeholder-only examples. |
-
-### Student Administration
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `GET /admin/students` | `GET /me/student` | Admin list feeds selected student profile display. |
-| `POST /admin/students` | - | Create student. |
-| `GET /admin/students/{id}` | `GET /me/accounts` | Student detail and linked student switcher data. |
-| `PATCH /admin/students/{id}` | - | Update student. |
-| `PUT /admin/students/{id}/accounts` | `POST /me/accounts/switch` | Manage and consume account-student links. |
-
-### Communication
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `/admin/news` | `GET /home/news` | Publish and display school news. |
-| `GET/POST /admin/notifications`, `GET/PATCH /admin/notifications/{id}` | `GET /notifications`, `GET /notifications/{id}`, `PATCH /notifications/{id}/read` | Validated, permission-protected admin list/detail/create/update and app consumption. |
-| `GET /admin/feedback`, `GET/PATCH /admin/feedback/{id}` | `POST /feedback` | Validated, permission-protected admin list/detail/status processing with search, status filter, pagination, and atomic audit. Admin create is planned; app submit remains legacy/partial. |
-
-### Academics
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `/admin/academic-context/current`, `/admin/academic-context/years`, `/admin/academic-context/semesters`, `/admin/academic-structure/grade-levels`, `/admin/academic-structure/classes`, `/admin/academic-structure/transfers`, `/admin/academic-structure/promotions` | — | Protected academic context plus grade/class/roster/enrollment/transfer/promotion administration. |
-| `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
-| `GET/POST /admin/timetable` | `GET /students/{id}/timetable` | Validated, permission-protected class/semester/week timetable read/write with atomic audit. |
-| `GET/POST /admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Validated, permission-protected score administration plus student-detail history. |
-| `GET/POST /admin/homeworks`, `GET/PATCH /admin/homeworks/{id}`, `POST /admin/homeworks/{id}/archive` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Validated class/selected-student assignments, persisted submission progress, audited updates/archive. |
-| `/admin/reward-discipline`, `GET /admin/students/{student_id}/reward-discipline` | `GET /students/{id}/reward-discipline` | Protected student-detail reward/discipline history; broad admin list/filter remains planned. |
-| `/admin/online-study` | `GET /students/{id}/online-study` | Online study sessions. |
-
-### Billing
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `/admin/tuition` | `GET /home/tuition/summary`, `GET /services/tuition` | Tuition setup and display. |
-| `/admin/payment-requests` | `POST /services/tuition/payment-request` | Payment request review and creation. |
-
-### Student Services
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `/admin/meals` | `GET /services/meals`, `POST /services/meals/register` | Meal service registration. |
-| `/admin/events` | `GET /services/events`, `POST /services/events/{id}/register` | Events. |
-| `/admin/surveys` | `GET /services/surveys`, `POST /services/surveys/{id}/submit` | Surveys. |
-| `/admin/clubs` | `GET /services/clubs`, `POST /services/clubs/{id}/register` | Clubs. |
-| `/admin/bus`, `GET /admin/students/{student_id}/bus-route` | `GET /students/{id}/bus-route`, `GET /services/bus-tracking` | Protected student-profile bus assignment; broad management remains planned. |
-| `/admin/uniforms` | `GET /services/uniforms`, `POST /services/uniforms/orders` | Uniform catalog and orders. |
-| `/admin/coin-fund` | `GET /services/coin-fund` | Coin fund balance and transactions. |
-
-### Shared Platform
-
-| Management UI | App/mobile | Purpose |
-| --- | --- | --- |
-| `POST /uploads` | `POST /uploads` | Multipart upload for feedback, avatar, and attachments. |
-
-## Notes For Consumers
-
-- Prefer `/admin/...` endpoints for Management UI work.
-- `/users` remains only as a compatibility surface while clients migrate.
-- App/mobile endpoints are scoped to the active linked student unless the path explicitly includes a student `{id}`; the backend must enforce ownership.
-- Generated clients should consume `openapi/v1/openapi.json` as the machine-readable source.
-</file>
-
-<file path="shared/api-contract/docs/IMPLEMENTATION_STATUS.md">
-# Implementation Status
-
-Dynamic role assignment hardening is implemented: duplicate `role_ids` are rejected; critical role-derived permission changes require explicit confirmation.
-
-This file tracks backend availability for the draft v1 OpenAPI contract. It is conservative by default: an endpoint appearing in the contract does not mean it is live in the backend.
-
-## Status Legend
-
-| Status | Meaning |
-| --- | --- |
-| `contracted` | Appears in the OpenAPI contract. |
-| `implemented` | Backend route exists, validates DTOs, has tests, and passes contract verification. |
-| `partial` | Backend route or legacy behavior exists, but coverage, validation, or business behavior is incomplete for contract reliance. |
-| `mock-only` | Frontend can mock from the contract; backend module is not ready for live integration. |
-| `deprecated` | Compatibility surface only; use the preferred replacement for new work. |
-| `blocked` | Awaiting schema, ownership, or module decision before implementation can proceed. |
-
-## Bounded-Context Matrix
-
-| Bounded context | Contract status | Backend implementation status | Frontend guidance |
-| --- | --- | --- | --- |
-| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role administration, account-role assignment, and protected redacted audit-log viewing are live scope. |
-| User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
-| Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
-| Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |
-| Academics (Context, Structure, Attendance, Scores, Timetable, Homework) | `contracted` | Academic context/grade/class/roster/transfer/promotion administration, Attendance, Scores, Timetable, and Homework `implemented` | Academic years, semesters, grade levels, classes, roster, transfer, promotion, enrollment history, score, timetable, homework, and student detail reads are live. |
-| Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
-| Student Services (Events) | `contracted` | `partial` at `/admin/events` | Persistent CRUD routes exist, but DTO validation, dedicated permission/audit, registration-list contract, migrations, and negative tests remain incomplete. |
-| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | Protected student bus detail `implemented`; Admin CRUD `blocked` | Student profile bus assignment is live. Broad service management surfaces remain planned until full admin contracts are finalized. |
-| Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
-
-## Status Change Rule
-
-Changing a context or endpoint to `implemented` requires all of these:
-
-1. Backend route exists under the intended versioned API path.
-2. Request DTO validation matches the contract.
-3. Response shape matches the contract envelope and schema.
-4. Authorization behavior matches fixed-role policy plus linked-student/class/resource scope.
-5. Tests cover the implemented route, including relevant negative cases.
-6. Contract verification passes.
-
-If any item is missing, use `partial` or `mock-only` instead of `implemented`.
-</file>
-
-<file path="shared/api-contract/docs/CONTRACT_CHANGES.md">
-# Contract Changes
-
-- 2026-08-06: Hardened `PUT /admin/accounts/{account_id}/roles`: `role_ids` must be unique; assignments adding or removing critical role-derived permissions require `confirm_critical: true`.
-- 2026-08-06: Added protected `GET /admin/audit-logs` with exact actor/action/context/resource/date filters, validated pagination/range, recursive secret metadata redaction, Next BFF consumption, and permission-aware admin UI.
-- 2026-08-06: Added exact contracts, snake_case envelopes, DTO validation rules, error specs (400/401/403/409), and BFF allowlists for protected role administration (list/detail/create/rename/status/permissions) and account-role assignments.
-- 2026-08-06: Synchronized C3 Academic Structure student transfers (POST /api/v1/admin/academic-structure/transfers) and cohort promotions (POST /api/v1/admin/academic-structure/promotions) contracts with validated snake_case request/response DTOs, academics.structure.manage permission, fixed-role policy, and audited writes.
-- 2026-08-06: Implemented `GET/POST /admin/timetable` with required class, semester, week scope, validated lesson slots, explicit permissions, BFF consumption, and audited writes.
-
-## Unreleased - 2026-07-26
-
-- Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.
-- Canonicalized Homework admin routes to plural `/admin/homeworks`; added validated class/selected-student assignment, persisted per-student submission progress, audited update/archive, BFF allowlist, and real management UI.
-
-- Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
-- Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.
-- Added protected academic year/semester list, create, update, and set-current operations with coherent transactional current context and audited mutations.
-- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
-- Completed Feedback admin list/detail/status update with validated DTOs, dedicated read/manage permissions, atomic status-update audit, search/status filtering, pagination, BFF routes, permission-aware management UI, and backend/frontend tests. Admin create is explicitly planned; app submit remains legacy/partial.
-- Added dedicated `AdminFeedbackItem`, `AdminFeedbackList`, and `AdminFeedbackStatusUpdate` schemas; removed the untrusted `student_id` admin-list query, normalized legacy `received`/`closed` data to `new`/`resolved`, and synchronized canonical JSON/YAML plus root/frontend mirrors.
-- Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
-- Added `x-required-permission` metadata for admin/app Notifications operations; app reads derive linked-student scope only from the authenticated actor, admin mutations write their audit event in the same transaction, and canonical JSON/YAML plus root/frontend mirrors stay synchronized.
-
-## Unreleased - 2026-07-25
-
-- Extended Next.js BFF router (`/api/admin/[resource]/[[...segments]]`) to proxy GET, POST, PUT, PATCH, and DELETE with query parameters, headers, and authentication tokens.
-- Implemented DELETE `/api/v1/admin/news/:id` and integrated confirmation dialog with permission handling and cache invalidation on news management UI.
-- Added persistent Admin Events routes (`/api/v1/admin/events`) and registration counters; status remains partial/planned until DTO validation, permission/audit, migrations, and negative tests are complete.
-- Added Admin Feedback status update route (`PATCH /api/v1/admin/feedback/:id`); status remains partial/planned until validated admin detail/update contract and negative tests are complete.
-- Converted Notifications, Feedback, Events, and News frontend modules to `@dangminhdev04032005/query-resource` architecture without raw TanStack Query keys or mock data fallbacks.
-- Normalized Admin Dashboard (`/admin`) to fetch real server counts via lightweight GET queries.
-- Replaced un-contracted static mock pages (Meals, Surveys, Clubs, Bus, Uniforms, Reports, System) with `PlannedSurface` to prevent fake button interactions.
-
-## Unreleased - 2026-07-16
-
-- Implemented the first Academics Attendance vertical slice for administrators:
-  persisted class/date/period sessions, explicit per-student statuses, audited
-  create/update operations, and typed management UI list/edit behavior.
-- Added `academics.attendance.read` and `academics.attendance.manage`. Teacher
-  access remains deferred until class-assignment ownership can be enforced.
-- Added the implemented, read-only `GET /admin/academic-context/current` shell
-  bootstrap endpoint for administrators. It returns one coherent current academic
-  year and semester and requires `academics.context.read`.
-- Implemented the Communication News vertical slice: admin CRUD, publish/hide,
-  pin/reorder, and app reads filtered for the active student's all/grade/class/student
-  audience.
-- Added `communication.news.read`, `communication.news.manage`, and
-  `communication.news.publish` authorization metadata and explicit publication
-  lifecycle/audience request schemas.
-
-## Unreleased - 2026-07-13
-
-- Added Zod request/query validation for Student Administration admin routes and active-student switching.
-- Implemented and applied the Student Administration backend database migrations after approved development reset: baseline Identity & Access migration plus Student Administration tables, indexes, enum, and foreign keys.
-- Implemented the backend Student Administration code slice for admin student CRUD, guardian account links, and app active-student context routes.
-- Standardized resource path parameters to `{id}` when the resource segment already provides context, and moved secondary/action target IDs such as `homework_id` into request bodies instead of paths.
-- Added frontend handoff documentation and a conservative implementation status matrix clarifying that the OpenAPI contract is a draft sync surface for review, generation, and mock integration, not proof that all backend endpoints are implemented.
-
-## 1.0.0 - 2026-07-13
-
-- Rewrote the shared OpenAPI contract for the Luong The Vinh school app/backend project.
-- Added Management UI `/admin/...` endpoints and app/mobile display endpoints across Identity & Access, Student Administration, Communication, Academics, Billing, Student Services, and Uploads.
-- Replaced stale hotel/auth-service/RBAC language with fixed role policy plus student/class ownership scopes.
-- Added JSON/YAML mirrors, common envelopes, pagination, shared schemas, and consumer/scope vendor extensions.
-- Marked the old Postman collection as deprecated and non-authoritative.
-
-## 0.1.1
-
-- Added `API_CATALOG.md` with module-level request/response contract for frontend integration.
-- Documented success/error envelopes and public/private route behavior.
-
-## 0.1.0
-
-- Initialized shared API contract package.
-- Added OpenAPI export pipeline from `services/auth-service`.
-- Added verification and SDK preparation scripts.
-- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
 </file>
 
 </files>

@@ -18,6 +18,18 @@ const listRolesQuerySchema = z.object({
   is_active: booleanCoerce,
 });
 
+const uniquePermissionKeys = z
+  .array(z.string().trim())
+  .refine((keys) => new Set(keys).size === keys.length, {
+    message: 'Permission keys must be unique',
+  });
+
+const positiveIntVersion = z
+  .number()
+  .int('Version must be an integer')
+  .positive('Version must be a positive integer')
+  .optional();
+
 const createRoleSchema = z.object({
   code: z
     .string()
@@ -31,7 +43,7 @@ const createRoleSchema = z.object({
     ),
   name: nonEmptyString,
   description: z.string().trim().optional(),
-  permission_keys: z.array(z.string().trim()).optional(),
+  permission_keys: uniquePermissionKeys.optional(),
   confirm_critical: z.boolean().optional(),
 });
 
@@ -39,7 +51,7 @@ const updateRoleSchema = z
   .object({
     name: nonEmptyString.optional(),
     description: z.string().trim().optional(),
-    version: z.number().int().optional(),
+    version: positiveIntVersion,
   })
   .refine(
     (payload) =>
@@ -52,13 +64,13 @@ const updateRoleSchema = z
 
 const updateRoleStatusSchema = z.object({
   is_active: z.boolean(),
-  version: z.number().int().optional(),
+  version: positiveIntVersion,
 });
 
 const replaceRolePermissionsSchema = z.object({
-  permission_keys: z.array(z.string().trim()),
+  permission_keys: uniquePermissionKeys,
   confirm_critical: z.boolean().optional(),
-  version: z.number().int().optional(),
+  version: positiveIntVersion,
 });
 
 const assignAccountRolesSchema = z.object({
