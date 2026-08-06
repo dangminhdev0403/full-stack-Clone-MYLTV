@@ -1236,6 +1236,78 @@
       "bounded_context": "Student Services",
       "auth_required": true,
       "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/academic-context/years",
+      "method": "GET",
+      "path": "/admin/academic-context/years",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-context/years",
+      "method": "POST",
+      "path": "/admin/academic-context/years",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "PATCH /admin/academic-context/years/{id}",
+      "method": "PATCH",
+      "path": "/admin/academic-context/years/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-context/years/{id}/set-current",
+      "method": "POST",
+      "path": "/admin/academic-context/years/{id}/set-current",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/academic-context/semesters",
+      "method": "GET",
+      "path": "/admin/academic-context/semesters",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-context/semesters",
+      "method": "POST",
+      "path": "/admin/academic-context/semesters",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "PATCH /admin/academic-context/semesters/{id}",
+      "method": "PATCH",
+      "path": "/admin/academic-context/semesters/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-context/semesters/{id}/set-current",
+      "method": "POST",
+      "path": "/admin/academic-context/semesters/{id}/set-current",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
     }
   ],
   "common_error_response": {

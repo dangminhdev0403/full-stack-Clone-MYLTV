@@ -82,6 +82,14 @@ export const PERMISSIONS = [
     risk: 'low',
   },
   {
+    key: 'academics.context.manage',
+    label: 'Manage academic context',
+    description:
+      'Create, update, and set current academic years and semesters.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
     key: 'academics.attendance.read',
     label: 'Read attendance',
     description:

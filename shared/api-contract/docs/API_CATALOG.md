@@ -65,6 +65,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 
 | Management UI | App/mobile | Purpose |
 | --- | --- | --- |
+| `/admin/academic-context/current`, `/admin/academic-context/years`, `/admin/academic-context/semesters` | — | Protected current context plus academic year/semester administration. |
 | `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
 | `/admin/timetable` | `GET /students/{id}/timetable` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
 | `/admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Score mutations plus protected student-detail score history; broad admin list/filter remains planned. |

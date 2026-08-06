@@ -1,11 +1,5 @@
-import { PlannedSurface } from "@/features/planned/components/planned-surface";
+import { AcademicStructureManager } from "@/features/academic-structure/components/academic-structure-manager";
 
 export default function SystemAdminPage() {
-  return (
-    <PlannedSurface
-      title="Hệ thống"
-      activeHref="/admin/system"
-      description="Module cấu hình hệ thống và quản lý Audit Log chi tiết đang được giữ planned cho đến khi API contract được phê duyệt."
-    />
-  );
+  return <AcademicStructureManager />;
 }

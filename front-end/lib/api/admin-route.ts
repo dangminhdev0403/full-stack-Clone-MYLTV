@@ -51,8 +51,28 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   if (resource === "homeworks" && segments.length === 0 && method === "POST") {
     return "/api/v1/admin/homeworks";
   }
-  if (resource === "academic-context" && segments.length === 1 && segments[0] === "current" && method === "GET") {
-    return "/api/v1/admin/academic-context/current";
+  if (resource === "academic-context") {
+    if (segments.length === 1 && segments[0] === "current" && method === "GET") {
+      return "/api/v1/admin/academic-context/current";
+    }
+    if (segments.length === 1 && segments[0] === "years" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-context/years";
+    }
+    if (segments.length === 2 && segments[0] === "years" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-context/years/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "years" && segments[2] === "set-current" && ["POST", "PUT"].includes(method)) {
+      return `/api/v1/admin/academic-context/years/${segments[1]}/set-current`;
+    }
+    if (segments.length === 1 && segments[0] === "semesters" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-context/semesters";
+    }
+    if (segments.length === 2 && segments[0] === "semesters" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-context/semesters/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "semesters" && segments[2] === "set-current" && ["POST", "PUT"].includes(method)) {
+      return `/api/v1/admin/academic-context/semesters/${segments[1]}/set-current`;
+    }
   }
   throw new Error("Unsupported admin endpoint");
 }

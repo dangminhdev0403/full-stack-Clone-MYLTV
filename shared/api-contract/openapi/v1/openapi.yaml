@@ -11986,6 +11986,693 @@
         "x-scope": "student_services.bus.read",
         "x-implementation-status": "implemented"
       }
+    },
+    "/admin/academic-context/years": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminListAcademicYears",
+        "summary": "List academic years",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "academic_years": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/AcademicYearAdmin"
+                              }
+                            }
+                          },
+                          "required": [
+                            "academic_years"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      },
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminCreateAcademicYear",
+        "summary": "Create academic year",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AcademicYearAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAcademicYearRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-context/years/{id}": {
+      "patch": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminUpdateAcademicYear",
+        "summary": "Update academic year",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AcademicYearAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAcademicYearRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-context/years/{id}/set-current": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminSetCurrentAcademicYear",
+        "summary": "Set current academic year",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AcademicYearAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
+    },
+    "/admin/academic-context/semesters": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminListSemesters",
+        "summary": "List semesters",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "academic_year_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "semesters": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/SemesterAdmin"
+                              }
+                            }
+                          },
+                          "required": [
+                            "semesters"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      },
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminCreateSemester",
+        "summary": "Create semester",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SemesterAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSemesterRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-context/semesters/{id}": {
+      "patch": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminUpdateSemester",
+        "summary": "Update semester",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SemesterAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSemesterRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-context/semesters/{id}/set-current": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminSetCurrentSemester",
+        "summary": "Set current semester",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SemesterAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.context.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
     }
   },
   "components": {
@@ -14598,6 +15285,195 @@
         "required": [
           "status"
         ]
+      },
+      "AcademicYearAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "is_current": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "semesters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SemesterAdmin"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on",
+          "is_current"
+        ]
+      },
+      "SemesterAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "is_current": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "academic_year_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on",
+          "sort_order",
+          "is_current"
+        ]
+      },
+      "CreateAcademicYearRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string"
+          },
+          "ends_on": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateAcademicYearRequest": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string"
+          },
+          "ends_on": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateSemesterRequest": {
+        "type": "object",
+        "required": [
+          "id",
+          "academic_year_id",
+          "code",
+          "display_name",
+          "starts_on",
+          "ends_on",
+          "sort_order"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "academic_year_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string"
+          },
+          "ends_on": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "UpdateSemesterRequest": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": "string"
+          },
+          "ends_on": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
       }
     }
   }

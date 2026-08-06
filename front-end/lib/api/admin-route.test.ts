@@ -11,6 +11,15 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("news", ["news-1", "publish"], "POST")).toBe("/api/v1/admin/news/news-1/publish");
     expect(resolveAdminEndpoint("news", ["news-1", "reorder"], "POST")).toBe("/api/v1/admin/news/news-1/reorder");
     expect(resolveAdminEndpoint("academic-context", ["current"], "GET")).toBe("/api/v1/admin/academic-context/current");
+    expect(resolveAdminEndpoint("academic-context", ["years"], "GET")).toBe("/api/v1/admin/academic-context/years");
+    expect(resolveAdminEndpoint("academic-context", ["years"], "POST")).toBe("/api/v1/admin/academic-context/years");
+    expect(resolveAdminEndpoint("academic-context", ["years", "2024-2025"], "PUT")).toBe("/api/v1/admin/academic-context/years/2024-2025");
+    expect(resolveAdminEndpoint("academic-context", ["years", "2024-2025"], "PATCH")).toBe("/api/v1/admin/academic-context/years/2024-2025");
+    expect(resolveAdminEndpoint("academic-context", ["years", "2024-2025", "set-current"], "POST")).toBe("/api/v1/admin/academic-context/years/2024-2025/set-current");
+    expect(resolveAdminEndpoint("academic-context", ["semesters"], "GET")).toBe("/api/v1/admin/academic-context/semesters");
+    expect(resolveAdminEndpoint("academic-context", ["semesters"], "POST")).toBe("/api/v1/admin/academic-context/semesters");
+    expect(resolveAdminEndpoint("academic-context", ["semesters", "2024-2025-sem1"], "PUT")).toBe("/api/v1/admin/academic-context/semesters/2024-2025-sem1");
+    expect(resolveAdminEndpoint("academic-context", ["semesters", "2024-2025-sem1", "set-current"], "POST")).toBe("/api/v1/admin/academic-context/semesters/2024-2025-sem1/set-current");
     expect(resolveAdminEndpoint("notifications", ["notification-1"], "GET")).toBe("/api/v1/admin/notifications/notification-1");
     expect(resolveAdminEndpoint("notifications", ["notification-1"], "PATCH")).toBe("/api/v1/admin/notifications/notification-1");
   });
