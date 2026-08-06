@@ -719,11 +719,18 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
     update: {
       daysJson: [
         {
-          day: 'Thứ 2',
-          lessons: [
-            { period: 1, subject: 'Toán Học', teacher: 'Cô Mai', room: '201' },
-            { period: 2, subject: 'Ngữ Văn', teacher: 'Thầy Đức', room: '201' },
-          ],
+          day_of_week: 1,
+          period: 1,
+          subject: 'Toán Học',
+          teacher: 'Cô Mai',
+          room: '201',
+        },
+        {
+          day_of_week: 1,
+          period: 2,
+          subject: 'Ngữ Văn',
+          teacher: 'Thầy Đức',
+          room: '201',
         },
       ],
     },
@@ -732,11 +739,18 @@ async function seedStudentServices(prisma: PrismaClient): Promise<void> {
       weekStart: new Date('2026-07-20T00:00:00Z'),
       daysJson: [
         {
-          day: 'Thứ 2',
-          lessons: [
-            { period: 1, subject: 'Toán Học', teacher: 'Cô Mai', room: '201' },
-            { period: 2, subject: 'Ngữ Văn', teacher: 'Thầy Đức', room: '201' },
-          ],
+          day_of_week: 1,
+          period: 1,
+          subject: 'Toán Học',
+          teacher: 'Cô Mai',
+          room: '201',
+        },
+        {
+          day_of_week: 1,
+          period: 2,
+          subject: 'Ngữ Văn',
+          teacher: 'Thầy Đức',
+          room: '201',
         },
       ],
     },

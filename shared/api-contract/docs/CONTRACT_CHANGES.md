@@ -1,5 +1,7 @@
 # Contract Changes
 
+- 2026-08-06: Implemented `GET/POST /admin/timetable` with required class, semester, week scope, validated lesson slots, explicit permissions, BFF consumption, and audited writes.
+
 ## Unreleased - 2026-07-26
 
 - Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.

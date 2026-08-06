@@ -2,33 +2,38 @@ import { z } from "zod";
 import { parseApiResponse, successSchema } from "@/lib/api/schemas";
 
 export const timetableItemSchema = z.object({
-  id: z.string().optional(),
-  class_name: z.string(),
-  day_of_week: z.string(),
-  period: z.number(),
+  day_of_week: z.number().int().min(1).max(7),
+  period: z.number().int().positive(),
   subject: z.string(),
   teacher: z.string().optional(),
   room: z.string().optional(),
 });
 
 export type TimetableItem = z.infer<typeof timetableItemSchema>;
-export type SaveTimetablePayload = {
-  class_name: string;
-  schedules: TimetableItem[];
-};
+export type TimetableScope = { class_id: string; semester_id: string; week_start: string };
+export type SaveTimetablePayload = TimetableScope & { schedules: TimetableItem[] };
 
-export async function getStudentTimetable(studentId: string): Promise<TimetableItem[]> {
-  const response = await fetch(`/api/admin/timetable/${encodeURIComponent(studentId)}`, { cache: "no-store" });
-  if (!response.ok) return [];
-  const parsed = await parseApiResponse(response, successSchema(z.array(timetableItemSchema)));
-  return parsed.data;
+const timetableSchema = z.object({
+  class_id: z.string(),
+  class_name: z.string(),
+  semester_id: z.string(),
+  week_start: z.string(),
+  schedules: z.array(timetableItemSchema),
+  assigned_students: z.number(),
+});
+export type AdminTimetable = z.infer<typeof timetableSchema>;
+
+export async function getAdminTimetable(scope: TimetableScope): Promise<AdminTimetable> {
+  const query = new URLSearchParams(scope);
+  const response = await fetch(`/api/admin/timetable?${query}`, { cache: "no-store" });
+  return (await parseApiResponse(response, successSchema(timetableSchema))).data;
 }
 
-export async function saveTimetable(payload: SaveTimetablePayload): Promise<TimetableItem[]> {
+export async function saveTimetable(payload: SaveTimetablePayload): Promise<AdminTimetable> {
   const response = await fetch("/api/admin/timetable", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return (await parseApiResponse(response, successSchema(z.array(timetableItemSchema)))).data;
+  return (await parseApiResponse(response, successSchema(timetableSchema))).data;
 }

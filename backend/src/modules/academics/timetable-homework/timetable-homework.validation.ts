@@ -91,6 +91,63 @@ const updateSchema = z
     'At least one field is required',
   );
 
+export class ListAdminTimetableQueryDto {
+  class_id!: string;
+  semester_id!: string;
+  week_start!: string;
+}
+
+export class TimetableLessonDto {
+  day_of_week!: number;
+  period!: number;
+  subject!: string;
+  teacher?: string;
+  room?: string;
+}
+
+export class SaveAdminTimetableDto {
+  class_id!: string;
+  semester_id!: string;
+  week_start!: string;
+  schedules!: TimetableLessonDto[];
+}
+
+const listTimetableSchema = z.object({
+  class_id: text,
+  semester_id: text,
+  week_start: z.string().date(),
+});
+
+const saveTimetableSchema = z.object({
+  class_id: text,
+  semester_id: text,
+  week_start: z.string().date(),
+  schedules: z
+    .array(
+      z.object({
+        day_of_week: z.number().int().min(1).max(7),
+        period: z.number().int().min(1).max(20),
+        subject: text.max(255),
+        teacher: text.max(255).optional(),
+        room: text.max(100).optional(),
+      }),
+    )
+    .max(140)
+    .superRefine((items, context) => {
+      const slots = new Set<string>();
+      items.forEach((item, index) => {
+        const slot = `${item.day_of_week}:${item.period}`;
+        if (slots.has(slot))
+          context.addIssue({
+            code: 'custom',
+            path: [index],
+            message: 'Duplicate timetable slot',
+          });
+        slots.add(slot);
+      });
+    }),
+});
+
 function parse<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (!result.success)
@@ -107,3 +164,7 @@ export const validateCreateHomework = (value: unknown) =>
   parse(createSchema, value);
 export const validateUpdateHomework = (value: unknown) =>
   parse(updateSchema, value);
+export const validateListAdminTimetable = (value: unknown) =>
+  parse(listTimetableSchema, value);
+export const validateSaveAdminTimetable = (value: unknown) =>
+  parse(saveTimetableSchema, value);

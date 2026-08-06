@@ -395,7 +395,7 @@
       "path": "/admin/timetable",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",
@@ -404,7 +404,7 @@
       "path": "/admin/timetable",
       "bounded_context": "Academics",
       "auth_required": true,
-      "implementation_status": "planned"
+      "implementation_status": "implemented"
     },
     {
       "group": "academics",

@@ -67,7 +67,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | --- | --- | --- |
 | `/admin/academic-context/current`, `/admin/academic-context/years`, `/admin/academic-context/semesters`, `/admin/academic-structure/grade-levels`, `/admin/academic-structure/classes` | — | Protected academic context plus grade/class/roster/enrollment administration. |
 | `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
-| `/admin/timetable` | `GET /students/{id}/timetable` | Admin list/detail remains planned; app/student display route is separate and must not back the management UI. |
+| `GET/POST /admin/timetable` | `GET /students/{id}/timetable` | Validated, permission-protected class/semester/week timetable read/write with atomic audit. |
 | `GET/POST /admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Validated, permission-protected score administration plus student-detail history. |
 | `GET/POST /admin/homeworks`, `GET/PATCH /admin/homeworks/{id}`, `POST /admin/homeworks/{id}/archive` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Validated class/selected-student assignments, persisted submission progress, audited updates/archive. |
 | `/admin/reward-discipline`, `GET /admin/students/{student_id}/reward-discipline` | `GET /students/{id}/reward-discipline` | Protected student-detail reward/discipline history; broad admin list/filter remains planned. |

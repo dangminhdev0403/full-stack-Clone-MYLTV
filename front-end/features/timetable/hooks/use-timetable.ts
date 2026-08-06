@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { timetableResource } from "../service/timetable.resource";
+import type { TimetableScope } from "../service/timetable.client";
 
 const timetable = timetableResource.bind();
 
-export function useTimetableQuery(studentId: string, options?: { enabled?: boolean }) {
+export function useAdminTimetableQuery(scope: TimetableScope, options?: { enabled?: boolean }) {
   return useQuery({
-    ...timetable.queries.get.options(studentId),
-    enabled: options?.enabled ?? Boolean(studentId),
+    ...timetable.queries.getAdmin.options(scope),
+    enabled: options?.enabled ?? Boolean(scope.class_id && scope.semester_id && scope.week_start),
   });
 }
 

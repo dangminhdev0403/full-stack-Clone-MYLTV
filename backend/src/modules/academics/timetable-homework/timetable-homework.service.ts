@@ -10,7 +10,9 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditService } from '../../identity-access/audit/audit.service';
 import type {
   CreateHomeworkDto,
+  ListAdminTimetableQueryDto,
   ListHomeworksQueryDto,
+  SaveAdminTimetableDto,
   UpdateHomeworkDto,
 } from './timetable-homework.validation';
 
@@ -46,16 +48,69 @@ export class TimetableHomeworkService {
     };
   }
 
-  async saveTimetable(body: SaveTimetableDto) {
-    const weekStart = new Date(body.week_start);
-    return this.prisma.timetableSchedule.upsert({
-      where: { studentId_weekStart: { studentId: body.student_id, weekStart } },
-      create: {
-        studentId: body.student_id,
-        weekStart,
-        daysJson: body.days as Prisma.InputJsonValue,
+  async getAdminTimetable(query: ListAdminTimetableQueryDto) {
+    const scope = await this.resolveTimetableScope(query);
+    const rows = await this.prisma.timetableSchedule.findMany({
+      where: {
+        studentId: { in: scope.studentIds },
+        weekStart: scope.weekStart,
       },
-      update: { daysJson: body.days as Prisma.InputJsonValue },
+      select: { studentId: true, daysJson: true },
+    });
+    const schedules = rows[0]?.daysJson;
+    return ok({
+      class_id: scope.schoolClass.id,
+      class_name: scope.schoolClass.displayName,
+      semester_id: scope.semester.id,
+      week_start: query.week_start,
+      schedules: Array.isArray(schedules) ? schedules : [],
+      assigned_students: rows.length,
+    });
+  }
+
+  async saveTimetable(body: SaveAdminTimetableDto, actor?: AuthenticatedUser) {
+    const scope = await this.resolveTimetableScope(body);
+    const resourceId = `${body.class_id}:${body.semester_id}:${body.week_start}`;
+    const schedulesJson = body.schedules.map((item) => ({ ...item }));
+    await this.prisma.$transaction(async (tx) => {
+      for (const studentId of scope.studentIds) {
+        await tx.timetableSchedule.upsert({
+          where: {
+            studentId_weekStart: { studentId, weekStart: scope.weekStart },
+          },
+          create: {
+            studentId,
+            weekStart: scope.weekStart,
+            daysJson: schedulesJson,
+          },
+          update: { daysJson: schedulesJson },
+        });
+      }
+      await this.audit.record(
+        {
+          actorId: this.actorId(actor),
+          action: 'academics.timetable.save',
+          boundedContext: 'Academics',
+          resourceType: 'ClassTimetable',
+          resourceId,
+          metadata: {
+            class_id: body.class_id,
+            semester_id: body.semester_id,
+            week_start: body.week_start,
+            assigned_students: scope.studentIds.length,
+          },
+        },
+        tx,
+      );
+    });
+    return ok({
+      id: resourceId,
+      class_id: scope.schoolClass.id,
+      class_name: scope.schoolClass.displayName,
+      semester_id: scope.semester.id,
+      week_start: body.week_start,
+      schedules: body.schedules,
+      assigned_students: scope.studentIds.length,
     });
   }
 
@@ -329,6 +384,39 @@ export class TimetableHomeworkService {
     });
     if (!schoolClass) throw new NotFoundException('Không tìm thấy lớp học');
     return schoolClass.enrollments.map((enrollment) => enrollment.studentId);
+  }
+
+  private async resolveTimetableScope(
+    value: Pick<
+      ListAdminTimetableQueryDto,
+      'class_id' | 'semester_id' | 'week_start'
+    >,
+  ) {
+    const [schoolClass, semester] = await Promise.all([
+      this.prisma.schoolClass.findUnique({
+        where: { id: value.class_id },
+        include: {
+          enrollments: {
+            where: { isActive: true },
+            select: { studentId: true },
+          },
+        },
+      }),
+      this.prisma.semester.findUnique({ where: { id: value.semester_id } }),
+    ]);
+    if (!schoolClass) throw new NotFoundException('Không tìm thấy lớp học');
+    if (!semester) throw new NotFoundException('Không tìm thấy học kỳ');
+    if (schoolClass.academicYearId !== semester.academicYearId)
+      throw new NotFoundException('Lớp học không thuộc năm học của học kỳ');
+    const weekStart = new Date(`${value.week_start}T00:00:00.000Z`);
+    if (weekStart < semester.startsOn || weekStart > semester.endsOn)
+      throw new NotFoundException('Tuần học nằm ngoài học kỳ');
+    return {
+      schoolClass,
+      semester,
+      weekStart,
+      studentIds: schoolClass.enrollments.map((item) => item.studentId),
+    };
   }
 
   private async requireHomework(id: string) {

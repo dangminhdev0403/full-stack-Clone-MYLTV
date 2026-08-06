@@ -3228,37 +3228,28 @@
         ],
         "parameters": [
           {
-            "name": "page",
+            "name": "class_id",
             "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "student_id",
+            "name": "semester_id",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -3276,25 +3267,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/TimetableDay"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
-                            }
-                          ]
+                          "$ref": "#/components/schemas/AdminTimetable"
                         }
                       },
                       "required": [
@@ -3325,12 +3298,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        "x-scope": "academics.timetable.read",
+        "x-implementation-status": "implemented"
       },
       "post": {
         "tags": [
@@ -3349,7 +3321,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TimetableDay"
+                "type": "object",
+                "properties": {
+                  "class_id": {
+                    "type": "string"
+                  },
+                  "semester_id": {
+                    "type": "string"
+                  },
+                  "week_start": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "schedules": {
+                    "type": "array",
+                    "maxItems": 140,
+                    "items": {
+                      "$ref": "#/components/schemas/AdminTimetableLesson"
+                    }
+                  }
+                },
+                "required": [
+                  "class_id",
+                  "semester_id",
+                  "week_start",
+                  "schedules"
+                ]
               }
             }
           }
@@ -3368,7 +3365,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/TimetableDay"
+                          "$ref": "#/components/schemas/AdminTimetable"
                         }
                       },
                       "required": [
@@ -3399,12 +3396,11 @@
         "x-bounded-context": "Academics",
         "x-consumer": "management-ui",
         "x-allowed-roles": [
-          "teacher",
           "admin",
           "super_admin"
         ],
-        "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        "x-scope": "academics.timetable.manage",
+        "x-implementation-status": "implemented"
       }
     },
     "/admin/timetable/{id}": {
@@ -17001,6 +16997,74 @@
             "format": "date-time"
           }
         }
+      },
+      "AdminTimetableLesson": {
+        "type": "object",
+        "properties": {
+          "day_of_week": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "period": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "subject": {
+            "type": "string"
+          },
+          "teacher": {
+            "type": "string"
+          },
+          "room": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "day_of_week",
+          "period",
+          "subject"
+        ]
+      },
+      "AdminTimetable": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "class_id": {
+            "type": "string"
+          },
+          "class_name": {
+            "type": "string"
+          },
+          "semester_id": {
+            "type": "string"
+          },
+          "week_start": {
+            "type": "string",
+            "format": "date"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminTimetableLesson"
+            }
+          },
+          "assigned_students": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "class_id",
+          "class_name",
+          "semester_id",
+          "week_start",
+          "schedules",
+          "assigned_students"
+        ]
       }
     }
   }

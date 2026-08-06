@@ -13,16 +13,19 @@ import { RequirePermission } from '../../../common/auth/require-permission.decor
 import { RequireRole } from '../../../common/auth/require-role.decorator';
 import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
 import {
-  SaveTimetableDto,
   SubmitHomeworkDto,
   TimetableHomeworkService,
 } from './timetable-homework.service';
 import {
   CreateHomeworkDto,
+  ListAdminTimetableQueryDto,
   ListHomeworksQueryDto,
+  SaveAdminTimetableDto,
   UpdateHomeworkDto,
   validateCreateHomework,
+  validateListAdminTimetable,
   validateListHomeworks,
+  validateSaveAdminTimetable,
   validateUpdateHomework,
 } from './timetable-homework.validation';
 
@@ -67,8 +70,20 @@ export class AppTimetableHomeworkController {
 @RequireRole('admin', 'super_admin')
 export class AdminTimetableHomeworkController {
   constructor(private readonly service: TimetableHomeworkService) {}
-  @Post('timetable') saveTimetable(@Body() body: SaveTimetableDto) {
-    return this.service.saveTimetable(body);
+
+  @Get('timetable')
+  @RequirePermission('academics.timetable.read')
+  getTimetable(@Query() query: ListAdminTimetableQueryDto) {
+    return this.service.getAdminTimetable(validateListAdminTimetable(query));
+  }
+
+  @Post('timetable')
+  @RequirePermission('academics.timetable.manage')
+  saveTimetable(
+    @Body() body: SaveAdminTimetableDto,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.service.saveTimetable(validateSaveAdminTimetable(body), actor);
   }
   @Get('homeworks') @RequirePermission('academics.homework.read') listHomeworks(
     @Query() query: ListHomeworksQueryDto,

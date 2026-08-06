@@ -52,6 +52,8 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "GET")).toBe("/api/v1/admin/feedback/feedback-1");
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "PATCH")).toBe("/api/v1/admin/feedback/feedback-1");
     expect(resolveAdminEndpoint("scores", [], "GET")).toBe("/api/v1/admin/scores");
+    expect(resolveAdminEndpoint("timetable", [], "GET")).toBe("/api/v1/admin/timetable");
+    expect(resolveAdminEndpoint("timetable", [], "POST")).toBe("/api/v1/admin/timetable");
     expect(resolveAdminEndpoint("homeworks", [], "GET")).toBe("/api/v1/admin/homeworks");
     expect(resolveAdminEndpoint("homeworks", ["homework-1"], "PATCH")).toBe("/api/v1/admin/homeworks/homework-1");
     expect(resolveAdminEndpoint("homeworks", ["homework-1", "archive"], "POST")).toBe("/api/v1/admin/homeworks/homework-1/archive");

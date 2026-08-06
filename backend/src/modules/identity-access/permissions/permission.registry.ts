@@ -212,6 +212,20 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'academics.timetable.read',
+    label: 'Read timetable',
+    description: 'Read class and student timetable schedules.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.timetable.manage',
+    label: 'Manage timetable',
+    description: 'Create and update class timetable schedules.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
     key: 'student_services.bus.read',
     label: 'Read student bus route',
     description: 'Read student bus route and transportation details.',

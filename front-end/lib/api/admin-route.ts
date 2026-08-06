@@ -45,7 +45,7 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/scores";
     if (segments.length === 1 && id === "reward-discipline" && method === "POST") return "/api/v1/admin/reward-discipline";
   }
-  if (resource === "timetable" && segments.length === 0 && method === "POST") {
+  if (resource === "timetable" && segments.length === 0 && ["GET", "POST"].includes(method)) {
     return "/api/v1/admin/timetable";
   }
   if (resource === "homeworks") {
