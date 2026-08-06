@@ -4,6 +4,7 @@ import type { PrismaService } from '../../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import type { AuthConfigService } from './config/auth-config.service';
 import type { AuthTokenService } from './auth-token.service';
+import type { PermissionService } from './permissions/permission.service';
 import type { AuthAccountDto } from './dto/auth.dto';
 
 type PermissionGrant = { permissionKey: string };
@@ -96,6 +97,45 @@ describe('AuthService', () => {
     expect(createArgs.data.accountId).toBe('account-1');
     expect(createArgs.data.tokenHash).toMatch(/^[a-f0-9]{64}$/);
     expect(createArgs.data.expiresAt).toBeInstanceOf(Date);
+  });
+
+  it('exposes union of active dynamic role permissions and legacy direct permissions via PermissionService', async () => {
+    const passwordHash = await hash('valid-password', 4);
+    const { prisma } = prismaForAuth({
+      account: accountRecord({ passwordHash }),
+    });
+    const mockPermissionService = {
+      getAccountPermissions: jest
+        .fn()
+        .mockResolvedValue([
+          'identity.me.read',
+          'identity.roles.read',
+          'communication.news.manage',
+        ]),
+    } as unknown as PermissionService;
+    const service = new AuthService(
+      prisma,
+      authConfig(),
+      authTokenService(),
+      mockPermissionService,
+    );
+
+    const result = await service.login({
+      username: 'admin',
+      password: 'valid-password',
+    });
+
+    expect(result.success).toBe(true);
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(mockPermissionService.getAccountPermissions).toHaveBeenCalledWith(
+      'account-1',
+    );
+    /* eslint-enable @typescript-eslint/unbound-method */
+    expect(result.data.account.permissions).toEqual([
+      'identity.me.read',
+      'identity.roles.read',
+      'communication.news.manage',
+    ]);
   });
 
   it('rejects invalid credentials without issuing tokens', async () => {

@@ -3,6 +3,7 @@ import { hash } from 'bcrypt';
 import type { PrismaService } from '../../prisma/prisma.service';
 import { AccountService } from './account.service';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
+import type { PermissionService } from './permissions/permission.service';
 import type { AuthAccountDto } from './dto/auth.dto';
 
 type PermissionGrant = { permissionKey: string };
@@ -43,6 +44,34 @@ describe('AccountService', () => {
     expect(result.success).toBe(true);
     expect(result.data.account.id).toBe('account-1');
     expect(result.data.account.permissions).toEqual(['identity.me.read']);
+  });
+
+  it('exposes union of active dynamic role permissions and legacy direct permissions via PermissionService in getCurrentActor', async () => {
+    const { prisma } = prismaForAccount(accountRecord());
+    const mockPermissionService = {
+      getAccountPermissions: jest
+        .fn()
+        .mockResolvedValue([
+          'identity.me.read',
+          'identity.roles.read',
+          'communication.news.manage',
+        ]),
+    } as unknown as PermissionService;
+    const service = new AccountService(prisma, mockPermissionService);
+
+    const result = await service.getCurrentActor(actor());
+
+    expect(result.success).toBe(true);
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(mockPermissionService.getAccountPermissions).toHaveBeenCalledWith(
+      'account-1',
+    );
+    /* eslint-enable @typescript-eslint/unbound-method */
+    expect(result.data.account.permissions).toEqual([
+      'identity.me.read',
+      'identity.roles.read',
+      'communication.news.manage',
+    ]);
   });
 
   it('changes password only after verifying the current password and confirmation', async () => {

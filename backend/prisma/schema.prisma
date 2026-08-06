@@ -83,6 +83,7 @@ model Account {
   isActive           Boolean              @default(true) @map("is_active")
   createdAt          DateTime             @default(now()) @map("created_at")
   updatedAt          DateTime             @updatedAt @map("updated_at")
+  roleAssignments    AccountRoleAssignment[]
   permissions        AccountPermission[]
   refreshSessions    RefreshSession[]
   studentLinks       StudentAccountLink[]
@@ -106,8 +107,50 @@ model Permission {
   createdAt      DateTime            @default(now()) @map("created_at")
   updatedAt      DateTime            @updatedAt @map("updated_at")
   accounts       AccountPermission[]
+  rolePermissions RolePermission[]
 
   @@map("permissions")
+}
+
+model Role {
+  id                 String                  @id @default(uuid())
+  code               String                  @unique
+  name               String
+  description        String?
+  isSystem           Boolean                 @default(false) @map("is_system")
+  isActive           Boolean                 @default(true) @map("is_active")
+  version            Int                     @default(1)
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  rolePermissions    RolePermission[]
+  accountAssignments AccountRoleAssignment[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId        String     @map("role_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  role          Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([roleId, permissionKey])
+  @@map("role_permissions")
+}
+
+model AccountRoleAssignment {
+  accountId    String   @map("account_id")
+  roleId       String   @map("role_id")
+  assignedAt   DateTime @default(now()) @map("assigned_at")
+  assignedById String?  @map("assigned_by_id")
+  account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, roleId])
+  @@index([accountId])
+  @@index([roleId])
+  @@map("account_role_assignments")
 }
 
 model AccountPermission {

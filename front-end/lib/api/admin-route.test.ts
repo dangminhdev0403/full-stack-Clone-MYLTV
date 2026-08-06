@@ -59,6 +59,13 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("homeworks", [], "GET")).toBe("/api/v1/admin/homeworks");
     expect(resolveAdminEndpoint("homeworks", ["homework-1"], "PATCH")).toBe("/api/v1/admin/homeworks/homework-1");
     expect(resolveAdminEndpoint("homeworks", ["homework-1", "archive"], "POST")).toBe("/api/v1/admin/homeworks/homework-1/archive");
+    expect(resolveAdminEndpoint("roles", [], "GET")).toBe("/api/v1/admin/roles");
+    expect(resolveAdminEndpoint("roles", [], "POST")).toBe("/api/v1/admin/roles");
+    expect(resolveAdminEndpoint("roles", ["role-1"], "GET")).toBe("/api/v1/admin/roles/role-1");
+    expect(resolveAdminEndpoint("roles", ["role-1"], "PATCH")).toBe("/api/v1/admin/roles/role-1");
+    expect(resolveAdminEndpoint("roles", ["role-1", "status"], "PATCH")).toBe("/api/v1/admin/roles/role-1/status");
+    expect(resolveAdminEndpoint("roles", ["role-1", "permissions"], "PUT")).toBe("/api/v1/admin/roles/role-1/permissions");
+    expect(resolveAdminEndpoint("accounts", ["account-1", "roles"], "PUT")).toBe("/api/v1/admin/accounts/account-1/roles");
   });
 
   it("rejects unsupported feedback methods and nested segments", () => {

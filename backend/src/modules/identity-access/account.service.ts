@@ -9,6 +9,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { AuthenticatedUser } from '../../common/auth/authenticated-user';
 import type { ApiSuccessEnvelope } from '../../common/http/api-response';
 import { isPermissionKey } from './permissions/permission.registry';
+import { PermissionService } from './permissions/permission.service';
 import type { AuthAccountDto } from './dto/auth.dto';
 import type {
   ChangePasswordRequestDto,
@@ -23,20 +24,30 @@ type AccountWithPermissions = {
   displayName: string;
   role: AuthAccountDto['role'];
   isActive: boolean;
-  permissions: Array<{ permissionKey: string }>;
+  permissions?: Array<{ permissionKey: string }>;
 };
 
 @Injectable()
 export class AccountService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly permissionService?: PermissionService,
+  ) {}
 
   async getCurrentActor(
     user: AuthenticatedUser | undefined,
   ): Promise<ApiSuccessEnvelope<CurrentActorResponseDto>> {
     const account = await this.findAuthenticatedAccount(user);
+    const effectivePermissions = await this.getEffectivePermissions(account);
 
     return ok({
-      account: this.toAuthAccountDto(account),
+      account: {
+        id: account.id,
+        username: account.username,
+        display_name: account.displayName,
+        role: account.role,
+        permissions: effectivePermissions.filter(isPermissionKey),
+      },
       active_student_id: user?.activeStudentId ?? null,
     });
   }
@@ -90,15 +101,46 @@ export class AccountService {
     return account;
   }
 
-  private toAuthAccountDto(account: AccountWithPermissions): AuthAccountDto {
-    return {
-      id: account.id,
-      username: account.username,
-      display_name: account.displayName,
-      role: account.role,
-      permissions: account.permissions
-        .map((permission) => permission.permissionKey)
-        .filter(isPermissionKey),
-    };
+  private async getEffectivePermissions(account: {
+    id: string;
+    permissions?: Array<{ permissionKey: string }>;
+  }): Promise<string[]> {
+    if (this.permissionService) {
+      return this.permissionService.getAccountPermissions(account.id);
+    }
+
+    const [directPermissions, roleAssignments] = await Promise.all([
+      account.permissions
+        ? Promise.resolve(account.permissions)
+        : this.prisma.accountPermission?.findMany
+          ? this.prisma.accountPermission.findMany({
+              where: { accountId: account.id },
+              select: { permissionKey: true },
+            })
+          : Promise.resolve([]),
+      this.prisma.accountRoleAssignment?.findMany
+        ? this.prisma.accountRoleAssignment.findMany({
+            where: { accountId: account.id, role: { isActive: true } },
+            select: {
+              role: {
+                select: {
+                  rolePermissions: { select: { permissionKey: true } },
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const set = new Set<string>();
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+    for (const ra of roleAssignments) {
+      for (const rp of ra.role?.rolePermissions ?? []) {
+        set.add(rp.permissionKey);
+      }
+    }
+    return Array.from(set).sort();
   }
 }

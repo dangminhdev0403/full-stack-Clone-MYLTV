@@ -10,18 +10,76 @@ export class PermissionService {
     accountId: string,
     permissionKey: PermissionKey,
   ): Promise<boolean> {
-    const permission = await this.prisma.accountPermission.findUnique({
-      where: {
-        accountId_permissionKey: {
-          accountId,
-          permissionKey,
+    const [directPermission, roleAssignment] = await Promise.all([
+      this.prisma.accountPermission.findUnique({
+        where: {
+          accountId_permissionKey: {
+            accountId,
+            permissionKey,
+          },
         },
-      },
-      select: {
-        accountId: true,
-      },
-    });
+        select: {
+          accountId: true,
+        },
+      }),
+      this.prisma.accountRoleAssignment.findFirst({
+        where: {
+          accountId,
+          role: {
+            isActive: true,
+            rolePermissions: {
+              some: {
+                permissionKey,
+              },
+            },
+          },
+        },
+        select: {
+          accountId: true,
+        },
+      }),
+    ]);
 
-    return permission !== null;
+    return directPermission !== null || roleAssignment !== null;
+  }
+
+  async getAccountPermissions(accountId: string): Promise<string[]> {
+    const [directPermissions, roleAssignments] = await Promise.all([
+      this.prisma.accountPermission.findMany({
+        where: { accountId },
+        select: { permissionKey: true },
+      }),
+      this.prisma.accountRoleAssignment.findMany({
+        where: {
+          accountId,
+          role: { isActive: true },
+        },
+        select: {
+          role: {
+            select: {
+              rolePermissions: {
+                select: { permissionKey: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const set = new Set<string>();
+
+    for (const dp of directPermissions) {
+      set.add(dp.permissionKey);
+    }
+
+    for (const ra of roleAssignments) {
+      if (ra.role?.rolePermissions) {
+        for (const rp of ra.role.rolePermissions) {
+          set.add(rp.permissionKey);
+        }
+      }
+    }
+
+    return Array.from(set).sort();
   }
 }

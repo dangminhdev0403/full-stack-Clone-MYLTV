@@ -14,11 +14,19 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthTokenService } from './auth-token.service';
 import { PermissionService } from './permissions/permission.service';
+import { AuditController } from './audit/audit.controller';
 import { AuditService } from './audit/audit.service';
+import { RoleController } from './roles/role.controller';
+import { RoleService } from './roles/role.service';
 
 @Module({
   imports: [PrismaModule, PassportModule, JwtModule.register({})],
-  controllers: [AuthController, AccountController],
+  controllers: [
+    AuthController,
+    AccountController,
+    AuditController,
+    RoleController,
+  ],
   providers: [
     AuthConfigService,
     AuthTokenService,
@@ -26,6 +34,7 @@ import { AuditService } from './audit/audit.service';
     AccountService,
     PermissionService,
     AuditService,
+    RoleService,
     JwtStrategy,
     AdminSeedService,
     {
@@ -43,6 +52,7 @@ import { AuditService } from './audit/audit.service';
     AuthTokenService,
     PermissionService,
     AuditService,
+    RoleService,
   ],
 })
 export class IdentityAccessModule {}

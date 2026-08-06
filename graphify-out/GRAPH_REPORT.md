@@ -1,16 +1,16 @@
 # Graph Report - full-stack-Clone-MYLTV  (2026-08-06)
 
 ## Corpus Check
-- 369 files · ~292,350 words
+- 376 files · ~302,608 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2564 nodes · 5613 edges · 183 communities (131 shown, 52 thin omitted)
+- 2625 nodes · 5815 edges · 171 communities (120 shown, 51 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f3a40bfd`
+- Built from commit: `6a6cc2f1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,25 +22,25 @@
 - SkipAuthorization
 - news-page.tsx
 - planned-surface.tsx
-- attendance.client.ts
-- user-management.validation.ts
-- notifications.controller.ts
+- attendance-page.tsx
+- user-management.service.ts
+- notifications.validation.ts
 - student-administration.validation.ts
 - scores.client.ts
 - schemas.ts
 - students.client.ts
 - timetable-homework.controller.ts
 - tuition-page.tsx
-- api-response.ts
+- account.service.ts
 - compilerOptions
 - NewsService
 - student-detail-page.tsx
-- feedback.controller.ts
-- auth.constants.ts
+- FeedbackService
+- authenticated-user.ts
 - PrismaService
-- news.controller.ts
-- auth.service.ts
-- AuthConfigService
+- news.service.ts
+- AuthenticatedUser
+- role.validation.ts
 - student-administration.service.spec.ts
 - events-page.tsx
 - students-page.tsx
@@ -48,33 +48,33 @@
 - StudentAdministrationService
 - compilerOptions
 - dependencies
-- permission.guard.spec.ts
-- attendance-page.tsx
-- tuition.client.ts
+- Public
+- api-response.ts
+- successSchema
 - StudentAdministrationController
 - student-detail-page.test.tsx
 - admin-nav-items.ts
 - teacher-capacity-panel.tsx
-- AuthenticatedUser
+- .record
 - academic-structure.validation.ts
-- scores.controller.ts
+- ScoresService
 - proxy.ts
 - scripts
 - feedback.client.ts
-- attendance.controller.ts
-- news.service.spec.ts
+- attendance.service.ts
+- RoleController
 - dependencies
 - devDependencies
 - feedback-page.test.tsx
-- notifications-page.tsx
+- admin-dashboard.tsx
 - use-students.ts
-- StudentContextService
+- student-context.service.ts
 - PROJECT PLANS
 - users-page.tsx
 - admin-dashboard.test.tsx
-- prisma.service.ts
+- seed.ts
 - jest
-- permission.service.ts
+- AttendanceController
 - academic-context.validation.ts
 - auth.controller.ts
 - student-tuition-panel.tsx
@@ -84,11 +84,10 @@
 - app/layout.tsx
 - env.config.ts
 - events.client.ts
-- student-profile-panel.tsx
 - front-end/package.json
 - devDependencies
 - web_cloneMYLTV Rules
-- AcademicContextService
+- ok
 - exclude
 - academic-context.client.ts
 - homeworks.client.ts
@@ -97,8 +96,6 @@
 - PROJECT RULES
 - web_cloneMYLTV Plans
 - nest-cli.json
-- student-attendance-panel.tsx
-- authenticated-user.ts
 - Bounded Context Endpoint Map
 - authenticated-backend.test.ts
 - app-shell.tsx
@@ -112,7 +109,6 @@
 - NotificationsService
 - @eslint/eslintrc
 - globals
-- UserManagementService
 - @nestjs/cli
 - @nestjs/schematics
 - @nestjs/testing
@@ -160,14 +156,14 @@
 - homework-statistics.ts
 - Agent Instructions for web_cloneMYLTV
 - web_cloneMYLTV Architecture Docs
-- student-context.service.ts
+- student-context.service.spec.ts
 - School API Contract Sync Package
 - @nestjs/passport
 - Implementation Status
 - front-end/README.md
 - backend/AGENTS.md
 - backend/CODEX.md
-- auth.service.spec.ts
+- auth.service.ts
 - eslint-plugin-prettier
 - CODEX.md
 - front-end/AGENTS.md
@@ -179,68 +175,60 @@
 - jest
 - @tailwindcss/postcss
 - system-audit.client.ts
-- AdminNewsController
-- RequireRole
-- academic-classes-manager.test.tsx
-- admin-seed.service.ts
-- academic-classes-manager.tsx
-- .list
-- academic-structure-page.tsx
+- AuditController
 - student-transport-panel.tsx
-- user-management.service.spec.ts
 - student-grades-panel.tsx
-- JwtAuthenticationGuard
-- .switchAccount
+- StudentContextController
 - prisma
 
 ## God Nodes (most connected - your core abstractions)
-1. `AuthenticatedUser` - 168 edges
-2. `ok()` - 98 edges
-3. `RequirePermission()` - 91 edges
-4. `PrismaService` - 91 edges
+1. `AuthenticatedUser` - 176 edges
+2. `RequirePermission()` - 99 edges
+3. `PrismaService` - 99 edges
+4. `ok()` - 98 edges
 5. `parseApiResponse()` - 83 edges
-6. `CurrentUser` - 73 edges
+6. `CurrentUser` - 79 edges
 7. `successSchema()` - 66 edges
-8. `SkipAuthorization()` - 35 edges
-9. `AuditService` - 34 edges
-10. `NewsService` - 30 edges
+8. `AuditService` - 37 edges
+9. `SkipAuthorization()` - 35 edges
+10. `RequireRole()` - 30 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `resolveAdminEndpoint()` --references--> `id`  [EXTRACTED]
   front-end/lib/api/admin-route.ts → backend/src/modules/billing/tuition/tuition.validation.ts
-- `AppController` --references--> `Public()`  [EXTRACTED]
-  backend/src/app.controller.ts → backend/src/common/auth/public.decorator.ts
-- `AdminController` --references--> `RequireRole()`  [EXTRACTED]
-  backend/src/common/auth/permission.guard.spec.ts → backend/src/common/auth/require-role.decorator.ts
 - `AcademicContextController` --references--> `RequireRole()`  [EXTRACTED]
   backend/src/modules/academics/academic-context/academic-context.controller.ts → backend/src/common/auth/require-role.decorator.ts
 - `AcademicStructureController` --references--> `RequireRole()`  [EXTRACTED]
   backend/src/modules/academics/academic-structure/academic-structure.controller.ts → backend/src/common/auth/require-role.decorator.ts
+- `AttendanceController` --references--> `RequireRole()`  [EXTRACTED]
+  backend/src/modules/academics/attendance/attendance.controller.ts → backend/src/common/auth/require-role.decorator.ts
+- `AdminScoresController` --references--> `RequireRole()`  [EXTRACTED]
+  backend/src/modules/academics/scores/scores.controller.ts → backend/src/common/auth/require-role.decorator.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (183 total, 52 thin omitted)
+## Communities (171 total, 51 thin omitted)
 
 ### Community 0 - "identity-access.module.ts"
-Cohesion: 0.06
-Nodes (36): AppController, Controller, Get, AppModule, Module, AppService, Injectable, ERROR_CODES (+28 more)
+Cohesion: 0.14
+Nodes (18): AppModule, Module, AcademicsModule, Module, BillingModule, Module, CommunicationModule, Module (+10 more)
 
 ### Community 1 - "tuition.controller.ts"
-Cohesion: 0.08
-Nodes (33): TuitionCreateDto, TuitionListQueryDto, TuitionStatus, TuitionUpdateDto, AppTuitionServicesController, AppTuitionSummaryController, Body, Controller (+25 more)
+Cohesion: 0.09
+Nodes (29): TuitionCreateDto, TuitionListQueryDto, TuitionStatus, TuitionUpdateDto, AppTuitionServicesController, AppTuitionSummaryController, Controller, Query (+21 more)
 
 ### Community 2 - "auth-api.ts"
 Cohesion: 0.06
 Nodes (42): id, Context, DELETE, forward(), GET, PATCH, POST, PUT (+34 more)
 
 ### Community 3 - "parseApiResponse"
-Cohesion: 0.08
-Nodes (52): createAcademicYearMock, getCurrentAcademicContextMock, listAcademicYearsMock, listSemestersMock, setSemesterCurrentMock, useSessionMock, academicYearSchema, academicYearsListSchema (+44 more)
+Cohesion: 0.05
+Nodes (62): assignStudentEnrollmentMock, createGradeLevelMock, createSchoolClassMock, getClassRosterMock, listAcademicYearsMock, listClassesMock, listGradeLevelsMock, useSessionMock (+54 more)
 
 ### Community 4 - "SkipAuthorization"
-Cohesion: 0.06
-Nodes (21): SKIP_AUTHORIZATION_KEY, SelfController, SkipAuthorization(), StudentContextServiceMock, StudentContextController, Controller, AdminEventsController, StudentServicesController (+13 more)
+Cohesion: 0.07
+Nodes (17): SelfController, SkipAuthorization(), AdminEventsController, StudentServicesController, Body, Controller, Delete, Get (+9 more)
 
 ### Community 5 - "news-page.tsx"
 Cohesion: 0.07
@@ -250,29 +238,29 @@ Nodes (36): categoryConfig, categoryLabels, errorMessage(), NewsPage(), normaliz
 Cohesion: 0.14
 Nodes (4): getAdminNavItemByHref(), PlannedSurface(), getCurrentAcademicContext, useSession
 
-### Community 7 - "attendance.client.ts"
-Cohesion: 0.13
-Nodes (17): createMock, listMock, studentsMock, updateMock, AttendanceSession, AttendanceStatus, AttendanceWritePayload, createAttendanceSession() (+9 more)
+### Community 7 - "attendance-page.tsx"
+Cohesion: 0.07
+Nodes (33): AttendanceEditor(), AttendancePage(), buildQuery(), CreateSessionCard(), errorText(), formatDate(), initials(), statusOptions (+25 more)
 
-### Community 8 - "user-management.validation.ts"
-Cohesion: 0.10
-Nodes (22): Body, Controller, Get, Param, Patch, Post, Query, UserManagementController (+14 more)
+### Community 8 - "user-management.service.ts"
+Cohesion: 0.07
+Nodes (32): CreateUserRequestDto, DisableUserResponseDto, ResetPasswordRequestDto, ResetPasswordResponseDto, UpdateUserRequestDto, UserDetailDto, UserListQueryDto, UserListResponseDto (+24 more)
 
-### Community 9 - "notifications.controller.ts"
+### Community 9 - "notifications.validation.ts"
 Cohesion: 0.12
-Nodes (21): NotificationListQueryDto, NotificationWriteRequestDto, AdminNotificationsController, AppNotificationsController, Body, Controller, Get, Param (+13 more)
+Nodes (16): Body, Get, Param, Patch, Post, Query, createSchema, fields (+8 more)
 
 ### Community 10 - "student-administration.validation.ts"
-Cohesion: 0.11
-Nodes (22): booleanish, createStudentSchema, guardianContactSchema, nonEmptyString, nullableText, nullableYear, optionalNullableString, optionalString (+14 more)
+Cohesion: 0.12
+Nodes (21): booleanish, createStudentSchema, guardianContactSchema, nonEmptyString, nullableText, nullableYear, optionalNullableString, optionalString (+13 more)
 
 ### Community 11 - "scores.client.ts"
 Cohesion: 0.12
-Nodes (20): classesMock, getScoresMock, mockSession, saveScoreMock, semestersMock, studentsMock, yearsMock, getScores() (+12 more)
+Nodes (20): listSemesters(), classesMock, getScoresMock, mockSession, saveScoreMock, semestersMock, studentsMock, yearsMock (+12 more)
 
 ### Community 12 - "schemas.ts"
 Cohesion: 0.06
-Nodes (31): apiErrorSchema, attendancePeriodSchema, attendanceRecordSchema, attendanceStatusSchema, busTrackingResponseSchema, clubItemSchema, coinFundResponseSchema, coinTransactionSchema (+23 more)
+Nodes (33): apiErrorSchema, attendancePeriodSchema, attendanceRecordSchema, attendanceStatusSchema, busTrackingResponseSchema, clubItemSchema, coinFundResponseSchema, coinTransactionSchema (+25 more)
 
 ### Community 13 - "students.client.ts"
 Cohesion: 0.19
@@ -284,47 +272,47 @@ Nodes (33): AdminTimetableHomeworkController, AppTimetableHomeworkController, Bo
 
 ### Community 15 - "tuition-page.tsx"
 Cohesion: 0.13
-Nodes (17): useAcademicContextQuery(), buildQuery(), ChargeRow(), CreateDialog(), EditDialog(), errorText(), money(), statusConfig (+9 more)
+Nodes (16): buildQuery(), ChargeRow(), CreateDialog(), EditDialog(), errorText(), money(), statusConfig, statusLabels (+8 more)
 
-### Community 16 - "api-response.ts"
+### Community 16 - "account.service.ts"
 Cohesion: 0.14
-Nodes (14): ApiErrorEnvelope, fail(), AccountController, ChangePasswordFn, GetCurrentActorFn, Body, Controller, Put (+6 more)
+Nodes (17): ApiSuccessEnvelope, ChangePasswordFn, GetCurrentActorFn, Body, Put, AccountService, AccountWithPermissions, Injectable (+9 more)
 
 ### Community 17 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+20 more)
 
 ### Community 18 - "NewsService"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (3): Delete, NewsService, Injectable
 
 ### Community 19 - "student-detail-page.tsx"
-Cohesion: 0.14
-Nodes (8): errorMessage(), readTab(), StudentDetailPage(), validTabs, StudentDetailTab, StudentDetailTabs(), tabs, useStudentDetailQuery()
-
-### Community 20 - "feedback.controller.ts"
 Cohesion: 0.09
-Nodes (22): FEEDBACK_STATUSES, FeedbackAdminListQuery, FeedbackListQueryDto, FeedbackStatus, FeedbackStatusCommand, FeedbackStatusUpdateDto, AdminFeedbackController, Body (+14 more)
+Nodes (20): Icon(), errorMessage(), readTab(), StudentDetailPage(), validTabs, StudentDetailTab, StudentDetailTabs(), tabs (+12 more)
 
-### Community 21 - "auth.constants.ts"
-Cohesion: 0.18
-Nodes (5): IS_PUBLIC_KEY, REQUIRED_PERMISSIONS_KEY, REQUIRED_ROLES_KEY, AuthenticatedRequest, StudentAdministrationServiceMock
+### Community 20 - "FeedbackService"
+Cohesion: 0.10
+Nodes (20): FEEDBACK_STATUSES, FeedbackAdminListQuery, FeedbackListQueryDto, FeedbackStatus, FeedbackStatusCommand, FeedbackStatusUpdateDto, Body, Get (+12 more)
+
+### Community 21 - "authenticated-user.ts"
+Cohesion: 0.10
+Nodes (17): IS_PUBLIC_KEY, REQUIRED_PERMISSIONS_KEY, REQUIRED_ROLES_KEY, SKIP_AUTHORIZATION_KEY, AuthenticatedRequest, AuthenticatedRequest, AdminController, RequireRole() (+9 more)
 
 ### Community 22 - "PrismaService"
-Cohesion: 0.10
-Nodes (8): actor, actor, AuditService, ListAuditLogsQueryDto, RecordAuditEvent, Injectable, PrismaService, Injectable
+Cohesion: 0.06
+Nodes (12): actor, actor, AuditService, ListAuditLogsQueryDto, RecordAuditEvent, Injectable, StudentAudienceProfile, StudentAudienceService (+4 more)
 
-### Community 23 - "news.controller.ts"
-Cohesion: 0.15
-Nodes (20): NewsAudienceDto, NewsListQueryDto, NewsPinRequestDto, NewsReorderRequestDto, NewsWriteRequestDto, Patch, NewsRecord, audience (+12 more)
+### Community 23 - "news.service.ts"
+Cohesion: 0.09
+Nodes (30): NewsAudienceDto, NewsListQueryDto, NewsPinRequestDto, NewsReorderRequestDto, NewsWriteRequestDto, AdminNewsController, AppNewsController, Body (+22 more)
 
-### Community 24 - "auth.service.ts"
-Cohesion: 0.18
-Nodes (14): ApiSuccessEnvelope, LoginFn, LogoutFn, RefreshFn, AccountWithPermissions, AuthService, Injectable, AccountRole (+6 more)
+### Community 24 - "AuthenticatedUser"
+Cohesion: 0.11
+Nodes (14): AuthenticatedUser, Body, Get, Param, Patch, Post, Get, Get (+6 more)
 
-### Community 25 - "AuthConfigService"
-Cohesion: 0.17
-Nodes (5): JwtPayload, JwtStrategy, Injectable, AuthConfigService, Injectable
+### Community 25 - "role.validation.ts"
+Cohesion: 0.08
+Nodes (27): JwtPayload, JwtStrategy, Injectable, isPermissionKey(), RoleService, Injectable, AssignAccountRolesDto, assignAccountRolesSchema (+19 more)
 
 ### Community 26 - "student-administration.service.spec.ts"
 Cohesion: 0.08
@@ -350,45 +338,41 @@ Nodes (21): compilerOptions, allowSyntheticDefaultImports, declaration, emitDeco
 Cohesion: 0.10
 Nodes (21): dependencies, bcrypt, @nestjs/core, @nestjs/jwt, @nestjs/platform-express, passport, passport-jwt, pg (+13 more)
 
-### Community 33 - "permission.guard.spec.ts"
-Cohesion: 0.20
-Nodes (4): AdminController, OpenController, SecureController, Public()
+### Community 33 - "Public"
+Cohesion: 0.21
+Nodes (7): AppController, Controller, Get, AppService, Injectable, OpenController, Public()
 
-### Community 34 - "attendance-page.tsx"
+### Community 34 - "api-response.ts"
 Cohesion: 0.12
-Nodes (17): AttendanceEditor(), AttendancePage(), buildQuery(), CreateSessionCard(), errorText(), formatDate(), initials(), statusOptions (+9 more)
+Nodes (15): ApiErrorEnvelope, fail(), ERROR_CODES, getExceptionType(), getRequestId(), getSafeMessage(), GlobalExceptionFilter, HttpExceptionBody (+7 more)
 
-### Community 35 - "tuition.client.ts"
-Cohesion: 0.16
-Nodes (15): charge, createMock, listMock, result, sessionUser, updateMock, createTuitionCharge(), getTuitionCharge() (+7 more)
+### Community 35 - "successSchema"
+Cohesion: 0.15
+Nodes (17): getNews(), getAdminTimetable(), saveTimetable(), charge, createMock, listMock, result, sessionUser (+9 more)
 
 ### Community 36 - "StudentAdministrationController"
-Cohesion: 0.21
-Nodes (8): StudentAdministrationController, Body, Controller, Get, Param, Patch, Post, Put
+Cohesion: 0.20
+Nodes (9): StudentAdministrationController, Body, Controller, Get, Param, Patch, Post, Put (+1 more)
 
 ### Community 37 - "student-detail-page.test.tsx"
-Cohesion: 0.15
+Cohesion: 0.16
 Nodes (9): getAttendanceMock, getBusMock, getScoresMock, getStudentMock, listTuitionMock, sessionUser, updateStudentMock, getStudentBusRoute() (+1 more)
 
 ### Community 38 - "admin-nav-items.ts"
-Cohesion: 0.21
-Nodes (12): AdminBreadcrumb, AdminNavGroup, adminNavGroups, AdminNavItem, adminNavItems, AdminRouteReadiness, getVisibleAdminNavGroups(), implementedAdminRoutes (+4 more)
+Cohesion: 0.20
+Nodes (13): AdminBreadcrumb, AdminNavGroup, adminNavGroups, AdminNavItem, adminNavItems, AdminRouteReadiness, getVisibleAdminNavGroups(), implementedAdminRoutes (+5 more)
 
 ### Community 39 - "teacher-capacity-panel.tsx"
 Cohesion: 0.15
 Nodes (10): Badge(), BadgeProps, Panel(), PanelProps, studentFollowUps, StudentFollowUpItem, stateStyles, teacherCapacity (+2 more)
 
-### Community 40 - "AuthenticatedUser"
-Cohesion: 0.15
-Nodes (14): AuthenticatedUser, ok(), AcademicStructureService, ClassEnrollmentPayload, SchoolClassPayload, Injectable, AssignStudentEnrollmentDto, CreateGradeLevelDto (+6 more)
-
 ### Community 41 - "academic-structure.validation.ts"
-Cohesion: 0.16
-Nodes (22): assignStudentEnrollmentSchema, booleanCoerce, createGradeLevelSchema, createSchoolClassSchema, dateSchema, listClassesQuerySchema, nonEmptyString, nonNegativeInt (+14 more)
+Cohesion: 0.12
+Nodes (31): ClassEnrollmentPayload, SchoolClassPayload, AssignStudentEnrollmentDto, assignStudentEnrollmentSchema, booleanCoerce, CreateGradeLevelDto, createGradeLevelSchema, CreateSchoolClassDto (+23 more)
 
-### Community 42 - "scores.controller.ts"
-Cohesion: 0.11
-Nodes (24): AdminScoresController, AppScoresController, Body, Controller, Get, Param, Post, Query (+16 more)
+### Community 42 - "ScoresService"
+Cohesion: 0.09
+Nodes (25): AdminScoresController, AppScoresController, Body, Controller, Get, Param, Post, Query (+17 more)
 
 ### Community 43 - "proxy.ts"
 Cohesion: 0.17
@@ -402,13 +386,13 @@ Nodes (18): scripts, build, db:push, db:reset, db:seed, format, lint, prisma:gen
 Cohesion: 0.18
 Nodes (13): FeedbackItem, feedbackItemSchema, FeedbackList, FeedbackListQuery, feedbackListQuerySchema, feedbackListSchema, FeedbackStatus, feedbackStatusSchema (+5 more)
 
-### Community 46 - "attendance.controller.ts"
+### Community 46 - "attendance.service.ts"
 Cohesion: 0.07
-Nodes (38): AppAttendanceController, AttendanceController, actor, StudentAttendanceController, Body, Controller, Get, Param (+30 more)
+Nodes (31): AppAttendanceController, StudentAttendanceController, Controller, Query, assertRecords(), AttendanceService, dateOnly(), mapWriteError() (+23 more)
 
-### Community 47 - "news.service.spec.ts"
-Cohesion: 0.15
-Nodes (4): StudentAudienceProfile, StudentAudienceService, StudentAudienceTarget, Injectable
+### Community 47 - "RoleController"
+Cohesion: 0.24
+Nodes (9): RoleController, Body, Controller, Get, Param, Patch, Post, Put (+1 more)
 
 ### Community 48 - "dependencies"
 Cohesion: 0.12
@@ -422,17 +406,17 @@ Nodes (17): eslint-config-next, devDependencies, eslint, eslint-config-next, jsd
 Cohesion: 0.21
 Nodes (9): FeedbackPage(), detailMock, listMock, sessionUser, updateMock, feedback, useFeedbackDetailQuery(), useFeedbackQuery() (+1 more)
 
-### Community 51 - "notifications-page.tsx"
-Cohesion: 0.20
-Nodes (9): emptyForm, NotificationsPage(), queryMock, updateMock, notifications, useCreateNotificationMutation(), useNotificationsQuery(), useUpdateNotificationMutation() (+1 more)
+### Community 51 - "admin-dashboard.tsx"
+Cohesion: 0.13
+Nodes (12): AdminDashboard(), SummaryCardProps, emptyForm, NotificationsPage(), queryMock, updateMock, notifications, useCreateNotificationMutation() (+4 more)
 
 ### Community 52 - "use-students.ts"
 Cohesion: 0.17
 Nodes (10): HomeworksPage(), homeworks, useArchiveHomeworkMutation(), useCreateHomeworkMutation(), useHomeworksQuery(), homeworksResource, StudentListResult, students (+2 more)
 
-### Community 53 - "StudentContextService"
-Cohesion: 0.19
-Nodes (5): AccountSwitchOptionDto, StudentSummaryDto, Get, StudentContextService, Injectable
+### Community 53 - "student-context.service.ts"
+Cohesion: 0.20
+Nodes (7): AccountSwitchOptionDto, StudentSummaryDto, SwitchStudentResponseDto, LinkWithStudent, StudentContextService, StudentRecord, Injectable
 
 ### Community 54 - "PROJECT PLANS"
 Cohesion: 0.11
@@ -443,32 +427,32 @@ Cohesion: 0.19
 Nodes (6): message(), UsersPage(), useCreateUserMutation(), users, useUsersQuery(), userResource
 
 ### Community 56 - "admin-dashboard.test.tsx"
-Cohesion: 0.12
-Nodes (17): listAttendanceMock, listFeedbackMock, listNewsMock, listNotificationsMock, listStudentsMock, listTuitionMock, listUsersMock, createNotification() (+9 more)
+Cohesion: 0.13
+Nodes (16): listAttendanceMock, listFeedbackMock, listNewsMock, listNotificationsMock, listStudentsMock, listTuitionMock, listUsersMock, createNotification() (+8 more)
 
-### Community 57 - "prisma.service.ts"
-Cohesion: 0.15
-Nodes (16): @prisma/client, AcademicContextSeedService, Injectable, seedAcademicContext(), seedUatAccounts(), createPrismaClientOptions(), main(), seedAcademicStructure() (+8 more)
+### Community 57 - "seed.ts"
+Cohesion: 0.10
+Nodes (22): @prisma/client, AcademicContextSeedService, Injectable, seedAcademicContext(), AdminSeedService, Injectable, seedIdentityAccess(), SeedIdentityAccessOptions (+14 more)
 
 ### Community 58 - "jest"
 Cohesion: 0.15
 Nodes (13): jest, collectCoverageFrom, coverageDirectory, moduleFileExtensions, rootDir, testEnvironment, testRegex, transform (+5 more)
 
-### Community 59 - "permission.service.ts"
-Cohesion: 0.18
-Nodes (6): PermissionGuard, Injectable, PermissionService, FindUniquePermission, FindUniquePermissionArgs, Injectable
+### Community 59 - "AttendanceController"
+Cohesion: 0.23
+Nodes (6): AttendanceController, Body, Get, Param, Patch, Post
 
 ### Community 60 - "academic-context.validation.ts"
-Cohesion: 0.26
-Nodes (12): createAcademicYearSchema, createSemesterSchema, dateSchema, nonEmptyString, parseRequest(), positiveInt, updateAcademicYearSchema, updateSemesterSchema (+4 more)
+Cohesion: 0.17
+Nodes (14): JwtAuthenticationGuard, Injectable, createAcademicYearSchema, createSemesterSchema, dateSchema, nonEmptyString, parseRequest(), positiveInt (+6 more)
 
 ### Community 61 - "auth.controller.ts"
-Cohesion: 0.15
-Nodes (16): AuthenticatedRequest, AuthController, Body, Controller, Post, RefreshTokenRequestDto, changePasswordSchema, loginSchema (+8 more)
+Cohesion: 0.09
+Nodes (26): AccountController, Controller, AuthController, LoginFn, LogoutFn, RefreshFn, Body, Controller (+18 more)
 
 ### Community 62 - "student-tuition-panel.tsx"
-Cohesion: 0.22
-Nodes (8): formatDate(), formatMoney(), Money(), StudentTuitionPanel(), StudentTuitionQuery(), Summary(), listMock, ApiClientError
+Cohesion: 0.21
+Nodes (9): formatDate(), formatMoney(), Money(), StudentTuitionPanel(), StudentTuitionQuery(), Summary(), listMock, useTuitionListQuery() (+1 more)
 
 ### Community 63 - "verify-contract.cjs"
 Cohesion: 0.17
@@ -476,7 +460,7 @@ Nodes (11): frontendMirror, frontendMirrorPath, fs, jsonPath, mirror, mirrorPath
 
 ### Community 64 - "account.service.spec.ts"
 Cohesion: 0.10
-Nodes (12): Get, AccountService, AccountRecord, FindAccount, FindAccountArgs, PermissionGrant, RevokeRefreshSessions, RevokeRefreshSessionsArgs (+4 more)
+Nodes (13): PermissionGuard, Injectable, AccountRecord, FindAccount, FindAccountArgs, PermissionGrant, RevokeRefreshSessions, RevokeRefreshSessionsArgs (+5 more)
 
 ### Community 65 - "users.client.ts"
 Cohesion: 0.22
@@ -494,10 +478,6 @@ Nodes (7): ConfigSchema, createFrontendEnvConfig(), formatFrontendEnvError(), Fr
 Cohesion: 0.29
 Nodes (8): AdminEvent, adminEventSchema, createAdminEvent(), CreateEventPayload, deleteAdminEvent(), eventsListSchema, listAdminEvents(), eventsResource
 
-### Community 69 - "student-profile-panel.tsx"
-Cohesion: 0.27
-Nodes (9): formatDateOnly(), formatDateTime(), genderLabel(), GuardianCard(), phoneHref(), relationshipLabel(), StudentProfilePanel(), StudentDetail (+1 more)
-
 ### Community 70 - "front-end/package.json"
 Cohesion: 0.20
 Nodes (9): name, private, scripts, build, dev, lint, start, test (+1 more)
@@ -510,17 +490,17 @@ Nodes (9): devDependencies, eslint-config-prettier, @eslint/js, @types/supertest
 Cohesion: 0.12
 Nodes (15): 1. Documentation Rules, 1. Documentation Rules, 2. Repository / Dependency Rules, 2. Repository / Dependency Rules, 3. Architecture Rules, 3. Architecture Rules, 4. Backend Rules, 4. Backend Rules (+7 more)
 
-### Community 73 - "AcademicContextService"
-Cohesion: 0.19
-Nodes (8): AcademicContextService, CurrentAcademicYearRecord, CurrentSemesterRecord, Injectable, CreateAcademicYearDto, CreateSemesterDto, UpdateAcademicYearDto, UpdateSemesterDto
+### Community 73 - "ok"
+Cohesion: 0.20
+Nodes (9): ok(), AcademicContextService, CurrentAcademicYearRecord, CurrentSemesterRecord, Injectable, CreateAcademicYearDto, CreateSemesterDto, UpdateAcademicYearDto (+1 more)
 
 ### Community 74 - "exclude"
 Cohesion: 0.25
 Nodes (7): exclude, extends, node_modules, dist, **/*spec.ts, test, ./tsconfig.json
 
 ### Community 75 - "academic-context.client.ts"
-Cohesion: 0.23
-Nodes (8): academicContext, AcademicContext, academicContextSchema, getCurrentAcademicContext(), mapPeriod(), periodSchema, fetchMock, academicContextResource
+Cohesion: 0.27
+Nodes (7): AcademicContext, academicContextSchema, getCurrentAcademicContext(), mapPeriod(), periodSchema, fetchMock, academicContextResource
 
 ### Community 76 - "homeworks.client.ts"
 Cohesion: 0.23
@@ -546,14 +526,6 @@ Nodes (12): Current Architecture Direction, Historical Notes, Known Risks, P0 �
 Cohesion: 0.33
 Nodes (5): collection, compilerOptions, deleteOutDir, $schema, sourceRoot
 
-### Community 82 - "student-attendance-panel.tsx"
-Cohesion: 0.38
-Nodes (3): useStudentAttendanceQuery(), labels, StudentAttendancePanel()
-
-### Community 83 - "authenticated-user.ts"
-Cohesion: 0.20
-Nodes (12): roleSeeds, PermissionKey, CreateUserRequestDto, DisableUserResponseDto, ResetPasswordRequestDto, ResetPasswordResponseDto, UpdateUserRequestDto, UserDetailDto (+4 more)
-
 ### Community 84 - "Bounded Context Endpoint Map"
 Cohesion: 0.15
 Nodes (12): Academics, API Catalog v1 (School App), Billing, Bounded Context Endpoint Map, Communication, Envelope And Authorization, Identity & Access, Notes For Consumers (+4 more)
@@ -567,24 +539,24 @@ Cohesion: 0.17
 Nodes (11): 10. Quality Gates, 1. Purpose, 2. Strategic Direction, 3. Standard Module Shape, 4. Bounded Context Ownership, 5. Controller Rules, 6. Application Service Rules, 7. Persistence Rules (+3 more)
 
 ### Community 91 - "CurrentUser"
-Cohesion: 0.21
+Cohesion: 0.22
 Nodes (10): CurrentUser, AcademicStructureController, Body, Controller, Get, Param, Patch, Post (+2 more)
 
-### Community 97 - "UserManagementService"
-Cohesion: 0.24
-Nodes (3): isPermissionKey(), Injectable, UserManagementService
+### Community 94 - "NotificationsService"
+Cohesion: 0.15
+Nodes (4): NotificationListQueryDto, NotificationWriteRequestDto, NotificationsService, Injectable
 
 ### Community 102 - "2026-07-18 — Student detail tabs, profile UI, Tuition integration, and UAT account provisioning"
 Cohesion: 0.17
 Nodes (11): 2026-07-18 — Student detail tabs, profile UI, Tuition integration, and UAT account provisioning, Billing / Tuition, Completed Delivery Records, Delivered behavior, Direct database UAT accounts and roles, Remaining limitation, Scope preservation, Status (+3 more)
 
 ### Community 124 - "student-administration.service.ts"
-Cohesion: 0.26
-Nodes (11): ReplaceStudentAccountsRequestDto, ReplaceStudentAccountsResponseDto, StudentDetailDto, StudentGenderDto, StudentGuardianContactDto, StudentGuardianRelationshipDto, StudentListQueryDto, StudentListResponseDto (+3 more)
+Cohesion: 0.20
+Nodes (12): ReplaceStudentAccountsRequestDto, ReplaceStudentAccountsResponseDto, StudentDetailDto, StudentGenderDto, StudentGuardianContactDto, StudentGuardianRelationshipDto, StudentListQueryDto, StudentListResponseDto (+4 more)
 
 ### Community 134 - "RequirePermission"
-Cohesion: 0.17
-Nodes (12): RequirePermission(), AcademicContextController, Body, Controller, Get, Param, Patch, Post (+4 more)
+Cohesion: 0.19
+Nodes (11): SecureController, RequirePermission(), AcademicContextController, Body, Controller, Get, Param, Patch (+3 more)
 
 ### Community 135 - "web_cloneMYLTV Architecture"
 Cohesion: 0.18
@@ -595,8 +567,8 @@ Cohesion: 0.20
 Nodes (9): MockAcademicYearDelegate, MockAccountDelegate, MockAuditService, MockClassEnrollmentDelegate, MockFn, MockGradeLevelDelegate, MockPrismaClient, MockSchoolClassDelegate (+1 more)
 
 ### Community 137 - "use-academic-structure.ts"
-Cohesion: 0.20
-Nodes (16): AcademicStructureManager(), formatVietnameseMutationError(), boundResource, useCreateAcademicYearMutation(), useCreateSemesterMutation(), useSetAcademicYearCurrentMutation(), useSetSemesterCurrentMutation(), useUpdateAcademicYearMutation() (+8 more)
+Cohesion: 0.13
+Nodes (30): AcademicClassesManager(), translateErrorMessage(), AcademicStructureManager(), formatVietnameseMutationError(), AcademicStructurePage(), boundResource, useAcademicYearsQuery(), useAssignEnrollmentMutation() (+22 more)
 
 ### Community 138 - "Contract Guide"
 Cohesion: 0.20
@@ -646,9 +618,9 @@ Nodes (5): Agent Instructions for web_cloneMYLTV, Before Final Report, Enforceab
 Cohesion: 0.33
 Nodes (5): Current Strategic Direction, Documents, Read Order For AI/Developers, Task Routing Table, web_cloneMYLTV Architecture Docs
 
-### Community 151 - "student-context.service.ts"
-Cohesion: 0.13
-Nodes (9): AccessTokenSubject, AuthTokenService, Injectable, SwitchStudentResponseDto, LinkWithStudent, AuthTokenServiceMock, linkRecord(), studentRecord() (+1 more)
+### Community 151 - "student-context.service.spec.ts"
+Cohesion: 0.33
+Nodes (3): AuthTokenServiceMock, linkRecord(), studentRecord()
 
 ### Community 152 - "School API Contract Sync Package"
 Cohesion: 0.33
@@ -662,85 +634,57 @@ Nodes (4): Bounded-Context Matrix, Implementation Status, Status Change Rule, St
 Cohesion: 0.50
 Nodes (3): Deploy on Vercel, Getting Started, Learn More
 
-### Community 158 - "auth.service.spec.ts"
-Cohesion: 0.12
-Nodes (12): AccountRecord, CreateRefreshSession, CreateRefreshSessionArgs, FindAccount, FindAccountArgs, FindRefreshSession, FindRefreshSessionArgs, PermissionGrant (+4 more)
+### Community 158 - "auth.service.ts"
+Cohesion: 0.08
+Nodes (18): AccountWithPermissions, AccountRecord, CreateRefreshSession, CreateRefreshSessionArgs, FindAccount, FindAccountArgs, FindRefreshSession, FindRefreshSessionArgs (+10 more)
 
 ### Community 163 - "timetable.client.ts"
-Cohesion: 0.18
-Nodes (14): useClassesQuery(), useCurrentAcademicContextQuery(), monday(), TimetablePage(), timetable, useAdminTimetableQuery(), useSaveTimetableMutation(), AdminTimetable (+6 more)
+Cohesion: 0.19
+Nodes (13): useClassesQuery(), monday(), TimetablePage(), timetable, useAdminTimetableQuery(), useSaveTimetableMutation(), AdminTimetable, SaveTimetablePayload (+5 more)
 
 ### Community 164 - "grades-page.tsx"
-Cohesion: 0.22
-Nodes (10): useSemestersQuery(), GradesPage(), ScoreStatInput, summarizeScores(), scores, useSaveRewardMutation(), useSaveScoreMutation(), useScoresQuery() (+2 more)
+Cohesion: 0.21
+Nodes (10): GradesPage(), ScoreStatInput, summarizeScores(), scores, useSaveRewardMutation(), useSaveScoreMutation(), useScoresQuery(), useStudentRewardsQuery() (+2 more)
 
 ### Community 165 - "AdminShell"
 Cohesion: 0.14
-Nodes (8): AdminShell(), Icon(), getCurrentAcademicContext, logout, useSession, resolveAdminBreadcrumbs(), initials(), StudentProfileHeader()
+Nodes (6): AdminShell(), getCurrentAcademicContext, logout, useSession, academicContext, useAcademicContextQuery()
 
 ### Community 169 - "system-audit.client.ts"
 Cohesion: 0.19
 Nodes (10): SystemAuditPage(), boundResource, useAuditLogsQuery(), AuditLog, auditLogSchema, listAuditLogs(), ListAuditLogsQuery, listAuditLogsResponseSchema (+2 more)
 
-### Community 170 - "AdminNewsController"
-Cohesion: 0.27
-Nodes (5): AdminNewsController, Body, Param, Post, validateReorder()
-
-### Community 171 - "RequireRole"
-Cohesion: 0.21
-Nodes (7): RequireRole(), AuditController, listAuditLogsQuerySchema, Controller, Get, Query, validateListAuditLogsQuery()
-
-### Community 172 - "academic-classes-manager.test.tsx"
-Cohesion: 0.18
-Nodes (8): assignStudentEnrollmentMock, createGradeLevelMock, createSchoolClassMock, getClassRosterMock, listAcademicYearsMock, listClassesMock, listGradeLevelsMock, useSessionMock
-
-### Community 173 - "admin-seed.service.ts"
-Cohesion: 0.27
-Nodes (5): AdminSeedService, Injectable, seedIdentityAccess(), SeedIdentityAccessOptions, PERMISSIONS
-
-### Community 174 - "academic-classes-manager.tsx"
-Cohesion: 0.38
-Nodes (9): AcademicClassesManager(), translateErrorMessage(), useAssignEnrollmentMutation(), useClassRosterQuery(), useCreateClassMutation(), useCreateGradeLevelMutation(), useDeactivateEnrollmentMutation(), useUpdateClassMutation() (+1 more)
-
-### Community 175 - ".list"
-Cohesion: 0.28
-Nodes (5): AppNewsController, Controller, Get, Query, validateNewsList()
-
-### Community 176 - "academic-structure-page.tsx"
-Cohesion: 0.43
-Nodes (5): AcademicStructurePage(), useAcademicYearsQuery(), useGradeLevelsQuery(), usePromoteCohortMutation(), useTransferStudentsMutation()
+### Community 171 - "AuditController"
+Cohesion: 0.25
+Nodes (5): AuditController, Controller, Get, Query, validateListAuditLogsQuery()
 
 ### Community 177 - "student-transport-panel.tsx"
-Cohesion: 0.36
+Cohesion: 0.29
 Nodes (4): StudentTransportPanel(), transport, useStudentTransportQuery(), studentTransportResource
 
-### Community 178 - "user-management.service.spec.ts"
-Cohesion: 0.33
-Nodes (4): AccountRecord, AccountUpdateArgs, PermissionGrant, TransactionCallback
-
-### Community 181 - ".switchAccount"
-Cohesion: 0.50
-Nodes (3): SwitchStudentRequestDto, Body, Post
+### Community 181 - "StudentContextController"
+Cohesion: 0.25
+Nodes (6): SwitchStudentRequestDto, validateSwitchStudent(), StudentContextController, Body, Controller, Post
 
 ## Knowledge Gaps
-- **808 isolated node(s):** `$schema`, `collection`, `sourceRoot`, `deleteOutDir`, `name` (+803 more)
+- **818 isolated node(s):** `$schema`, `collection`, `sourceRoot`, `deleteOutDir`, `name` (+813 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **51 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `id` connect `auth-api.ts` to `tuition.controller.ts`?**
-  _High betweenness centrality (0.303) - this node is a cross-community bridge._
+  _High betweenness centrality (0.286) - this node is a cross-community bridge._
 - **What connects `$schema`, `collection`, `sourceRoot` to the rest of the system?**
-  _808 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _818 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `identity-access.module.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.060285563194077206 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14482758620689656 - nodes in this community are weakly interconnected._
 - **Should `tuition.controller.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07518796992481203 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08758503401360544 - nodes in this community are weakly interconnected._
 - **Should `auth-api.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.061581920903954805 - nodes in this community are weakly interconnected._
 - **Should `parseApiResponse` be split into smaller, more focused modules?**
-  _Cohesion score 0.07832080200501253 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05352112676056338 - nodes in this community are weakly interconnected._
 - **Should `SkipAuthorization` be split into smaller, more focused modules?**
-  _Cohesion score 0.06259780907668232 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0701484895033282 - nodes in this community are weakly interconnected._

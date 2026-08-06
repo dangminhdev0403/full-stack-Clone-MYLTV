@@ -1356,6 +1356,24 @@
     },
     {
       "group": "academics",
+      "name": "POST /admin/academic-structure/transfers",
+      "method": "POST",
+      "path": "/admin/academic-structure/transfers",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/promotions",
+      "method": "POST",
+      "path": "/admin/academic-structure/promotions",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
       "name": "GET /admin/scores",
       "method": "GET",
       "path": "/admin/scores",
@@ -1391,20 +1409,65 @@
       "implementation_status": "implemented"
     },
     {
-      "group": "academics",
-      "name": "POST /admin/academic-structure/transfers",
-      "method": "POST",
-      "path": "/admin/academic-structure/transfers",
-      "bounded_context": "Academics",
+      "group": "identity__access",
+      "name": "List roles",
+      "method": "GET",
+      "path": "/admin/roles",
+      "bounded_context": "Identity & Access",
       "auth_required": true,
       "implementation_status": "implemented"
     },
     {
-      "group": "academics",
-      "name": "POST /admin/academic-structure/promotions",
+      "group": "identity__access",
+      "name": "Create role",
       "method": "POST",
-      "path": "/admin/academic-structure/promotions",
-      "bounded_context": "Academics",
+      "path": "/admin/roles",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Get role by ID",
+      "method": "GET",
+      "path": "/admin/roles/{id}",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Update role details",
+      "method": "PATCH",
+      "path": "/admin/roles/{id}",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Update role status",
+      "method": "PATCH",
+      "path": "/admin/roles/{id}/status",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Replace role permissions",
+      "method": "PUT",
+      "path": "/admin/roles/{id}/permissions",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "Assign account roles",
+      "method": "PUT",
+      "path": "/admin/accounts/{account_id}/roles",
+      "bounded_context": "Identity & Access",
       "auth_required": true,
       "implementation_status": "implemented"
     }

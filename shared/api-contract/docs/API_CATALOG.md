@@ -31,6 +31,13 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | `POST /auth/logout` | `POST /auth/logout` | Logout current device/session. |
 | `GET /me` | `GET /me` | Current actor and active student id. |
 | `PUT /me/password` | `PUT /me/password` | Change own password. |
+| `GET /admin/roles` | — | List system and dynamic roles with permission keys and assignment counts. |
+| `POST /admin/roles` | — | Create dynamic role with name, code, description, and permission keys. |
+| `GET /admin/roles/{id}` | — | Get role details and permission key mapping. |
+| `PATCH /admin/roles/{id}` | — | Rename and update role description. |
+| `PATCH /admin/roles/{id}/status` | — | Update active status of custom roles. |
+| `PUT /admin/roles/{id}/permissions` | — | Replace role permissions with critical-permission confirmation gate. |
+| `PUT /admin/accounts/{account_id}/roles` | — | Assign roles to account with super_admin protection rules. |
 
 ### User Management
 

@@ -48,6 +48,9 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   if (resource === "timetable" && segments.length === 0 && ["GET", "POST"].includes(method)) {
     return "/api/v1/admin/timetable";
   }
+  if (resource === "audit-logs" && segments.length === 0 && method === "GET") {
+    return "/api/v1/admin/audit-logs";
+  }
   if (resource === "homeworks") {
     if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/homeworks";
     if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/homeworks/${id}`;
@@ -104,6 +107,15 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
     if (segments.length === 1 && segments[0] === "promotions" && method === "POST") {
       return "/api/v1/admin/academic-structure/promotions";
     }
+  }
+  if (resource === "roles") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/roles";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/roles/${id}`;
+    if (segments.length === 2 && id && segments[1] === "status" && method === "PATCH") return `/api/v1/admin/roles/${id}/status`;
+    if (segments.length === 2 && id && segments[1] === "permissions" && method === "PUT") return `/api/v1/admin/roles/${id}/permissions`;
+  }
+  if (resource === "accounts") {
+    if (segments.length === 2 && id && segments[1] === "roles" && method === "PUT") return `/api/v1/admin/accounts/${id}/roles`;
   }
   throw new Error("Unsupported admin endpoint");
 }

@@ -395,14 +395,14 @@
     "semantic_hash": "5c60a911d65bc0ee2850714d2b178fe3"
   },
   "backend/src/modules/identity-access/account.service.spec.ts": {
-    "mtime": 1784111715.076886,
-    "ast_hash": "3b32e86437c36298b6d2ac5aa274aa57",
-    "semantic_hash": "3b32e86437c36298b6d2ac5aa274aa57"
+    "mtime": 1786003489.5555196,
+    "ast_hash": "b3e7d8e96fa4769f78a14ae772c06295",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/account.service.ts": {
-    "mtime": 1784111389.6877754,
-    "ast_hash": "170aa056d80f755592cf95b6b9a0426f",
-    "semantic_hash": "170aa056d80f755592cf95b6b9a0426f"
+    "mtime": 1786003304.8763425,
+    "ast_hash": "9350c31c17f7fde7545094fd242df78f",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/audit/audit.service.ts": {
     "mtime": 1785993182.1923268,
@@ -425,14 +425,14 @@
     "semantic_hash": "241f331570b3a9595f05f8659df28cec"
   },
   "backend/src/modules/identity-access/auth.service.spec.ts": {
-    "mtime": 1784113296.7549655,
-    "ast_hash": "f8592bcc3649e88182359325e1bedbf8",
-    "semantic_hash": "f8592bcc3649e88182359325e1bedbf8"
+    "mtime": 1786003483.9485629,
+    "ast_hash": "89b45d75e9fe3544304dbd4739ef4143",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/auth.service.ts": {
-    "mtime": 1784978085.0779688,
-    "ast_hash": "67923dbc020574f25e5381c6b3cc3500",
-    "semantic_hash": "67923dbc020574f25e5381c6b3cc3500"
+    "mtime": 1786003299.3729012,
+    "ast_hash": "080c4b9ff40ec1eba5587579c01fc54a",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/auth/jwt.strategy.ts": {
     "mtime": 1783954160.7598848,
@@ -480,8 +480,8 @@
     "semantic_hash": "40c8357540f4633cb90a4cf82de1fea6"
   },
   "backend/src/modules/identity-access/identity-access.module.ts": {
-    "mtime": 1785993196.1336925,
-    "ast_hash": "066b62c2d327bbb66ad0ba300e1844bf",
+    "mtime": 1786001651.7793097,
+    "ast_hash": "285d9ade27f32d71163808eb443e6296",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/identity-access.validation.ts": {
@@ -490,19 +490,19 @@
     "semantic_hash": "94cf8964ad7ef76be48968954fd21f9d"
   },
   "backend/src/modules/identity-access/permissions/permission.registry.ts": {
-    "mtime": 1785993305.2397628,
-    "ast_hash": "319054d4cc05961e9cf0a2478cff918a",
+    "mtime": 1786001643.0966282,
+    "ast_hash": "3dd2e2fd7417d10b38b1c49deef986da",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/permissions/permission.service.spec.ts": {
-    "mtime": 1783720646.9053533,
-    "ast_hash": "b0ba4a07fc9d0d5f491107f8c195cd80",
-    "semantic_hash": "b0ba4a07fc9d0d5f491107f8c195cd80"
+    "mtime": 1786001337.3920183,
+    "ast_hash": "87cbdb114c69014179ffffa5f3ca2d32",
+    "semantic_hash": ""
   },
   "backend/src/modules/identity-access/permissions/permission.service.ts": {
-    "mtime": 1783719829.160958,
-    "ast_hash": "880ebc75d3d5db30e7c49a49170dab26",
-    "semantic_hash": "880ebc75d3d5db30e7c49a49170dab26"
+    "mtime": 1786001252.9910793,
+    "ast_hash": "fb599fda6688f4df2a50d2be3f7dd1d4",
+    "semantic_hash": ""
   },
   "backend/src/modules/student-administration/dto/student-administration.dto.ts": {
     "mtime": 1784916544.1952803,
@@ -635,8 +635,8 @@
     "semantic_hash": "77d5be8b76915c91b80622f17950d04a"
   },
   "backend/src/prisma/seed.ts": {
-    "mtime": 1786000048.8318412,
-    "ast_hash": "01c236853b5308deb03e61f8b7c71fd0",
+    "mtime": 1786001271.2529411,
+    "ast_hash": "98971785668b1f7ac4307d31305926fc",
     "semantic_hash": ""
   },
   "backend/test/app.e2e-spec.ts": {
@@ -855,8 +855,8 @@
     "semantic_hash": "bc8f67b9ae6bc86b94d078971f7ce64f"
   },
   "front-end/config/share_api.json": {
-    "mtime": 1785999860.1016042,
-    "ast_hash": "13c00b80648ca2361e5b5068adceebe9",
+    "mtime": 1786002492.1173105,
+    "ast_hash": "0c3cbecc76dc72909062fa43513ee21b",
     "semantic_hash": ""
   },
   "front-end/eslint.config.mjs": {
@@ -1340,13 +1340,13 @@
     "semantic_hash": "043c8e3d8eb11f2efb18a0c065f60d8a"
   },
   "front-end/lib/api/admin-route.test.ts": {
-    "mtime": 1785988441.8740659,
-    "ast_hash": "245686de97829484dcde61d5773e3f39",
+    "mtime": 1786002974.7422907,
+    "ast_hash": "22a9d385153780ca1b9fee0b0746dc10",
     "semantic_hash": ""
   },
   "front-end/lib/api/admin-route.ts": {
-    "mtime": 1785993001.6856935,
-    "ast_hash": "631ce4c908913998f23b6cb9e1a6fc4f",
+    "mtime": 1786002236.042796,
+    "ast_hash": "454084ba615c2418976c2b2467ac8136",
     "semantic_hash": ""
   },
   "front-end/lib/api/authenticated-backend.test.ts": {
@@ -1475,8 +1475,8 @@
     "semantic_hash": "83da51f380c4e1c8c080ab9cf253fe8b"
   },
   "share_api.json": {
-    "mtime": 1785999860.1006024,
-    "ast_hash": "13c00b80648ca2361e5b5068adceebe9",
+    "mtime": 1786002492.1173105,
+    "ast_hash": "0c3cbecc76dc72909062fa43513ee21b",
     "semantic_hash": ""
   },
   "shared/api-contract/openapi/v1/auth-service.postman_collection.json": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": "a48ce65b9ecc2be10f4633bd7f31317d"
   },
   "shared/api-contract/openapi/v1/openapi.json": {
-    "mtime": 1785999860.0799387,
-    "ast_hash": "6fa2df608e73b9cfa522d12533421d48",
+    "mtime": 1786002484.7530923,
+    "ast_hash": "d57578bb14c0b92883871b27ce67b87e",
     "semantic_hash": ""
   },
   "shared/api-contract/package.json": {
@@ -1660,13 +1660,13 @@
     "semantic_hash": "903124707afc5990d585fe77c668deb2"
   },
   "shared/api-contract/docs/API_CATALOG.md": {
-    "mtime": 1785999874.0870235,
-    "ast_hash": "a560762508cbf3a31b776d21c767190d",
+    "mtime": 1786002504.4839709,
+    "ast_hash": "9ac44de3bc23238b95180977af6b0697",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/CONTRACT_CHANGES.md": {
-    "mtime": 1785999876.3150342,
-    "ast_hash": "8cdceda9df9da397358ea920c8c65de0",
+    "mtime": 1786002510.0038517,
+    "ast_hash": "7a4801bebd3be2291a326f02a83dd6a1",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/FRONTEND_HANDOFF.md": {
@@ -1675,13 +1675,13 @@
     "semantic_hash": "676590a5d1b8011c3dc3d671276545f5"
   },
   "shared/api-contract/docs/IMPLEMENTATION_STATUS.md": {
-    "mtime": 1785999875.13193,
-    "ast_hash": "7846fe4ea2d31be9d32f38542b0827f3",
+    "mtime": 1786002505.9297295,
+    "ast_hash": "52550a0b4a694ec1301c5039e2680d1f",
     "semantic_hash": ""
   },
   "shared/api-contract/openapi/v1/openapi.yaml": {
-    "mtime": 1785999860.0986018,
-    "ast_hash": "6fa2df608e73b9cfa522d12533421d48",
+    "mtime": 1786002484.7530923,
+    "ast_hash": "d57578bb14c0b92883871b27ce67b87e",
     "semantic_hash": ""
   },
   "front-end/public/file.svg": {
@@ -1825,8 +1825,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.controller.spec.ts": {
-    "mtime": 1785978497.6993852,
-    "ast_hash": "19de154127ff22a2c93315b201a086b4",
+    "mtime": 1786002256.2998505,
+    "ast_hash": "b93ae2b870bd83c103118515faf23a64",
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.controller.ts": {
@@ -1835,18 +1835,18 @@
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.service.spec.ts": {
-    "mtime": 1785993367.5453384,
-    "ast_hash": "cde37861397f4dc3eee40b85cf56f229",
+    "mtime": 1786002171.0997832,
+    "ast_hash": "28943a5eb6736436bcac8a8b7358d6d8",
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.service.ts": {
-    "mtime": 1785993084.8529823,
-    "ast_hash": "5cda387d24320941a5f905079fc6b5ae",
+    "mtime": 1786002222.7894952,
+    "ast_hash": "c0705f208c6350868edc40e641faea29",
     "semantic_hash": ""
   },
   "backend/src/modules/academics/academic-structure/academic-structure.validation.ts": {
-    "mtime": 1785993060.1912434,
-    "ast_hash": "26cef691906574fef1c5b7545671fe74",
+    "mtime": 1786002208.7223215,
+    "ast_hash": "57a74e870c9c6d841899bf8c4a9fed73",
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/components/academic-classes-manager.test.tsx": {
@@ -1875,8 +1875,8 @@
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/service/academic-structure.client.ts": {
-    "mtime": 1785993128.9390845,
-    "ast_hash": "2a66719b56b158a6a7b85c260f2ca350",
+    "mtime": 1786002990.6842601,
+    "ast_hash": "15a67b22e115de7e523fe4df5228af35",
     "semantic_hash": ""
   },
   "front-end/features/academic-structure/service/academic-structure.resource.ts": {
@@ -1952,6 +1952,41 @@
   "front-end/features/system-audit/service/system-audit.resource.ts": {
     "mtime": 1785993202.9372656,
     "ast_hash": "a094241ea01f035f6d63e2e478cf8633",
+    "semantic_hash": ""
+  },
+  "backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql": {
+    "mtime": 1786001158.6285806,
+    "ast_hash": "8be92372fb876bf912e37a906e17201c",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/roles/role.controller.spec.ts": {
+    "mtime": 1786003354.082027,
+    "ast_hash": "55a90acebe992bc4c886cd52ab2e73ec",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/roles/role.controller.ts": {
+    "mtime": 1786003151.3695397,
+    "ast_hash": "97a0d202b19b1f6c87106e6632ba4d7c",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/roles/role.service.spec.ts": {
+    "mtime": 1786003450.0555012,
+    "ast_hash": "db0f726f1212e580dc11944a8092805e",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/roles/role.service.ts": {
+    "mtime": 1786003348.3044224,
+    "ast_hash": "898408a81dde8d615fdf92a1d77b79b7",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/roles/role.validation.ts": {
+    "mtime": 1786001337.3920183,
+    "ast_hash": "573b336c472140f94667be25b16ab931",
+    "semantic_hash": ""
+  },
+  "front-end/features/academic-structure/service/academic-structure.client.test.ts": {
+    "mtime": 1786003013.5431263,
+    "ast_hash": "fa830eb22a1f2393b35268d6eb73337a",
     "semantic_hash": ""
   }
 }

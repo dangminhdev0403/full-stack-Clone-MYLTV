@@ -14,6 +14,7 @@ async function main() {
   try {
     console.log('🌱 Starting database seeding...');
     await seedIdentityAccess(prisma, { username, password });
+    await seedDynamicRoles(prisma);
     await seedAcademicContext(prisma);
     await seedAcademicStructure(prisma);
     await seedUatStudents(prisma);
@@ -31,6 +32,118 @@ async function main() {
     throw error;
   } finally {
     await prisma.$disconnect();
+  }
+}
+
+import { PERMISSIONS } from '../modules/identity-access/permissions/permission.registry';
+
+async function seedDynamicRoles(prisma: PrismaClient): Promise<void> {
+  const builtInRoles = [
+    {
+      id: 'role-super-admin',
+      code: 'super_admin',
+      name: 'Super Admin',
+      description: 'Built-in Super Administrator role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-admin',
+      code: 'admin',
+      name: 'Administrator',
+      description: 'Built-in Administrator role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-teacher',
+      code: 'teacher',
+      name: 'Teacher',
+      description: 'Built-in Teacher role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-student',
+      code: 'student',
+      name: 'Student',
+      description: 'Built-in Student role',
+      isSystem: true,
+      isActive: true,
+    },
+    {
+      id: 'role-parent',
+      code: 'parent',
+      name: 'Parent',
+      description: 'Built-in Parent role',
+      isSystem: true,
+      isActive: true,
+    },
+  ];
+
+  for (const roleDef of builtInRoles) {
+    await prisma.role.upsert({
+      where: { code: roleDef.code },
+      update: {
+        name: roleDef.name,
+        description: roleDef.description,
+        isSystem: true,
+        isActive: true,
+      },
+      create: roleDef,
+    });
+  }
+
+  const superAdminRole = await prisma.role.findUnique({
+    where: { code: 'super_admin' },
+    select: { id: true },
+  });
+
+  if (superAdminRole) {
+    for (const permission of PERMISSIONS) {
+      await prisma.rolePermission.upsert({
+        where: {
+          roleId_permissionKey: {
+            roleId: superAdminRole.id,
+            permissionKey: permission.key,
+          },
+        },
+        update: {},
+        create: {
+          roleId: superAdminRole.id,
+          permissionKey: permission.key,
+        },
+      });
+    }
+  }
+
+  const allAccounts = await prisma.account.findMany({
+    select: { id: true, role: true },
+  });
+
+  const allRoles = await prisma.role.findMany({
+    select: { id: true, code: true },
+  });
+
+  const roleMap = new Map(allRoles.map((r) => [r.code, r.id]));
+
+  for (const account of allAccounts) {
+    const roleId = roleMap.get(account.role);
+    if (roleId) {
+      await prisma.accountRoleAssignment.upsert({
+        where: {
+          accountId_roleId: {
+            accountId: account.id,
+            roleId,
+          },
+        },
+        update: {},
+        create: {
+          accountId: account.id,
+          roleId,
+        },
+      });
+    }
   }
 }
 

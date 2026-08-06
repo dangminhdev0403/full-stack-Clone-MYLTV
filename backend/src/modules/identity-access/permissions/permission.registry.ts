@@ -226,11 +226,33 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'identity.audit.read',
+    label: 'Read audit logs',
+    description: 'Read system audit logs and activity trails.',
+    boundedContext: 'Identity & Access',
+    risk: 'high',
+  },
+  {
+    key: 'identity.roles.read',
+    label: 'Read dynamic roles',
+    description: 'Read dynamic role definitions and assigned permissions.',
+    boundedContext: 'Identity & Access',
+    risk: 'high',
+  },
+  {
+    key: 'identity.roles.manage',
+    label: 'Manage dynamic roles',
+    description:
+      'Create, edit, change status, replace permissions, and assign dynamic roles.',
+    boundedContext: 'Identity & Access',
+    risk: 'critical',
+  },
+  {
     key: 'student_services.bus.read',
-    label: 'Read student bus route',
-    description: 'Read student bus route and transportation details.',
+    label: 'Read bus route and tracking',
+    description: 'Read bus route and tracking information for students.',
     boundedContext: 'Student Services',
-    risk: 'medium',
+    risk: 'low',
   },
 ] as const;
 
