@@ -117,5 +117,16 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
   if (resource === "accounts") {
     if (segments.length === 2 && id && segments[1] === "roles" && method === "PUT") return `/api/v1/admin/accounts/${id}/roles`;
   }
+  if (resource === "services") {
+    if (segments.length === 1 && segments[0] === "meals" && method === "GET") return "/api/v1/services/meals";
+    if (segments.length === 2 && segments[0] === "meals" && segments[1] === "register" && method === "POST") return "/api/v1/services/meals/register";
+    if (segments.length === 1 && segments[0] === "bus" && method === "GET") return "/api/v1/services/bus-tracking";
+    if (segments.length === 1 && segments[0] === "clubs" && method === "GET") return "/api/v1/services/clubs";
+    if (segments.length === 3 && segments[0] === "clubs" && segments[2] === "register" && method === "POST") return `/api/v1/services/clubs/${segments[1]}/register`;
+    if (segments.length === 1 && segments[0] === "surveys" && method === "GET") return "/api/v1/services/surveys";
+    if (segments.length === 3 && segments[0] === "surveys" && segments[2] === "submit" && method === "POST") return `/api/v1/services/surveys/${segments[1]}/submit`;
+    if (segments.length === 1 && segments[0] === "uniforms" && method === "GET") return "/api/v1/services/uniforms";
+    if (segments.length === 2 && segments[0] === "uniforms" && segments[1] === "orders" && method === "POST") return "/api/v1/services/uniforms/orders";
+  }
   throw new Error("Unsupported admin endpoint");
 }
