@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Swal from "sweetalert2";
 import { useSession } from "next-auth/react";
 import { AdminShell, Icon } from "@/features/admin-shell";
 import { ApiClientError } from "@/lib/api/schemas";
@@ -92,19 +93,26 @@ export function NewsPage() {
     },
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa tin tức này?")) {
-      deleteMutation.mutate(
-        { id },
-        {
-          onSuccess: () => {
-            setActionError("");
-            setFeedback("Đã xóa tin tức thành công.");
-          },
-          onError: (error) => setActionError(errorMessage(error)),
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Xóa tin tức?",
+      text: "Bạn có chắc chắn muốn xóa tin tức này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!result.isConfirmed) return;
+    deleteMutation.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          setActionError("");
+          setFeedback("Đã xóa tin tức thành công.");
         },
-      );
-    }
+        onError: (error) => setActionError(errorMessage(error)),
+      },
+    );
   };
 
   const actionMutation = {
@@ -165,12 +173,12 @@ export function NewsPage() {
 
   // Statistics calculation
   const stats = useMemo(() => {
-    const total = rawItems.length;
+    const total = newsQuery.data?.total ?? 0;
     const published = rawItems.filter((i) => i.status === "published").length;
     const draft = rawItems.filter((i) => i.status === "draft").length;
     const pinned = rawItems.filter((i) => i.is_pinned).length;
     return { total, published, draft, pinned };
-  }, [rawItems]);
+  }, [rawItems, newsQuery.data?.total]);
 
   function openCreate() {
     setEditing(null);
@@ -206,6 +214,7 @@ export function NewsPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng số tin</p>
             <p className="text-2xl font-black text-slate-900">{stats.total}</p>
+            <p className="text-[11px] text-slate-500">Toàn bộ kết quả</p>
           </div>
         </div>
 
@@ -216,6 +225,7 @@ export function NewsPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Đã xuất bản</p>
             <p className="text-2xl font-black text-slate-900">{stats.published}</p>
+            <p className="text-[11px] text-slate-500">Trên trang hiện tại</p>
           </div>
         </div>
 

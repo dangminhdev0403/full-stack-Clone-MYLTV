@@ -1,0 +1,1180 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: backend/src/modules/identity-access/audit/**, front-end/features/system-audit/**, front-end/app/admin/system/page.tsx, front-end/lib/api/admin-route.ts, shared/api-contract/docs/API_CATALOG.md, shared/api-contract/docs/IMPLEMENTATION_STATUS.md, shared/api-contract/docs/CONTRACT_CHANGES.md
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+- Git diffs from the worktree and staged changes are included
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  src/
+    modules/
+      identity-access/
+        audit/
+          audit.controller.spec.ts
+          audit.controller.ts
+          audit.service.spec.ts
+          audit.service.ts
+front-end/
+  app/
+    admin/
+      system/
+        page.tsx
+  features/
+    system-audit/
+      components/
+        system-audit-page.test.tsx
+        system-audit-page.tsx
+      hooks/
+        use-system-audit.ts
+      service/
+        system-audit.client.ts
+        system-audit.resource.ts
+  lib/
+    api/
+      admin-route.ts
+shared/
+  api-contract/
+    docs/
+      API_CATALOG.md
+      CONTRACT_CHANGES.md
+      IMPLEMENTATION_STATUS.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/src/modules/identity-access/audit/audit.controller.spec.ts">
+import { BadRequestException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+  REQUIRED_PERMISSIONS_KEY,
+  REQUIRED_ROLES_KEY,
+} from '../../../common/auth/auth.constants';
+import { AuditController } from './audit.controller';
+import { AuditService } from './audit.service';
+
+describe('AuditController', () => {
+  let controller: AuditController;
+  let auditService: jest.Mocked<Partial<AuditService>>;
+  let reflector: Reflector;
+
+  beforeEach(async () => {
+    auditService = {
+      listAuditLogs: jest.fn().mockResolvedValue({
+        data: {
+          audit_logs: [],
+          pagination: { page: 1, limit: 20, total: 0, total_pages: 0 },
+        },
+      }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuditController],
+      providers: [
+        {
+          provide: AuditService,
+          useValue: auditService,
+        },
+      ],
+    }).compile();
+
+    controller = module.get(AuditController);
+    reflector = new Reflector();
+  });
+
+  /* eslint-disable @typescript-eslint/unbound-method */
+  describe('Route Metadata & Auth Decorators', () => {
+    it('has RequireRole admin and super_admin on the class', () => {
+      const roles = reflector.get<string[]>(
+        REQUIRED_ROLES_KEY,
+        AuditController,
+      );
+      expect(roles).toEqual(['admin', 'super_admin']);
+    });
+
+    it('has RequirePermission identity.audit.read on listAuditLogs', () => {
+      const permissions = reflector.get<string[]>(
+        REQUIRED_PERMISSIONS_KEY,
+        AuditController.prototype.listAuditLogs,
+      );
+      expect(permissions).toEqual(['identity.audit.read']);
+    });
+  });
+  /* eslint-enable @typescript-eslint/unbound-method */
+
+  describe('Validation (Negative Cases)', () => {
+    it('throws BadRequestException on page <= 0 or invalid integer', () => {
+      expect(() => controller.listAuditLogs({ page: 0 })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ page: -5 })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ page: 'abc' })).toThrow(
+        BadRequestException,
+      );
+      expect(auditService.listAuditLogs).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on limit <= 0 or > 100', () => {
+      expect(() => controller.listAuditLogs({ limit: 0 })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ limit: 101 })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ limit: 'invalid' })).toThrow(
+        BadRequestException,
+      );
+      expect(auditService.listAuditLogs).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException on invalid ISO datetime from or to', () => {
+      expect(() => controller.listAuditLogs({ from: 'not-a-date' })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ from: '2026-08-01' })).toThrow(
+        BadRequestException,
+      );
+      expect(() => controller.listAuditLogs({ to: '2026-99-99' })).toThrow(
+        BadRequestException,
+      );
+      expect(auditService.listAuditLogs).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when from > to in date range validation', () => {
+      expect(() =>
+        controller.listAuditLogs({
+          from: '2026-08-10T00:00:00.000Z',
+          to: '2026-08-01T00:00:00.000Z',
+        }),
+      ).toThrow(BadRequestException);
+      expect(auditService.listAuditLogs).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Delegation & Query Parsing (Positive Cases)', () => {
+    it('delegates empty query with defaults to auditService.listAuditLogs', async () => {
+      await controller.listAuditLogs({});
+      expect(auditService.listAuditLogs).toHaveBeenCalledWith({
+        page: 1,
+        limit: 20,
+      });
+    });
+
+    it('delegates query with all valid filters and valid date range from <= to', async () => {
+      const query = {
+        page: '2',
+        limit: '50',
+        actor_id: '  actor-123  ',
+        action: '  USER_LOGIN  ',
+        bounded_context: '  identity_access  ',
+        resource_type: '  account  ',
+        resource_id: '  res-456  ',
+        from: '2026-08-01T00:00:00.000Z',
+        to: '2026-08-10T23:59:59.999Z',
+      };
+
+      await controller.listAuditLogs(query);
+
+      expect(auditService.listAuditLogs).toHaveBeenCalledWith({
+        page: 2,
+        limit: 50,
+        actor_id: 'actor-123',
+        action: 'USER_LOGIN',
+        bounded_context: 'identity_access',
+        resource_type: 'account',
+        resource_id: 'res-456',
+        from: '2026-08-01T00:00:00.000Z',
+        to: '2026-08-10T23:59:59.999Z',
+      });
+    });
+  });
+});
+</file>
+
+<file path="backend/src/modules/identity-access/audit/audit.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { AuditService } from './audit.service';
+
+describe('AuditService', () => {
+  let service: AuditService;
+  let prismaService: {
+    auditEvent: {
+      create: jest.Mock;
+      count: jest.Mock;
+      findMany: jest.Mock;
+    };
+  };
+
+  beforeEach(async () => {
+    prismaService = {
+      auditEvent: {
+        create: jest.fn().mockResolvedValue({ id: 'audit-1' }),
+        count: jest.fn().mockResolvedValue(2),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'audit-1',
+            actorId: 'actor-1',
+            action: 'LOGIN',
+            boundedContext: 'identity_access',
+            resourceType: 'account',
+            resourceId: 'acc-1',
+            metadata: {
+              password: 'secret_password_123',
+              user_token: 'jwt.token.val',
+              api_key: 'key-999',
+              authorization_header: 'Bearer xyz',
+              client_secret: 'sec-111',
+              user_credential: 'cred-val',
+              nested: {
+                auth_token: 'nested-token',
+                safe_info: 'safe',
+              },
+              array_data: [
+                { token_id: 't-1', name: 'Item 1' },
+                { safe_key: 123 },
+              ],
+              safe_field: 'normal_value',
+            },
+            createdAt: new Date('2026-08-05T10:00:00Z'),
+          },
+          {
+            id: 'audit-2',
+            actorId: 'actor-2',
+            action: 'UPDATE_ROLE',
+            boundedContext: 'identity_access',
+            resourceType: 'role',
+            resourceId: 'role-1',
+            metadata: null,
+            createdAt: new Date('2026-08-04T10:00:00Z'),
+          },
+        ]),
+      },
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuditService,
+        {
+          provide: PrismaService,
+          useValue: prismaService,
+        },
+      ],
+    }).compile();
+
+    service = module.get(AuditService);
+  });
+
+  describe('record', () => {
+    it('creates an audit event with specified payload', async () => {
+      const event = {
+        actorId: 'actor-100',
+        action: 'UPDATE_USER',
+        boundedContext: 'identity_access',
+        resourceType: 'user',
+        resourceId: 'user-200',
+        metadata: { role: 'admin' },
+      };
+
+      await service.record(event);
+
+      expect(prismaService.auditEvent.create).toHaveBeenCalledWith({
+        data: {
+          actorId: 'actor-100',
+          action: 'UPDATE_USER',
+          boundedContext: 'identity_access',
+          resourceType: 'user',
+          resourceId: 'user-200',
+          metadata: { role: 'admin' },
+        },
+        select: { id: true },
+      });
+    });
+  });
+
+  describe('listAuditLogs', () => {
+    it('queries prisma count and findMany with default pagination and ordering by createdAt desc then id desc', async () => {
+      const result = await service.listAuditLogs({});
+
+      expect(prismaService.auditEvent.count).toHaveBeenCalledWith({
+        where: {},
+      });
+      expect(prismaService.auditEvent.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 0,
+        take: 20,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      });
+
+      expect(result.data.pagination).toEqual({
+        page: 1,
+        limit: 20,
+        total: 2,
+        total_pages: 1,
+      });
+    });
+
+    it('applies exact filters for action, actor_id, bounded_context, resource_type, resource_id and date range gte/lte', async () => {
+      await service.listAuditLogs({
+        page: 2,
+        limit: 10,
+        action: 'LOGIN',
+        actor_id: 'actor-1',
+        bounded_context: 'identity_access',
+        resource_type: 'account',
+        resource_id: 'acc-1',
+        from: '2026-08-01T00:00:00.000Z',
+        to: '2026-08-05T23:59:59.999Z',
+      });
+
+      const expectedWhere = {
+        action: 'LOGIN',
+        actorId: 'actor-1',
+        boundedContext: 'identity_access',
+        resourceType: 'account',
+        resourceId: 'acc-1',
+        createdAt: {
+          gte: new Date('2026-08-01T00:00:00.000Z'),
+          lte: new Date('2026-08-05T23:59:59.999Z'),
+        },
+      };
+
+      expect(prismaService.auditEvent.count).toHaveBeenCalledWith({
+        where: expectedWhere,
+      });
+      expect(prismaService.auditEvent.findMany).toHaveBeenCalledWith({
+        where: expectedWhere,
+        skip: 10,
+        take: 10,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      });
+    });
+
+    it('recursively redacts metadata keys containing password, token, secret, authorization, credential, api_key while preserving safe values', async () => {
+      const result = await service.listAuditLogs({});
+      const item1Metadata = result.data.audit_logs[0].metadata as Record<
+        string,
+        unknown
+      >;
+
+      expect(item1Metadata.password).toBe('[REDACTED]');
+      expect(item1Metadata.user_token).toBe('[REDACTED]');
+      expect(item1Metadata.api_key).toBe('[REDACTED]');
+      expect(item1Metadata.authorization_header).toBe('[REDACTED]');
+      expect(item1Metadata.client_secret).toBe('[REDACTED]');
+      expect(item1Metadata.user_credential).toBe('[REDACTED]');
+      expect(item1Metadata.safe_field).toBe('normal_value');
+
+      const nestedObj = item1Metadata.nested as Record<string, unknown>;
+      expect(nestedObj.auth_token).toBe('[REDACTED]');
+      expect(nestedObj.safe_info).toBe('safe');
+
+      const arrayData = item1Metadata.array_data as Array<
+        Record<string, unknown>
+      >;
+      expect(arrayData[0].token_id).toBe('[REDACTED]');
+      expect(arrayData[0].name).toBe('Item 1');
+      expect(arrayData[1].safe_key).toBe(123);
+
+      const item2Metadata = result.data.audit_logs[1].metadata;
+      expect(item2Metadata).toBeNull();
+    });
+  });
+});
+</file>
+
+<file path="front-end/features/system-audit/components/system-audit-page.test.tsx">
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useSession } from "next-auth/react";
+import { useAuditLogsQuery } from "../hooks/use-system-audit";
+import { SystemAuditPage } from "./system-audit-page";
+
+vi.mock("next-auth/react", () => ({ useSession: vi.fn() }));
+vi.mock("../hooks/use-system-audit", () => ({ useAuditLogsQuery: vi.fn() }));
+vi.mock("@/features/admin-shell", () => ({ AdminShell: ({ children }: { children: React.ReactNode }) => <main>{children}</main> }));
+
+const sessionMock = vi.mocked(useSession);
+const queryMock = vi.mocked(useAuditLogsQuery);
+const refetch = vi.fn();
+
+function result(overrides: Record<string, unknown> = {}) {
+  return { data: undefined, isPending: false, isError: false, refetch, ...overrides } as unknown as ReturnType<typeof useAuditLogsQuery>;
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  sessionMock.mockReturnValue({ data: { user: { role: "admin", permissions: ["identity.audit.read"] } } } as unknown as ReturnType<typeof useSession>);
+  queryMock.mockReturnValue(result({ data: { audit_logs: [], pagination: { page: 1, limit: 20, total: 0, total_pages: 0 } } }));
+});
+
+describe("SystemAuditPage", () => {
+  it("denies missing permission and disables the query", () => {
+    sessionMock.mockReturnValue({ data: { user: { role: "admin", permissions: [] } } } as unknown as ReturnType<typeof useSession>);
+    render(<SystemAuditPage />);
+    expect(screen.getByRole("alert")).toHaveTextContent("không có quyền");
+    expect(queryMock).toHaveBeenCalledWith(expect.anything(), { enabled: false });
+  });
+
+  it("renders loading and retry states", () => {
+    queryMock.mockReturnValue(result({ isPending: true }));
+    const { rerender } = render(<SystemAuditPage />);
+    expect(screen.getByRole("status")).toHaveTextContent("Đang tải");
+    queryMock.mockReturnValue(result({ isError: true }));
+    rerender(<SystemAuditPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+    expect(refetch).toHaveBeenCalled();
+  });
+
+  it("applies filters, paginates and opens accessible metadata detail", () => {
+    queryMock.mockReturnValue(result({ data: { audit_logs: [{ id: "audit-1", actor_id: "actor-1", action: "ROLE_UPDATE", bounded_context: "identity_access", resource_type: "role", resource_id: "role-1", metadata: { safe: true }, created_at: "2026-08-06T00:00:00.000Z" }], pagination: { page: 1, limit: 20, total: 21, total_pages: 2 } } }));
+    render(<SystemAuditPage />);
+    fireEvent.change(screen.getByLabelText("Actor ID"), { target: { value: "actor-1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Áp dụng bộ lọc" }));
+    expect(queryMock).toHaveBeenLastCalledWith(expect.objectContaining({ actor_id: "actor-1" }), { enabled: true });
+    fireEvent.click(screen.getByRole("button", { name: "Xem chi tiết ROLE_UPDATE" }));
+    expect(screen.getByRole("dialog", { name: "Chi tiết nhật ký ROLE_UPDATE" })).toHaveTextContent('"safe": true');
+    fireEvent.click(screen.getByRole("button", { name: "Đóng" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Trang sau" }));
+    expect(queryMock).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }), { enabled: true });
+  });
+});
+</file>
+
+<file path="front-end/features/system-audit/components/system-audit-page.tsx">
+"use client";
+
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell } from "@/features/admin-shell";
+import { useAuditLogsQuery } from "../hooks/use-system-audit";
+import type { AuditLog, ListAuditLogsQuery } from "../service/system-audit.client";
+
+const fields: Array<[keyof ListAuditLogsQuery, string, string]> = [
+  ["actor_id", "Actor ID", "text"], ["action", "Hành động", "text"],
+  ["bounded_context", "Bounded context", "text"], ["resource_type", "Loại tài nguyên", "text"],
+  ["resource_id", "ID tài nguyên", "text"], ["from", "Từ thời điểm", "datetime-local"], ["to", "Đến thời điểm", "datetime-local"],
+];
+
+const toIso = (value?: string) => value ? new Date(value).toISOString() : undefined;
+
+export function SystemAuditPage() {
+  const { data: session } = useSession();
+  const canRead = session?.user?.role === "super_admin" || (session?.user?.permissions ?? []).includes("identity.audit.read");
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<ListAuditLogsQuery>({ page: 1, limit: 20 });
+  const [selected, setSelected] = useState<AuditLog>();
+  const query = useAuditLogsQuery(filters, { enabled: canRead });
+  const pagination = query.data?.pagination;
+
+  return <AdminShell title="Nhật ký hệ thống" subtitle="Tra cứu an toàn các thao tác quản trị." activeHref="/admin/system">
+    {!canRead ? <p role="alert" className="rounded-xl bg-red-50 p-4 text-red-800">Bạn không có quyền xem nhật ký hệ thống.</p> : <>
+      <form className="grid gap-3 rounded-2xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(event) => { event.preventDefault(); setFilters({ page: 1, limit: 20, ...draft, from: toIso(draft.from), to: toIso(draft.to) }); }}>
+        {fields.map(([key, label, type]) => <label key={key} className="text-sm font-semibold">{label}<input type={type} value={draft[key] ?? ""} onChange={(event) => setDraft((current) => ({ ...current, [key]: event.target.value }))} className="mt-1 min-h-11 w-full rounded-lg border px-3" /></label>)}
+        <button type="submit" className="min-h-11 self-end rounded-lg bg-[var(--primary)] px-4 font-bold text-white">Áp dụng bộ lọc</button>
+      </form>
+      {query.isPending ? <p role="status" className="rounded-xl border p-6">Đang tải nhật ký...</p> : query.isError ? <div role="alert" className="rounded-xl bg-red-50 p-4 text-red-800">Không thể tải nhật ký. <button type="button" onClick={() => void query.refetch()} className="underline">Thử lại</button></div> : !query.data?.audit_logs.length ? <p className="rounded-xl border p-6">Chưa có nhật ký phù hợp.</p> : <div className="overflow-x-auto rounded-2xl border bg-white"><table className="w-full text-left text-sm"><thead><tr><th className="p-3">Thời gian</th><th>Actor</th><th>Hành động</th><th>Tài nguyên</th><th>Chi tiết</th></tr></thead><tbody>{query.data.audit_logs.map((log) => <tr key={log.id} className="border-t"><td className="p-3">{new Date(log.created_at).toLocaleString("vi-VN")}</td><td>{log.actor_id}</td><td>{log.action}</td><td>{log.resource_type}:{log.resource_id}</td><td><button type="button" aria-label={`Xem chi tiết ${log.action}`} onClick={() => setSelected(log)} className="min-h-11 underline">Xem</button></td></tr>)}</tbody></table></div>}
+      {pagination && pagination.total_pages > 1 ? <nav aria-label="Phân trang nhật ký" className="flex justify-between"><button type="button" disabled={filters.page === 1} onClick={() => setFilters((current) => ({ ...current, page: Math.max(1, (current.page ?? 1) - 1) }))}>Trang trước</button><span>Trang {pagination.page}/{pagination.total_pages}</span><button type="button" disabled={filters.page === pagination.total_pages} onClick={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}>Trang sau</button></nav> : null}
+    </>}
+    {selected ? <div role="dialog" aria-modal="true" aria-label={`Chi tiết nhật ký ${selected.action}`} className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4"><section className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-2xl bg-white p-5"><h2 className="text-xl font-bold">{selected.action}</h2><pre className="mt-4 overflow-auto whitespace-pre-wrap">{JSON.stringify(selected.metadata ?? null, null, 2)}</pre><button type="button" onClick={() => setSelected(undefined)} className="mt-4 min-h-11 rounded-lg border px-4">Đóng</button></section></div> : null}
+  </AdminShell>;
+}
+</file>
+
+<file path="front-end/features/system-audit/hooks/use-system-audit.ts">
+import { useQuery } from "@tanstack/react-query";
+import { systemAuditResource } from "../service/system-audit.resource";
+import type { ListAuditLogsQuery } from "../service/system-audit.client";
+
+const boundResource = systemAuditResource.bind();
+
+export function useAuditLogsQuery(query?: ListAuditLogsQuery, options?: { enabled?: boolean }) {
+  return useQuery({
+    ...boundResource.queries.list.options(query),
+    enabled: options?.enabled ?? true,
+  });
+}
+</file>
+
+<file path="front-end/features/system-audit/service/system-audit.client.ts">
+import { z } from "zod";
+import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+
+export const auditLogSchema = z.object({
+  id: z.string(),
+  actor_id: z.string(),
+  action: z.string(),
+  bounded_context: z.string(),
+  resource_type: z.string(),
+  resource_id: z.string(),
+  metadata: z.unknown().optional(),
+  created_at: z.string(),
+});
+
+const listAuditLogsResponseSchema = successSchema(z.object({
+  audit_logs: z.array(auditLogSchema),
+  pagination: z.object({ page: z.number(), limit: z.number(), total: z.number(), total_pages: z.number() }),
+}));
+
+export type AuditLog = z.infer<typeof auditLogSchema>;
+export type ListAuditLogsQuery = {
+  page?: number;
+  limit?: number;
+  actor_id?: string;
+  action?: string;
+  bounded_context?: string;
+  resource_type?: string;
+  resource_id?: string;
+  from?: string;
+  to?: string;
+};
+
+export async function listAuditLogs(query: ListAuditLogsQuery = {}) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
+  const response = await fetch(`/api/admin/audit-logs${params.size ? `?${params}` : ""}`, { cache: "no-store" });
+  return (await parseApiResponse(response, listAuditLogsResponseSchema)).data;
+}
+</file>
+
+<file path="front-end/features/system-audit/service/system-audit.resource.ts">
+import { createResource, defineQuery } from "@dangminhdev04032005/query-resource";
+import { listAuditLogs, type ListAuditLogsQuery } from "./system-audit.client";
+
+export const systemAuditResource = createResource<void>()({
+  namespace: ["clone-myltv"],
+  name: "system-audit",
+  scopeKey: () => ["admin"],
+  queries: {
+    list: defineQuery({
+      inputKey: (query: ListAuditLogsQuery = {}) => [query.page ?? 1, query.limit ?? 20, query.actor_id ?? "", query.action ?? "", query.bounded_context ?? "", query.resource_type ?? "", query.resource_id ?? "", query.from ?? "", query.to ?? ""],
+      queryFn: ({ input }) => listAuditLogs(input),
+    }),
+  },
+  mutations: {},
+});
+</file>
+
+<file path="backend/src/modules/identity-access/audit/audit.controller.ts">
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { z } from 'zod';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { AuditService } from './audit.service';
+
+const listAuditLogsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    actor_id: z.string().trim().min(1).optional(),
+    action: z.string().trim().min(1).optional(),
+    bounded_context: z.string().trim().min(1).optional(),
+    resource_type: z.string().trim().min(1).optional(),
+    resource_id: z.string().trim().min(1).optional(),
+    from: z.string().trim().datetime({ offset: true }).optional(),
+    to: z.string().trim().datetime({ offset: true }).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        return new Date(data.from).getTime() <= new Date(data.to).getTime();
+      }
+      return true;
+    },
+    {
+      message: 'from date must be less than or equal to to date',
+      path: ['from'],
+    },
+  );
+
+export function validateListAuditLogsQuery(payload: unknown) {
+  const result = listAuditLogsQuerySchema.safeParse(payload);
+  if (!result.success) {
+    throw new BadRequestException({
+      message: 'Validation failed',
+      issues: result.error.issues,
+    });
+  }
+  return {
+    page: result.data.page ?? 1,
+    limit: result.data.limit ?? 20,
+    ...result.data,
+  };
+}
+
+@Controller('api/v1/admin/audit-logs')
+@RequireRole('admin', 'super_admin')
+export class AuditController {
+  constructor(private readonly auditService: AuditService) {}
+
+  @Get()
+  @RequirePermission('identity.audit.read')
+  listAuditLogs(@Query() query: unknown) {
+    return this.auditService.listAuditLogs(validateListAuditLogsQuery(query));
+  }
+}
+</file>
+
+<file path="backend/src/modules/identity-access/audit/audit.service.ts">
+import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import { PrismaService } from '../../../prisma/prisma.service';
+
+export type RecordAuditEvent = {
+  actorId: string;
+  action: string;
+  boundedContext: string;
+  resourceType: string;
+  resourceId: string;
+  metadata?: Prisma.InputJsonValue;
+};
+
+export type ListAuditLogsQueryDto = {
+  page?: number;
+  limit?: number;
+  action?: string;
+  actor_id?: string;
+  bounded_context?: string;
+  resource_type?: string;
+  resource_id?: string;
+  from?: string;
+  to?: string;
+};
+
+const SENSITIVE_KEY_PATTERNS = [
+  'password',
+  'token',
+  'secret',
+  'authorization',
+  'credential',
+  'api_key',
+];
+
+function isSensitiveKey(key: string): boolean {
+  const lowerKey = key.toLowerCase();
+  return SENSITIVE_KEY_PATTERNS.some((pattern) => lowerKey.includes(pattern));
+}
+
+function redactMetadata(val: unknown): unknown {
+  if (val === null || val === undefined || typeof val !== 'object') {
+    return val;
+  }
+
+  if (Array.isArray(val)) {
+    return val.map((item) => redactMetadata(item));
+  }
+
+  const obj = val as Record<string, unknown>;
+  const result: Record<string, unknown> = {};
+
+  for (const [k, v] of Object.entries(obj)) {
+    if (isSensitiveKey(k)) {
+      result[k] = '[REDACTED]';
+    } else {
+      result[k] = redactMetadata(v);
+    }
+  }
+
+  return result;
+}
+
+@Injectable()
+export class AuditService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async record(
+    event: RecordAuditEvent,
+    client: Pick<PrismaService, 'auditEvent'> = this.prisma,
+  ): Promise<void> {
+    await client.auditEvent.create({
+      data: {
+        actorId: event.actorId,
+        action: event.action,
+        boundedContext: event.boundedContext,
+        resourceType: event.resourceType,
+        resourceId: event.resourceId,
+        ...(event.metadata !== undefined ? { metadata: event.metadata } : {}),
+      },
+      select: { id: true },
+    });
+  }
+
+  async listAuditLogs(query: ListAuditLogsQueryDto) {
+    const page = Math.max(1, query.page ?? 1);
+    const limit = Math.min(100, Math.max(1, query.limit ?? 20));
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.AuditEventWhereInput = {
+      ...(query.action ? { action: query.action } : {}),
+      ...(query.actor_id ? { actorId: query.actor_id } : {}),
+      ...(query.bounded_context
+        ? { boundedContext: query.bounded_context }
+        : {}),
+      ...(query.resource_type ? { resourceType: query.resource_type } : {}),
+      ...(query.resource_id ? { resourceId: query.resource_id } : {}),
+      ...(query.from || query.to
+        ? {
+            createdAt: {
+              ...(query.from ? { gte: new Date(query.from) } : {}),
+              ...(query.to ? { lte: new Date(query.to) } : {}),
+            },
+          }
+        : {}),
+    };
+
+    const [total, items] = await Promise.all([
+      this.prisma.auditEvent.count({ where }),
+      this.prisma.auditEvent.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      }),
+    ]);
+
+    return {
+      data: {
+        audit_logs: items.map((item) => ({
+          id: item.id,
+          actor_id: item.actorId,
+          action: item.action,
+          bounded_context: item.boundedContext,
+          resource_type: item.resourceType,
+          resource_id: item.resourceId,
+          metadata: redactMetadata(item.metadata),
+          created_at: item.createdAt.toISOString(),
+        })),
+        pagination: {
+          page,
+          limit,
+          total,
+          total_pages: total === 0 ? 0 : Math.ceil(total / limit),
+        },
+      },
+    };
+  }
+}
+</file>
+
+<file path="front-end/app/admin/system/page.tsx">
+import { SystemAuditPage } from "@/features/system-audit/components/system-audit-page";
+
+export default function SystemAdminRoute() {
+  return <SystemAuditPage />;
+}
+</file>
+
+<file path="shared/api-contract/docs/API_CATALOG.md">
+# API Catalog v1 (School App)
+
+Shared contract for Sổ Liên Lạc Điện Tử. Base path is `/api/v1`; external JSON fields use `snake_case`.
+
+Path parameters use `{id}` for the primary resource when the resource segment already identifies it, such as `/students/{id}`. Do not put multiple IDs in one path; put secondary or action target IDs in the request body or query instead, such as `POST /students/{id}/homeworks/submit` with `homework_id` in the request body.
+
+## Envelope And Authorization
+
+All endpoints return:
+
+```json
+{ "success": true, "data": {}, "meta": {} }
+```
+
+Errors return:
+
+```json
+{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "Human-readable message", "details": [] }, "request_id": "opaque-request-id" }
+```
+
+Authorization is intentionally lean. The contract uses fixed role policy plus student/class ownership scopes through `x-allowed-roles` and `x-scope`; it does not define a full RBAC administration surface.
+
+## Bounded Context Endpoint Map
+
+### Identity & Access
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `POST /auth/login` | `POST /auth/login` | Login with username/password. |
+| `POST /auth/refresh-token` | `POST /auth/refresh-token` | Refresh token. |
+| `POST /auth/logout` | `POST /auth/logout` | Logout current device/session. |
+| `GET /me` | `GET /me` | Current actor and active student id. |
+| `PUT /me/password` | `PUT /me/password` | Change own password. |
+| `GET /admin/roles` | — | List system and dynamic roles with permission keys and assignment counts. |
+| `POST /admin/roles` | — | Create dynamic role with name, code, description, and permission keys. |
+| `GET /admin/roles/{id}` | — | Get role details and permission key mapping. |
+| `PATCH /admin/roles/{id}` | — | Rename and update role description. |
+| `PATCH /admin/roles/{id}/status` | — | Update active status of custom roles. |
+| `PUT /admin/roles/{id}/permissions` | — | Replace role permissions with critical-permission confirmation gate. |
+| `PUT /admin/accounts/{account_id}/roles` | — | Assign roles to account with super_admin protection rules. |
+| `GET /admin/audit-logs` | — | Search paginated, recursively redacted audit events with exact actor/action/context/resource/date filters. |
+
+### User Management
+
+| Management UI | Compatibility | Purpose |
+| --- | --- | --- |
+| `GET /admin/users` | `GET /users` | List users. |
+| `POST /admin/users` | `POST /users` | Create user. |
+| `GET /admin/users/{id}` | `GET /users/{id}` | Read user detail. |
+| `PATCH /admin/users/{id}` | `PATCH /users/{id}` | Update user. |
+| `POST /admin/users/{id}/disable` | `POST /users/{id}/disable` | Disable user. |
+| `POST /admin/users/{id}/reset-password` | `POST /users/{id}/reset-password` | Reset password with placeholder-only examples. |
+
+### Student Administration
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `GET /admin/students` | `GET /me/student` | Admin list feeds selected student profile display. |
+| `POST /admin/students` | - | Create student. |
+| `GET /admin/students/{id}` | `GET /me/accounts` | Student detail and linked student switcher data. |
+| `PATCH /admin/students/{id}` | - | Update student. |
+| `PUT /admin/students/{id}/accounts` | `POST /me/accounts/switch` | Manage and consume account-student links. |
+
+### Communication
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/news` | `GET /home/news` | Publish and display school news. |
+| `GET/POST /admin/notifications`, `GET/PATCH /admin/notifications/{id}` | `GET /notifications`, `GET /notifications/{id}`, `PATCH /notifications/{id}/read` | Validated, permission-protected admin list/detail/create/update and app consumption. |
+| `GET /admin/feedback`, `GET/PATCH /admin/feedback/{id}` | `POST /feedback` | Validated, permission-protected admin list/detail/status processing with search, status filter, pagination, and atomic audit. Admin create is planned; app submit remains legacy/partial. |
+
+### Academics
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/academic-context/current`, `/admin/academic-context/years`, `/admin/academic-context/semesters`, `/admin/academic-structure/grade-levels`, `/admin/academic-structure/classes`, `/admin/academic-structure/transfers`, `/admin/academic-structure/promotions` | — | Protected academic context plus grade/class/roster/enrollment/transfer/promotion administration. |
+| `/admin/attendance`, `GET /admin/students/{student_id}/attendance` | `GET /home/attendance/today`, `GET /students/{id}/attendance` | Attendance management plus protected student-detail history; app reads remain separate. |
+| `GET/POST /admin/timetable` | `GET /students/{id}/timetable` | Validated, permission-protected class/semester/week timetable read/write with atomic audit. |
+| `GET/POST /admin/scores`, `GET /admin/students/{student_id}/scores` | `GET /students/{id}/scores` | Validated, permission-protected score administration plus student-detail history. |
+| `GET/POST /admin/homeworks`, `GET/PATCH /admin/homeworks/{id}`, `POST /admin/homeworks/{id}/archive` | `GET /students/{id}/homeworks`, `POST /students/{id}/homeworks/submit` | Validated class/selected-student assignments, persisted submission progress, audited updates/archive. |
+| `/admin/reward-discipline`, `GET /admin/students/{student_id}/reward-discipline` | `GET /students/{id}/reward-discipline` | Protected student-detail reward/discipline history; broad admin list/filter remains planned. |
+| `/admin/online-study` | `GET /students/{id}/online-study` | Online study sessions. |
+
+### Billing
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/tuition` | `GET /home/tuition/summary`, `GET /services/tuition` | Tuition setup and display. |
+| `/admin/payment-requests` | `POST /services/tuition/payment-request` | Payment request review and creation. |
+
+### Student Services
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `/admin/meals` | `GET /services/meals`, `POST /services/meals/register` | Meal service registration. |
+| `/admin/events` | `GET /services/events`, `POST /services/events/{id}/register` | Events. |
+| `/admin/surveys` | `GET /services/surveys`, `POST /services/surveys/{id}/submit` | Surveys. |
+| `/admin/clubs` | `GET /services/clubs`, `POST /services/clubs/{id}/register` | Clubs. |
+| `/admin/bus`, `GET /admin/students/{student_id}/bus-route` | `GET /students/{id}/bus-route`, `GET /services/bus-tracking` | Protected student-profile bus assignment; broad management remains planned. |
+| `/admin/uniforms` | `GET /services/uniforms`, `POST /services/uniforms/orders` | Uniform catalog and orders. |
+| `/admin/coin-fund` | `GET /services/coin-fund` | Coin fund balance and transactions. |
+
+### Shared Platform
+
+| Management UI | App/mobile | Purpose |
+| --- | --- | --- |
+| `POST /uploads` | `POST /uploads` | Multipart upload for feedback, avatar, and attachments. |
+
+## Notes For Consumers
+
+- Prefer `/admin/...` endpoints for Management UI work.
+- `/users` remains only as a compatibility surface while clients migrate.
+- App/mobile endpoints are scoped to the active linked student unless the path explicitly includes a student `{id}`; the backend must enforce ownership.
+- Generated clients should consume `openapi/v1/openapi.json` as the machine-readable source.
+</file>
+
+<file path="shared/api-contract/docs/IMPLEMENTATION_STATUS.md">
+# Implementation Status
+
+This file tracks backend availability for the draft v1 OpenAPI contract. It is conservative by default: an endpoint appearing in the contract does not mean it is live in the backend.
+
+## Status Legend
+
+| Status | Meaning |
+| --- | --- |
+| `contracted` | Appears in the OpenAPI contract. |
+| `implemented` | Backend route exists, validates DTOs, has tests, and passes contract verification. |
+| `partial` | Backend route or legacy behavior exists, but coverage, validation, or business behavior is incomplete for contract reliance. |
+| `mock-only` | Frontend can mock from the contract; backend module is not ready for live integration. |
+| `deprecated` | Compatibility surface only; use the preferred replacement for new work. |
+| `blocked` | Awaiting schema, ownership, or module decision before implementation can proceed. |
+
+## Bounded-Context Matrix
+
+| Bounded context | Contract status | Backend implementation status | Frontend guidance |
+| --- | --- | --- | --- |
+| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role administration, account-role assignment, and protected redacted audit-log viewing are live scope. |
+| User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
+| Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
+| Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |
+| Academics (Context, Structure, Attendance, Scores, Timetable, Homework) | `contracted` | Academic context/grade/class/roster/transfer/promotion administration, Attendance, Scores, Timetable, and Homework `implemented` | Academic years, semesters, grade levels, classes, roster, transfer, promotion, enrollment history, score, timetable, homework, and student detail reads are live. |
+| Billing (Tuition) | `contracted` | `implemented` at `/admin/tuition` | Administrative tuition charges list, create, detail, and update are live. |
+| Student Services (Events) | `contracted` | `partial` at `/admin/events` | Persistent CRUD routes exist, but DTO validation, dedicated permission/audit, registration-list contract, migrations, and negative tests remain incomplete. |
+| Student Services (Meals, Surveys, Clubs, Bus, Uniforms) | `contracted` | Protected student bus detail `implemented`; Admin CRUD `blocked` | Student profile bus assignment is live. Broad service management surfaces remain planned until full admin contracts are finalized. |
+| Uploads | `contracted` | `implemented` at `/uploads` | File attachment saving and metadata response are live. |
+
+## Status Change Rule
+
+Changing a context or endpoint to `implemented` requires all of these:
+
+1. Backend route exists under the intended versioned API path.
+2. Request DTO validation matches the contract.
+3. Response shape matches the contract envelope and schema.
+4. Authorization behavior matches fixed-role policy plus linked-student/class/resource scope.
+5. Tests cover the implemented route, including relevant negative cases.
+6. Contract verification passes.
+
+If any item is missing, use `partial` or `mock-only` instead of `implemented`.
+</file>
+
+<file path="shared/api-contract/docs/CONTRACT_CHANGES.md">
+# Contract Changes
+
+- 2026-08-06: Added protected `GET /admin/audit-logs` with exact actor/action/context/resource/date filters, validated pagination/range, recursive secret metadata redaction, Next BFF consumption, and permission-aware admin UI.
+- 2026-08-06: Added exact contracts, snake_case envelopes, DTO validation rules, error specs (400/401/403/409), and BFF allowlists for protected role administration (list/detail/create/rename/status/permissions) and account-role assignments.
+- 2026-08-06: Synchronized C3 Academic Structure student transfers (POST /api/v1/admin/academic-structure/transfers) and cohort promotions (POST /api/v1/admin/academic-structure/promotions) contracts with validated snake_case request/response DTOs, academics.structure.manage permission, fixed-role policy, and audited writes.
+- 2026-08-06: Implemented `GET/POST /admin/timetable` with required class, semester, week scope, validated lesson slots, explicit permissions, BFF consumption, and audited writes.
+
+## Unreleased - 2026-07-26
+
+- Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.
+- Canonicalized Homework admin routes to plural `/admin/homeworks`; added validated class/selected-student assignment, persisted per-student submission progress, audited update/archive, BFF allowlist, and real management UI.
+
+- Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
+- Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.
+- Added protected academic year/semester list, create, update, and set-current operations with coherent transactional current context and audited mutations.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
+- Completed Feedback admin list/detail/status update with validated DTOs, dedicated read/manage permissions, atomic status-update audit, search/status filtering, pagination, BFF routes, permission-aware management UI, and backend/frontend tests. Admin create is explicitly planned; app submit remains legacy/partial.
+- Added dedicated `AdminFeedbackItem`, `AdminFeedbackList`, and `AdminFeedbackStatusUpdate` schemas; removed the untrusted `student_id` admin-list query, normalized legacy `received`/`closed` data to `new`/`resolved`, and synchronized canonical JSON/YAML plus root/frontend mirrors.
+- Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
+- Added `x-required-permission` metadata for admin/app Notifications operations; app reads derive linked-student scope only from the authenticated actor, admin mutations write their audit event in the same transaction, and canonical JSON/YAML plus root/frontend mirrors stay synchronized.
+
+## Unreleased - 2026-07-25
+
+- Extended Next.js BFF router (`/api/admin/[resource]/[[...segments]]`) to proxy GET, POST, PUT, PATCH, and DELETE with query parameters, headers, and authentication tokens.
+- Implemented DELETE `/api/v1/admin/news/:id` and integrated confirmation dialog with permission handling and cache invalidation on news management UI.
+- Added persistent Admin Events routes (`/api/v1/admin/events`) and registration counters; status remains partial/planned until DTO validation, permission/audit, migrations, and negative tests are complete.
+- Added Admin Feedback status update route (`PATCH /api/v1/admin/feedback/:id`); status remains partial/planned until validated admin detail/update contract and negative tests are complete.
+- Converted Notifications, Feedback, Events, and News frontend modules to `@dangminhdev04032005/query-resource` architecture without raw TanStack Query keys or mock data fallbacks.
+- Normalized Admin Dashboard (`/admin`) to fetch real server counts via lightweight GET queries.
+- Replaced un-contracted static mock pages (Meals, Surveys, Clubs, Bus, Uniforms, Reports, System) with `PlannedSurface` to prevent fake button interactions.
+
+## Unreleased - 2026-07-16
+
+- Implemented the first Academics Attendance vertical slice for administrators:
+  persisted class/date/period sessions, explicit per-student statuses, audited
+  create/update operations, and typed management UI list/edit behavior.
+- Added `academics.attendance.read` and `academics.attendance.manage`. Teacher
+  access remains deferred until class-assignment ownership can be enforced.
+- Added the implemented, read-only `GET /admin/academic-context/current` shell
+  bootstrap endpoint for administrators. It returns one coherent current academic
+  year and semester and requires `academics.context.read`.
+- Implemented the Communication News vertical slice: admin CRUD, publish/hide,
+  pin/reorder, and app reads filtered for the active student's all/grade/class/student
+  audience.
+- Added `communication.news.read`, `communication.news.manage`, and
+  `communication.news.publish` authorization metadata and explicit publication
+  lifecycle/audience request schemas.
+
+## Unreleased - 2026-07-13
+
+- Added Zod request/query validation for Student Administration admin routes and active-student switching.
+- Implemented and applied the Student Administration backend database migrations after approved development reset: baseline Identity & Access migration plus Student Administration tables, indexes, enum, and foreign keys.
+- Implemented the backend Student Administration code slice for admin student CRUD, guardian account links, and app active-student context routes.
+- Standardized resource path parameters to `{id}` when the resource segment already provides context, and moved secondary/action target IDs such as `homework_id` into request bodies instead of paths.
+- Added frontend handoff documentation and a conservative implementation status matrix clarifying that the OpenAPI contract is a draft sync surface for review, generation, and mock integration, not proof that all backend endpoints are implemented.
+
+## 1.0.0 - 2026-07-13
+
+- Rewrote the shared OpenAPI contract for the Luong The Vinh school app/backend project.
+- Added Management UI `/admin/...` endpoints and app/mobile display endpoints across Identity & Access, Student Administration, Communication, Academics, Billing, Student Services, and Uploads.
+- Replaced stale hotel/auth-service/RBAC language with fixed role policy plus student/class ownership scopes.
+- Added JSON/YAML mirrors, common envelopes, pagination, shared schemas, and consumer/scope vendor extensions.
+- Marked the old Postman collection as deprecated and non-authoritative.
+
+## 0.1.1
+
+- Added `API_CATALOG.md` with module-level request/response contract for frontend integration.
+- Documented success/error envelopes and public/private route behavior.
+
+## 0.1.0
+
+- Initialized shared API contract package.
+- Added OpenAPI export pipeline from `services/auth-service`.
+- Added verification and SDK preparation scripts.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
+</file>
+
+<file path="front-end/lib/api/admin-route.ts">
+const ID = /^[A-Za-z0-9_-]+$/;
+
+export function resolveAdminEndpoint(resource: string, segments: string[], method: string): string {
+  if (segments.some((segment) => !ID.test(segment))) throw new Error("Unsupported admin endpoint");
+  const id = segments[0];
+  if (resource === "users") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/users";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/users/${id}`;
+    if (segments.length === 2 && id && ["disable", "reset-password"].includes(segments[1]) && method === "POST") return `/api/v1/users/${id}/${segments[1]}`;
+  }
+  if (resource === "students") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/students";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/students/${id}`;
+    if (segments.length === 2 && id && segments[1] === "accounts" && method === "PUT") return `/api/v1/admin/students/${id}/accounts`;
+    if (segments.length === 2 && id && segments[1] === "attendance" && method === "GET") return `/api/v1/admin/students/${id}/attendance`;
+    if (segments.length === 2 && id && segments[1] === "scores" && method === "GET") return `/api/v1/admin/students/${id}/scores`;
+    if (segments.length === 2 && id && segments[1] === "bus-route" && method === "GET") return `/api/v1/admin/students/${id}/bus-route`;
+  }
+  if (resource === "attendance") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/attendance";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/attendance/${id}`;
+  }
+  if (resource === "tuition") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/tuition";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/tuition/${id}`;
+  }
+  if (resource === "news") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/news";
+    if (segments.length === 1 && id && ["GET", "PATCH", "DELETE"].includes(method)) return `/api/v1/admin/news/${id}`;
+    if (segments.length === 2 && id && ["publish", "hide", "pin", "reorder"].includes(segments[1]) && method === "POST") return `/api/v1/admin/news/${id}/${segments[1]}`;
+  }
+  if (resource === "notifications") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/notifications";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/notifications/${id}`;
+  }
+  if (resource === "feedback") {
+    if (segments.length === 0 && method === "GET") return "/api/v1/admin/feedback";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/feedback/${id}`;
+  }
+  if (resource === "events") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/events";
+    if (segments.length === 1 && id && ["GET", "PATCH", "DELETE"].includes(method)) return `/api/v1/admin/events/${id}`;
+  }
+  if (resource === "scores") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/scores";
+    if (segments.length === 1 && id === "reward-discipline" && method === "POST") return "/api/v1/admin/reward-discipline";
+  }
+  if (resource === "timetable" && segments.length === 0 && ["GET", "POST"].includes(method)) {
+    return "/api/v1/admin/timetable";
+  }
+  if (resource === "audit-logs" && segments.length === 0 && method === "GET") {
+    return "/api/v1/admin/audit-logs";
+  }
+  if (resource === "homeworks") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/homeworks";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/homeworks/${id}`;
+    if (segments.length === 2 && id && segments[1] === "archive" && method === "POST") return `/api/v1/admin/homeworks/${id}/archive`;
+  }
+  if (resource === "academic-context") {
+    if (segments.length === 1 && segments[0] === "current" && method === "GET") {
+      return "/api/v1/admin/academic-context/current";
+    }
+    if (segments.length === 1 && segments[0] === "years" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-context/years";
+    }
+    if (segments.length === 2 && segments[0] === "years" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-context/years/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "years" && segments[2] === "set-current" && ["POST", "PUT"].includes(method)) {
+      return `/api/v1/admin/academic-context/years/${segments[1]}/set-current`;
+    }
+    if (segments.length === 1 && segments[0] === "semesters" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-context/semesters";
+    }
+    if (segments.length === 2 && segments[0] === "semesters" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-context/semesters/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "semesters" && segments[2] === "set-current" && ["POST", "PUT"].includes(method)) {
+      return `/api/v1/admin/academic-context/semesters/${segments[1]}/set-current`;
+    }
+  }
+  if (resource === "academic-structure") {
+    if (segments.length === 1 && segments[0] === "grade-levels" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-structure/grade-levels";
+    }
+    if (segments.length === 2 && segments[0] === "grade-levels" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-structure/grade-levels/${segments[1]}`;
+    }
+    if (segments.length === 1 && segments[0] === "classes" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-structure/classes";
+    }
+    if (segments.length === 2 && segments[0] === "classes" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "classes" && segments[2] === "roster" && method === "GET") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/roster`;
+    }
+    if (segments.length === 3 && segments[0] === "classes" && segments[2] === "enrollments" && method === "POST") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/enrollments`;
+    }
+    if (segments.length === 5 && segments[0] === "classes" && segments[2] === "enrollments" && segments[4] === "deactivate" && method === "POST") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/enrollments/${segments[3]}/deactivate`;
+    }
+    if (segments.length === 1 && segments[0] === "transfers" && method === "POST") {
+      return "/api/v1/admin/academic-structure/transfers";
+    }
+    if (segments.length === 1 && segments[0] === "promotions" && method === "POST") {
+      return "/api/v1/admin/academic-structure/promotions";
+    }
+  }
+  if (resource === "roles") {
+    if (segments.length === 0 && ["GET", "POST"].includes(method)) return "/api/v1/admin/roles";
+    if (segments.length === 1 && id && ["GET", "PATCH"].includes(method)) return `/api/v1/admin/roles/${id}`;
+    if (segments.length === 2 && id && segments[1] === "status" && method === "PATCH") return `/api/v1/admin/roles/${id}/status`;
+    if (segments.length === 2 && id && segments[1] === "permissions" && method === "PUT") return `/api/v1/admin/roles/${id}/permissions`;
+  }
+  if (resource === "accounts") {
+    if (segments.length === 2 && id && segments[1] === "roles" && method === "PUT") return `/api/v1/admin/accounts/${id}/roles`;
+  }
+  throw new Error("Unsupported admin endpoint");
+}
+</file>
+
+</files>
+
+<git_diffs>
+<git_diff_work_tree>
+
+</git_diff_work_tree>
+<git_diff_staged>
+
+</git_diff_staged>
+</git_diffs>

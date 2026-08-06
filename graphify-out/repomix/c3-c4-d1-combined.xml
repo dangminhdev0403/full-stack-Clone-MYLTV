@@ -1,0 +1,1150 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: backend/src/modules/academics/academic-structure/academic-structure.controller.ts, backend/src/modules/academics/academic-structure/academic-structure.service.ts, backend/src/modules/academics/academic-structure/academic-structure.validation.ts, backend/src/modules/academics/academic-structure/academic-structure.service.spec.ts, backend/src/modules/identity-access/audit/audit.service.ts, backend/src/modules/identity-access/audit/audit.controller.ts, backend/src/modules/identity-access/identity-access.module.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, backend/src/prisma/seed.ts, front-end/app/admin/academic-structure/page.tsx, front-end/app/admin/system/page.tsx, front-end/features/academic-structure/**, front-end/features/system-audit/**, front-end/features/admin-shell/components/admin-shell.tsx, front-end/features/admin-shell/components/admin-shell.test.tsx, front-end/features/admin-shell/data/admin-nav-items.ts, front-end/lib/api/admin-route.ts
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  src/
+    modules/
+      academics/
+        academic-structure/
+          academic-structure.controller.ts
+          academic-structure.service.spec.ts
+          academic-structure.service.ts
+          academic-structure.validation.ts
+      identity-access/
+        audit/
+          audit.controller.ts
+          audit.service.ts
+        permissions/
+          permission.registry.ts
+        identity-access.module.ts
+    prisma/
+      seed.ts
+front-end/
+  app/
+    admin/
+      academic-structure/
+        page.tsx
+      system/
+        page.tsx
+  features/
+    academic-structure/
+      components/
+        academic-classes-manager.test.tsx
+        academic-classes-manager.tsx
+        academic-structure-manager.test.tsx
+        academic-structure-manager.tsx
+        academic-structure-page.tsx
+      hooks/
+        use-academic-structure.ts
+      service/
+        academic-structure.client.ts
+        academic-structure.resource.ts
+    admin-shell/
+      components/
+        admin-shell.test.tsx
+        admin-shell.tsx
+      data/
+        admin-nav-items.ts
+    system-audit/
+      components/
+        system-audit-page.tsx
+      hooks/
+        use-system-audit.ts
+      service/
+        system-audit.client.ts
+        system-audit.resource.ts
+  lib/
+    api/
+      admin-route.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/src/modules/identity-access/audit/audit.controller.ts">
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { z } from 'zod';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { AuditService } from './audit.service';
+⋮----
+export function validateListAuditLogsQuery(payload: unknown)
+⋮----
+export class AuditController
+⋮----
+constructor(private readonly auditService: AuditService)
+⋮----
+listAuditLogs(@Query() query: unknown)
+</file>
+
+<file path="front-end/app/admin/academic-structure/page.tsx">
+import { AcademicStructurePage } from "@/features/academic-structure/components/academic-structure-page";
+⋮----
+export default function AcademicStructureAdminRoute()
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-structure-page.tsx">
+import { useState } from "react";
+import { AdminShell } from "@/features/admin-shell";
+import {
+  useAcademicYearsQuery,
+  useClassesQuery,
+  useGradeLevelsQuery,
+  usePromoteCohortMutation,
+  useTransferStudentsMutation,
+} from "../hooks/use-academic-structure";
+⋮----
+// Transfer state
+⋮----
+// Promotion state
+⋮----
+const handleTransfer = (e: React.FormEvent) =>
+⋮----
+const handlePromote = (e: React.FormEvent) =>
+⋮----
+{/* Header Banner */}
+⋮----
+{/* Filters */}
+⋮----
+{/* Classes Table */}
+⋮----
+/* Transfer & Promotion Form Tab */
+⋮----
+{/* Individual Transfer Card */}
+⋮----
+{/* Cohort Promotion Card */}
+</file>
+
+<file path="front-end/features/system-audit/components/system-audit-page.tsx">
+import { useState } from "react";
+import { AdminShell } from "@/features/admin-shell";
+import { useAuditLogsQuery } from "../hooks/use-system-audit";
+⋮----
+{/* Header Banner */}
+⋮----
+{/* Filter Section */}
+⋮----
+{/* Audit Table */}
+⋮----
+{/* Pagination Controls */}
+⋮----
+onClick=
+</file>
+
+<file path="front-end/features/system-audit/hooks/use-system-audit.ts">
+import { useQuery } from "@tanstack/react-query";
+import { systemAuditResource } from "../service/system-audit.resource";
+import type { ListAuditLogsQuery } from "../service/system-audit.client";
+⋮----
+export function useAuditLogsQuery(query?: ListAuditLogsQuery, options?:
+</file>
+
+<file path="front-end/features/system-audit/service/system-audit.client.ts">
+import { z } from "zod";
+import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+⋮----
+export type AuditLog = z.infer<typeof auditLogSchema>;
+⋮----
+export type ListAuditLogsQuery = {
+  page?: number;
+  limit?: number;
+  action?: string;
+  actor_id?: string;
+  resource_type?: string;
+};
+⋮----
+export async function listAuditLogs(query?: ListAuditLogsQuery)
+</file>
+
+<file path="front-end/features/system-audit/service/system-audit.resource.ts">
+import { createResource, defineQuery } from "@dangminhdev04032005/query-resource";
+import { listAuditLogs, type ListAuditLogsQuery } from "./system-audit.client";
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { AcademicStructureService } from './academic-structure.service';
+import {
+  validateAssignStudentEnrollment,
+  validateCreateGradeLevel,
+  validateCreateSchoolClass,
+  validateListClassesQuery,
+  validatePromoteCohort,
+  validateTransferStudents,
+  validateUpdateGradeLevel,
+  validateUpdateSchoolClass,
+} from './academic-structure.validation';
+⋮----
+export class AcademicStructureController
+⋮----
+constructor(private readonly academicStructure: AcademicStructureService)
+⋮----
+listGradeLevels()
+⋮----
+createGradeLevel(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateGradeLevel(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+listClasses(
+    @Query('academic_year_id') academicYearId?: string,
+    @Query('grade_level_id') gradeLevelId?: string,
+    @Query('is_active') isActive?: string,
+)
+⋮----
+createClass(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateClass(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+getClassRoster(
+    @Param('id') id: string,
+    @Query('is_active') isActive?: string,
+)
+⋮----
+assignStudentEnrollment(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+deactivateStudentEnrollment(
+    @Param('id') id: string,
+    @Param('student_id') studentId: string,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+transferStudents(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+promoteCohort(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.service.spec.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import type { AuditService } from '../../identity-access/audit/audit.service';
+import { AcademicStructureService } from './academic-structure.service';
+⋮----
+type MockFn = jest.Mock;
+⋮----
+interface MockGradeLevelDelegate {
+  findMany: MockFn;
+  findUnique: MockFn;
+  create: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockSchoolClassDelegate {
+  findMany: MockFn;
+  findUnique: MockFn;
+  create: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockClassEnrollmentDelegate {
+  findMany: MockFn;
+  findFirst: MockFn;
+  create: MockFn;
+  update: MockFn;
+  updateMany: MockFn;
+}
+⋮----
+interface MockAcademicYearDelegate {
+  findUnique: MockFn;
+}
+⋮----
+interface MockStudentDelegate {
+  findUnique: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockAccountDelegate {
+  findUnique: MockFn;
+}
+⋮----
+interface MockPrismaClient {
+  gradeLevel: MockGradeLevelDelegate;
+  schoolClass: MockSchoolClassDelegate;
+  classEnrollment: MockClassEnrollmentDelegate;
+  academicYear: MockAcademicYearDelegate;
+  student: MockStudentDelegate;
+  account: MockAccountDelegate;
+  $transaction: jest.Mock;
+}
+⋮----
+interface MockAuditService {
+  record: MockFn;
+}
+⋮----
+// Verify deactivation of prior enrollment
+⋮----
+// Verify creation of new enrollment
+⋮----
+// Verify atomic update of legacy Student fields
+⋮----
+// Verify audit log
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.service.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { ok } from '../../../common/http/api-response';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { AuditService } from '../../identity-access/audit/audit.service';
+import type {
+  AssignStudentEnrollmentDto,
+  CreateGradeLevelDto,
+  CreateSchoolClassDto,
+  ListClassesQueryDto,
+  PromoteCohortDto,
+  TransferStudentsDto,
+  UpdateGradeLevelDto,
+  UpdateSchoolClassDto,
+} from './academic-structure.validation';
+⋮----
+type SchoolClassPayload = {
+  id: string;
+  academicYearId: string;
+  gradeLevelId: string;
+  code: string;
+  displayName: string;
+  homeroomTeacherId: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  academicYear?: {
+    id: string;
+    code: string;
+    displayName: string;
+    startsOn: Date;
+    endsOn: Date;
+    isCurrent: boolean;
+  } | null;
+  gradeLevel?: {
+    id: string;
+    code: string;
+    displayName: string;
+    sortOrder: number;
+  } | null;
+  homeroomTeacher?: {
+    id: string;
+    username: string;
+    displayName: string;
+    role: string;
+    isActive: boolean;
+  } | null;
+};
+⋮----
+type ClassEnrollmentPayload = {
+  id: string;
+  studentId: string;
+  classId: string;
+  startsOn: Date | null;
+  endsOn: Date | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  student?: {
+    id: string;
+    code: string;
+    fullName: string;
+    grade: string | null;
+    className: string;
+    isActive: boolean;
+  } | null;
+  class?: SchoolClassPayload | null;
+};
+⋮----
+export class AcademicStructureService
+⋮----
+constructor(
+⋮----
+// ---------------------------------------------------------------------------
+// Grade Level Domain Operations
+// ---------------------------------------------------------------------------
+⋮----
+async listGradeLevels()
+⋮----
+async createGradeLevel(dto: CreateGradeLevelDto, actor?: AuthenticatedUser)
+⋮----
+async updateGradeLevel(
+    id: string,
+    dto: UpdateGradeLevelDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// School Class Domain Operations
+// ---------------------------------------------------------------------------
+⋮----
+async listClasses(query: ListClassesQueryDto)
+⋮----
+async createClass(dto: CreateSchoolClassDto, actor?: AuthenticatedUser)
+⋮----
+async updateClass(
+    id: string,
+    dto: UpdateSchoolClassDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// Roster & Enrollment Operations
+// ---------------------------------------------------------------------------
+⋮----
+async getClassRoster(classId: string, isActiveFilter?: boolean)
+⋮----
+async assignStudentEnrollment(
+    classId: string,
+    dto: AssignStudentEnrollmentDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// 1. Deactivate prior active enrollment(s) with endsOn date
+⋮----
+// 2. Create new active enrollment record
+⋮----
+// 3. Atomically update legacy Student compatibility fields
+⋮----
+// 4. Record audit event in same transaction
+⋮----
+async deactivateStudentEnrollment(
+    classId: string,
+    studentId: string,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// Helper methods & Serializers
+// ---------------------------------------------------------------------------
+⋮----
+private async verifyHomeroomTeacher(teacherId: string): Promise<void>
+⋮----
+private serializeGradeLevel(g: Prisma.GradeLevelGetPayload<object>)
+⋮----
+private serializeClass(c: SchoolClassPayload)
+⋮----
+private serializeEnrollment(e: ClassEnrollmentPayload)
+⋮----
+async transferStudents(dto: TransferStudentsDto, actor?: AuthenticatedUser)
+⋮----
+async promoteClassCohort(dto: PromoteCohortDto, actor?: AuthenticatedUser)
+⋮----
+private requireActorId(actor?: AuthenticatedUser): string
+⋮----
+private parseDate(value: string): Date
+⋮----
+private toDate(value: Date): string
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.validation.ts">
+import { BadRequestException } from '@nestjs/common';
+import { z, ZodError, type ZodType } from 'zod';
+⋮----
+export type CreateGradeLevelDto = z.infer<typeof createGradeLevelSchema>;
+export type UpdateGradeLevelDto = z.infer<typeof updateGradeLevelSchema>;
+export type ListClassesQueryDto = z.infer<typeof listClassesQuerySchema>;
+export type CreateSchoolClassDto = z.infer<typeof createSchoolClassSchema>;
+export type UpdateSchoolClassDto = z.infer<typeof updateSchoolClassSchema>;
+export type AssignStudentEnrollmentDto = z.infer<
+  typeof assignStudentEnrollmentSchema
+>;
+export type TransferStudentsDto = z.infer<typeof transferStudentsSchema>;
+export type PromoteCohortDto = z.infer<typeof promoteCohortSchema>;
+⋮----
+export function validateCreateGradeLevel(
+  payload: unknown,
+): CreateGradeLevelDto
+⋮----
+export function validateUpdateGradeLevel(
+  payload: unknown,
+): UpdateGradeLevelDto
+⋮----
+export function validateListClassesQuery(
+  payload: unknown,
+): ListClassesQueryDto
+⋮----
+export function validateCreateSchoolClass(
+  payload: unknown,
+): CreateSchoolClassDto
+⋮----
+export function validateUpdateSchoolClass(
+  payload: unknown,
+): UpdateSchoolClassDto
+⋮----
+export function validateAssignStudentEnrollment(
+  payload: unknown,
+): AssignStudentEnrollmentDto
+⋮----
+export function validateTransferStudents(payload: unknown): TransferStudentsDto
+⋮----
+export function validatePromoteCohort(payload: unknown): PromoteCohortDto
+⋮----
+function parseRequest<T>(
+  schema: ZodType<T>,
+  value: unknown,
+  source: string,
+): T
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-classes-manager.test.tsx">
+// @vitest-environment jsdom
+⋮----
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSession } from "next-auth/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AcademicClassesManager } from "./academic-classes-manager";
+import {
+  assignStudentEnrollment,
+  createGradeLevel,
+  createSchoolClass,
+  getClassRoster,
+  listAcademicYears,
+  listClasses,
+  listGradeLevels,
+} from "../service/academic-structure.client";
+⋮----
+function renderComponent()
+⋮----
+function session(permissions: string[], role = "admin")
+⋮----
+// Switch to Classes tab
+⋮----
+// Switch to Roster tab
+⋮----
+// Select class
+⋮----
+// Assign student
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-classes-manager.tsx">
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell, Icon } from "@/features/admin-shell";
+import {
+  useAcademicYearsQuery,
+  useAssignEnrollmentMutation,
+  useClassesQuery,
+  useClassRosterQuery,
+  useCreateClassMutation,
+  useCreateGradeLevelMutation,
+  useDeactivateEnrollmentMutation,
+  useGradeLevelsQuery,
+  useUpdateClassMutation,
+  useUpdateGradeLevelMutation,
+} from "../hooks/use-academic-structure";
+import type { GradeLevel, SchoolClass } from "../service/academic-structure.client";
+⋮----
+function translateErrorMessage(error: unknown): string
+⋮----
+// Class filters
+⋮----
+// Roster selected class
+⋮----
+// Modals
+⋮----
+// Alerts
+⋮----
+// Queries
+⋮----
+// Mutations
+⋮----
+const handleSaveGrade = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleSaveClass = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleAssignStudent = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleDeactivateEnrollment = async (studentId: string) =>
+⋮----
+{/* Navigation Tabs */}
+⋮----
+setActiveTab("grades");
+setInlineError("");
+setSuccessMessage("");
+⋮----
+{/* Global Feedback Banners */}
+⋮----
+{/* Tab 1: Grade Levels */}
+⋮----
+setEditingGrade(null);
+setGradeModalOpen(true);
+⋮----
+setEditingGrade(g);
+⋮----
+{/* Tab 2: School Classes */}
+⋮----
+setEditingClass(null);
+setClassModalOpen(true);
+⋮----
+{/* Filter Bar */}
+⋮----
+setEditingClass(c);
+⋮----
+{/* Tab 3: Roster & Student Enrollment */}
+⋮----
+{/* Modal: Create/Edit Grade Level */}
+⋮----
+setGradeModalOpen(false);
+⋮----
+{/* Modal: Create/Edit School Class */}
+⋮----
+setClassModalOpen(false);
+⋮----
+{/* Modal: Assign Student Enrollment */}
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-structure-manager.test.tsx">
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSession } from "next-auth/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AcademicStructureManager } from "./academic-structure-manager";
+import {
+  createAcademicYear,
+  getCurrentAcademicContext,
+  listAcademicYears,
+  listSemesters,
+  setSemesterCurrent,
+} from "../service/academic-structure.client";
+⋮----
+function renderComponent()
+⋮----
+function session(permissions: string[], role = "admin")
+⋮----
+// Wait for creation success banner
+⋮----
+// Switch to Semesters tab
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-structure-manager.tsx">
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell, Icon } from "@/features/admin-shell";
+import {
+  useAcademicYearsQuery,
+  useCreateAcademicYearMutation,
+  useCreateSemesterMutation,
+  useCurrentAcademicContextQuery,
+  useSemestersQuery,
+  useSetAcademicYearCurrentMutation,
+  useSetSemesterCurrentMutation,
+  useUpdateAcademicYearMutation,
+  useUpdateSemesterMutation,
+} from "../hooks/use-academic-structure";
+import type {
+  AcademicYear,
+  CreateAcademicYearPayload,
+  CreateSemesterPayload,
+  Semester,
+  UpdateAcademicYearPayload,
+  UpdateSemesterPayload,
+} from "../service/academic-structure.client";
+⋮----
+function formatVietnameseMutationError(error: unknown): string
+⋮----
+// Form modal states
+⋮----
+// Queries (only enabled when user canRead)
+⋮----
+// Mutations
+⋮----
+// Year Form initial state
+⋮----
+// Semester Form initial state
+⋮----
+const openCreateYearModal = () =>
+⋮----
+const openEditYearModal = (year: AcademicYear) =>
+⋮----
+const openCreateSemesterModal = () =>
+⋮----
+const openEditSemesterModal = (semester: Semester) =>
+⋮----
+const handleYearSubmit = async (e: React.FormEvent) =>
+⋮----
+const handleSemesterSubmit = async (e: React.FormEvent) =>
+⋮----
+const handleSetYearCurrent = async (id: string) =>
+⋮----
+const handleSetSemesterCurrent = async (id: string) =>
+⋮----
+{/* Header Summary & Current Context Status */}
+⋮----
+{/* Current Context Pill */}
+⋮----
+{/* System Messages Banner */}
+⋮----
+onClick=
+⋮----
+{/* Tab Navigation & Action Bar */}
+⋮----
+onChange=
+⋮----
+{/* Tab 1: Academic Years List */}
+⋮----
+{/* Tab 2: Semesters List */}
+⋮----
+{/* Modal Year Create/Edit Form */}
+⋮----
+{/* Modal Semester Create/Edit Form */}
+</file>
+
+<file path="front-end/features/admin-shell/components/admin-shell.test.tsx">
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AdminShell } from "./admin-shell";
+</file>
+
+<file path="backend/src/modules/identity-access/audit/audit.service.ts">
+import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import { PrismaService } from '../../../prisma/prisma.service';
+⋮----
+export type RecordAuditEvent = {
+  actorId: string;
+  action: string;
+  boundedContext: string;
+  resourceType: string;
+  resourceId: string;
+  metadata?: Prisma.InputJsonValue;
+};
+⋮----
+export type ListAuditLogsQueryDto = {
+  page?: number;
+  limit?: number;
+  action?: string;
+  actor_id?: string;
+  resource_type?: string;
+};
+⋮----
+export class AuditService {
+⋮----
+constructor(private readonly prisma: PrismaService)
+⋮----
+async record(
+    event: RecordAuditEvent,
+    client: Pick<PrismaService, 'auditEvent'> = this.prisma,
+): Promise<void>
+⋮----
+async listAuditLogs(query: ListAuditLogsQueryDto)
+</file>
+
+<file path="backend/src/modules/identity-access/identity-access.module.ts">
+import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthenticationGuard } from '../../common/auth/jwt-authentication.guard';
+import { PermissionGuard } from '../../common/auth/permission.guard';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { AccountController } from './account.controller';
+import { AccountService } from './account.service';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { AdminSeedService } from './bootstrap/admin-seed.service';
+import { AuthConfigService } from './config/auth-config.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { AuthTokenService } from './auth-token.service';
+import { PermissionService } from './permissions/permission.service';
+import { AuditController } from './audit/audit.controller';
+import { AuditService } from './audit/audit.service';
+import { RoleController } from './roles/role.controller';
+import { RoleService } from './roles/role.service';
+⋮----
+export class IdentityAccessModule
+</file>
+
+<file path="front-end/features/academic-structure/hooks/use-academic-structure.ts">
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { academicStructureResource } from "../service/academic-structure.resource";
+⋮----
+export function useCurrentAcademicContextQuery(options?:
+⋮----
+export function useAcademicYearsQuery(options?:
+⋮----
+export function useSemestersQuery(academicYearId?: string, options?:
+⋮----
+export function useCreateAcademicYearMutation()
+⋮----
+export function useUpdateAcademicYearMutation()
+⋮----
+export function useSetAcademicYearCurrentMutation()
+⋮----
+export function useCreateSemesterMutation()
+⋮----
+export function useUpdateSemesterMutation()
+⋮----
+export function useSetSemesterCurrentMutation()
+⋮----
+export function useGradeLevelsQuery(options?:
+⋮----
+export function useClassesQuery(query?: Parameters<typeof boundResource.queries.classes.options>[0], options?:
+⋮----
+export function useClassRosterQuery(input:
+⋮----
+export function useCreateGradeLevelMutation()
+⋮----
+export function useUpdateGradeLevelMutation()
+⋮----
+export function useCreateClassMutation()
+⋮----
+export function useUpdateClassMutation()
+⋮----
+export function useAssignEnrollmentMutation()
+⋮----
+export function useDeactivateEnrollmentMutation()
+⋮----
+export function useTransferStudentsMutation()
+⋮----
+export function usePromoteCohortMutation()
+</file>
+
+<file path="front-end/features/academic-structure/service/academic-structure.client.ts">
+import { z } from "zod";
+import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+⋮----
+export type AcademicYear = z.infer<typeof academicYearSchema>;
+export type Semester = z.infer<typeof semesterSchema>;
+⋮----
+export type CreateAcademicYearPayload = {
+  id: string;
+  code: string;
+  display_name: string;
+  starts_on: string;
+  ends_on: string;
+};
+⋮----
+export type UpdateAcademicYearPayload = Partial<Omit<CreateAcademicYearPayload, "id">>;
+⋮----
+export type CreateSemesterPayload = {
+  id: string;
+  academic_year_id: string;
+  code: string;
+  display_name: string;
+  starts_on: string;
+  ends_on: string;
+  sort_order: number;
+};
+⋮----
+export type UpdateSemesterPayload = Partial<Omit<CreateSemesterPayload, "id" | "academic_year_id">>;
+⋮----
+export async function getCurrentAcademicContext()
+⋮----
+export async function listAcademicYears(): Promise<AcademicYear[]>
+⋮----
+export async function createAcademicYear(payload: CreateAcademicYearPayload): Promise<AcademicYear>
+⋮----
+export async function updateAcademicYear(id: string, payload: UpdateAcademicYearPayload): Promise<AcademicYear>
+⋮----
+export async function setAcademicYearCurrent(id: string): Promise<AcademicYear>
+⋮----
+export async function listSemesters(academicYearId?: string): Promise<Semester[]>
+⋮----
+export async function createSemester(payload: CreateSemesterPayload): Promise<Semester>
+⋮----
+export async function updateSemester(id: string, payload: UpdateSemesterPayload): Promise<Semester>
+⋮----
+export async function setSemesterCurrent(id: string): Promise<Semester>
+⋮----
+export type GradeLevel = z.infer<typeof gradeLevelSchema>;
+export type SchoolClass = z.infer<typeof schoolClassSchema>;
+export type ClassEnrollment = z.infer<typeof classEnrollmentSchema>;
+⋮----
+export type CreateGradeLevelPayload = {
+  id?: string;
+  code: string;
+  display_name: string;
+  sort_order?: number;
+};
+⋮----
+export type UpdateGradeLevelPayload = Partial<Omit<CreateGradeLevelPayload, "id">>;
+⋮----
+export type ListClassesQuery = {
+  academic_year_id?: string;
+  grade_level_id?: string;
+  is_active?: boolean;
+};
+⋮----
+export type CreateSchoolClassPayload = {
+  id?: string;
+  academic_year_id: string;
+  grade_level_id: string;
+  code: string;
+  display_name: string;
+  homeroom_teacher_id?: string | null;
+  is_active?: boolean;
+};
+⋮----
+export type UpdateSchoolClassPayload = Partial<Omit<CreateSchoolClassPayload, "id">>;
+⋮----
+export type AssignStudentEnrollmentPayload = {
+  student_id: string;
+  starts_on?: string;
+};
+⋮----
+export async function listGradeLevels(): Promise<GradeLevel[]>
+⋮----
+export async function createGradeLevel(payload: CreateGradeLevelPayload): Promise<GradeLevel>
+⋮----
+export async function updateGradeLevel(id: string, payload: UpdateGradeLevelPayload): Promise<GradeLevel>
+⋮----
+export async function listClasses(query?: ListClassesQuery): Promise<SchoolClass[]>
+⋮----
+export async function createSchoolClass(payload: CreateSchoolClassPayload): Promise<SchoolClass>
+⋮----
+export async function updateSchoolClass(id: string, payload: UpdateSchoolClassPayload): Promise<SchoolClass>
+⋮----
+export async function getClassRoster(
+  classId: string,
+  isActive?: boolean
+): Promise<
+⋮----
+export async function assignStudentEnrollment(
+  classId: string,
+  payload: AssignStudentEnrollmentPayload
+): Promise<ClassEnrollment>
+⋮----
+export async function deactivateStudentEnrollment(classId: string, studentId: string): Promise<ClassEnrollment>
+⋮----
+export type TransferStudentsPayload = {
+  student_ids: string[];
+  target_class_id: string;
+  reason?: string;
+  idempotency_key?: string;
+};
+⋮----
+export type PromoteCohortPayload = {
+  source_class_id: string;
+  target_class_id: string;
+  student_ids?: string[];
+  idempotency_key?: string;
+};
+⋮----
+export async function transferStudents(payload: TransferStudentsPayload)
+⋮----
+export async function promoteCohort(payload: PromoteCohortPayload)
+</file>
+
+<file path="front-end/features/academic-structure/service/academic-structure.resource.ts">
+import { createResource, defineMutation, defineQuery } from "@dangminhdev04032005/query-resource";
+import {
+  assignStudentEnrollment, createAcademicYear, createGradeLevel, createSchoolClass,
+  createSemester, deactivateStudentEnrollment, getClassRoster, getCurrentAcademicContext,
+  listAcademicYears, listClasses, listGradeLevels, listSemesters, promoteCohort, setAcademicYearCurrent,
+  setSemesterCurrent, transferStudents, updateAcademicYear, updateGradeLevel, updateSchoolClass, updateSemester,
+  type AssignStudentEnrollmentPayload, type CreateAcademicYearPayload, type CreateGradeLevelPayload,
+  type CreateSchoolClassPayload, type CreateSemesterPayload, type ListClassesQuery,
+  type PromoteCohortPayload, type TransferStudentsPayload,
+  type UpdateAcademicYearPayload, type UpdateGradeLevelPayload, type UpdateSchoolClassPayload,
+  type UpdateSemesterPayload,
+} from "./academic-structure.client";
+</file>
+
+<file path="front-end/app/admin/system/page.tsx">
+import { SystemAuditPage } from "@/features/system-audit/components/system-audit-page";
+⋮----
+export default function SystemAdminRoute()
+</file>
+
+<file path="front-end/features/admin-shell/components/admin-shell.tsx">
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import type { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useLogout } from "@/features/auth/hooks/use-logout";
+import { getVisibleAdminNavGroups, resolveAdminBreadcrumbs } from "../data/admin-nav-items";
+import { useAcademicContextQuery } from "../hooks/use-academic-context";
+import { getCurrentAcademicContext } from "../service/academic-context.client";
+⋮----
+export function Icon(
+⋮----
+const containMenuFocus = (event: KeyboardEvent) =>
+⋮----
+<Navigation activeHref=
+⋮----
+const handleScroll = (event: React.UIEvent<HTMLElement>) =>
+</file>
+
+<file path="front-end/features/admin-shell/data/admin-nav-items.ts">
+export type AdminRouteReadiness = "implemented" | "in_progress" | "planned";
+export type AdminNavItem = {
+  href: string;
+  label: string;
+  icon: string;
+  readiness: AdminRouteReadiness;
+  description: string;
+  permission?: string;
+};
+export type AdminNavGroup = { label: string; items: readonly AdminNavItem[] };
+⋮----
+export function getAdminNavItemByHref(href: string): AdminNavItem | undefined
+⋮----
+export function getVisibleAdminNavGroups(permissions: readonly string[], role?: string): AdminNavGroup[]
+⋮----
+export type AdminBreadcrumb = { label: string; href?: string };
+⋮----
+export function resolveAdminBreadcrumbs(pathname: string): AdminBreadcrumb[]
+</file>
+
+<file path="backend/src/modules/identity-access/permissions/permission.registry.ts">
+export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
+⋮----
+export function isPermissionKey(value: string): value is PermissionKey
+</file>
+
+<file path="backend/src/prisma/seed.ts">
+import { AttendanceStatus, PrismaClient } from '@prisma/client';
+import { seedIdentityAccess } from '../modules/identity-access/bootstrap/seed-identity-access';
+import { seedAcademicContext } from '../modules/academics/bootstrap/seed-academic-context';
+import { seedUatAccounts } from '../modules/identity-access/bootstrap/seed-uat-accounts';
+import { createPrismaClientOptions } from './prisma-client-options';
+⋮----
+async function main()
+⋮----
+import { PERMISSIONS } from '../modules/identity-access/permissions/permission.registry';
+⋮----
+async function seedDynamicRoles(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedUatStudents(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedAcademicStructure(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedUatAttendance(
+  prisma: PrismaClient,
+  username: string,
+): Promise<void>
+⋮----
+async function seedUatTuition(prisma: PrismaClient): Promise<void>
+⋮----
+function tuitionSeedData(createdById: string, index: number)
+⋮----
+async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void>
+⋮----
+// News 1: Event Announcement
+⋮----
+// News 2: Academic Timetable Announcement
+⋮----
+// News 3: Extracurricular & Sports Announcement
+⋮----
+// News 4: Draft Announcement
+⋮----
+// Notification
+⋮----
+// FeedbackItem
+⋮----
+async function seedStudentServices(prisma: PrismaClient): Promise<void>
+⋮----
+// MealRegistration
+⋮----
+// SchoolEvent
+⋮----
+// SchoolClub
+⋮----
+// BusRouteInfo (UAT-HS-001 stable assigned bus route, no fake GPS)
+⋮----
+// UniformProduct
+⋮----
+// TimetableSchedule
+⋮----
+// HomeworkAssignment
+⋮----
+// StudentScoreRecord
+⋮----
+// RewardDisciplineRecord
+⋮----
+// CoinFundTransaction
+</file>
+
+<file path="front-end/lib/api/admin-route.ts">
+export function resolveAdminEndpoint(resource: string, segments: string[], method: string): string
+</file>
+
+</files>

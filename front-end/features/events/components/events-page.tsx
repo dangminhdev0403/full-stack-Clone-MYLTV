@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 import { AdminShell, Icon } from "@/features/admin-shell";
 import { useAdminEventsQuery, useCreateAdminEventMutation, useDeleteAdminEventMutation } from "../hooks/use-events";
+import { summarizeEvents } from "./event-statistics";
 
 export function EventsPage() {
   const eventsQuery = useAdminEventsQuery();
   const createMutation = useCreateAdminEventMutation();
   const deleteMutation = useDeleteAdminEventMutation();
+  const statistics = summarizeEvents(eventsQuery.data?.items ?? [], eventsQuery.data?.total);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,10 +57,16 @@ export function EventsPage() {
     );
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa sự kiện này?")) {
-      deleteMutation.mutate({ id });
-    }
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Xóa sự kiện?",
+      text: "Bạn có chắc chắn muốn xóa sự kiện này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (result.isConfirmed) deleteMutation.mutate({ id });
   };
 
   return (
@@ -89,6 +98,8 @@ export function EventsPage() {
           </button>
         </div>
       </section>
+
+      {eventsQuery.data ? <section aria-label="Thống kê vận hành sự kiện" className="flex flex-col gap-4 rounded-2xl border border-[var(--outline-variant)] bg-white p-5 md:flex-row md:items-center"><div className="md:mr-auto"><p className="text-3xl font-black">{statistics.total} sự kiện</p><p className="text-sm text-[var(--secondary)]">{statistics.registrations} lượt đăng ký trên danh sách hiện tại</p></div><div className="flex gap-6"><span><strong className="block text-2xl text-emerald-700">{statistics.open}</strong>Đang mở</span><span><strong className="block text-2xl text-slate-700">{statistics.closed}</strong>Khác trên trang</span></div></section> : null}
 
       {feedback && (
         <div className={`p-4 rounded-xl border font-semibold text-sm ${feedback.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-red-50 text-red-800 border-red-200"}`}>

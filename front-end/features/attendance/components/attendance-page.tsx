@@ -30,6 +30,68 @@ const statusOptions: Array<{
   },
 ];
 
+function AttendanceStats({ records }: Readonly<{ records: AttendanceSession["records"] }>) {
+  const total = records.length;
+  const present = records.filter((r) => r.status === "present").length;
+  const late = records.filter((r) => r.status === "late").length;
+  const excused = records.filter((r) => r.status === "excused").length;
+  const absent = records.filter((r) => r.status === "absent").length;
+
+  return (
+    <section aria-label="Thống kê chuyên cần buổi học" className="rounded-2xl border border-[var(--outline-variant)] bg-white p-5 shadow-sm space-y-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-base font-bold text-[var(--foreground)]">Tổng quan chuyên cần buổi học</h3>
+          <p className="text-xs text-[var(--secondary)]">Ghi nhận tổng số {total} học sinh trong danh sách điểm danh</p>
+        </div>
+        <p className="text-sm font-bold text-[var(--primary)]">{present + late}/{total} hiện diện</p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex items-center justify-between rounded-xl bg-emerald-50/70 p-3.5 border border-emerald-100">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-emerald-500 text-white">
+              <Icon name="check_circle" className="text-[18px]" />
+            </span>
+            <span className="text-xs font-bold text-emerald-900">Có mặt</span>
+          </div>
+          <span className="text-lg font-extrabold text-emerald-700">{present}</span>
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl bg-amber-50/70 p-3.5 border border-amber-100">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-amber-500 text-white">
+              <Icon name="schedule" className="text-[18px]" />
+            </span>
+            <span className="text-xs font-bold text-amber-900">Đi muộn</span>
+          </div>
+          <span className="text-lg font-extrabold text-amber-700">{late}</span>
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl bg-sky-50/70 p-3.5 border border-sky-100">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-sky-500 text-white">
+              <Icon name="event_available" className="text-[18px]" />
+            </span>
+            <span className="text-xs font-bold text-sky-900">Vắng có phép</span>
+          </div>
+          <span className="text-lg font-extrabold text-sky-700">{excused}</span>
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl bg-rose-50/70 p-3.5 border border-rose-100">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-rose-500 text-white">
+              <Icon name="cancel" className="text-[18px]" />
+            </span>
+            <span className="text-xs font-bold text-rose-900">Vắng không phép</span>
+          </div>
+          <span className="text-lg font-extrabold text-rose-700">{absent}</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function AttendancePage() {
   const { data: session } = useSession();
   const [draftDate, setDraftDate] = useState("");
@@ -117,6 +179,8 @@ export function AttendancePage() {
           Lọc điểm danh
         </button>
       </form>
+      {selected?.records?.length ? <AttendanceStats records={selected.records} /> : null}
+
       {query.isPending ? (
         <div
           role="status"

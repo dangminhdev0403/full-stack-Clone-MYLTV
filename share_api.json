@@ -1470,6 +1470,15 @@
       "bounded_context": "Identity & Access",
       "auth_required": true,
       "implementation_status": "implemented"
+    },
+    {
+      "group": "identity__access",
+      "name": "List audit logs",
+      "method": "GET",
+      "path": "/admin/audit-logs",
+      "bounded_context": "Identity & Access",
+      "auth_required": true,
+      "implementation_status": "implemented"
     }
   ],
   "common_error_response": {

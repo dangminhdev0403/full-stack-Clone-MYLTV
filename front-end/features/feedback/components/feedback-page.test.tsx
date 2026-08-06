@@ -22,6 +22,17 @@ const detailMock = vi.mocked(useFeedbackDetailQuery);
 const updateMock = vi.mocked(useUpdateFeedbackStatusMutation);
 
 describe("FeedbackPage", () => {
+  it("shows the queue total and the status mix for the current page", () => {
+    listMock.mockReturnValue({ ...queryResult([item(), item({ id: "feedback-2", status: "resolved" })]), data: { items: [item(), item({ id: "feedback-2", status: "resolved" })], page: 1, page_size: 10, total: 12, has_next: true } } as ReturnType<typeof useFeedbackQuery>);
+    detailMock.mockReturnValue(detailResult(null) as ReturnType<typeof useFeedbackDetailQuery>);
+
+    render(<FeedbackPage />);
+
+    expect(screen.getByRole("region", { name: "Thống kê hàng đợi phản hồi" })).toHaveTextContent("12 phản hồi");
+    expect(screen.getByText("Mới 1")).toBeInTheDocument();
+    expect(screen.getByText("Đã xử lý 1")).toBeInTheDocument();
+    expect(screen.getByText("Phân bổ trang hiện tại")).toBeInTheDocument();
+  });
   it("sends search, status and pagination filters through the resource hook", () => {
     listMock.mockReturnValue(queryResult([item()]) as ReturnType<typeof useFeedbackQuery>);
     detailMock.mockReturnValue(detailResult(null) as ReturnType<typeof useFeedbackDetailQuery>);
@@ -107,6 +118,6 @@ function queryResult(items: ReturnType<typeof item>[]) {
 function detailResult(data: ReturnType<typeof item> | null) {
   return { data, isPending: false, isError: false, refetch: vi.fn() };
 }
-function item() {
-  return { id: "feedback-1", student_id: "student-1", account_id: null, title: "Góp ý bán trú", content: "Bữa ăn cần nóng hơn", category: "service", status: "new" as const, created_at: "2026-07-26T00:00:00.000Z" };
+function item(overrides: Record<string, unknown> = {}) {
+  return { id: "feedback-1", student_id: "student-1", account_id: null, title: "Góp ý bán trú", content: "Bữa ăn cần nóng hơn", category: "service", status: "new" as const, created_at: "2026-07-26T00:00:00.000Z", ...overrides };
 }

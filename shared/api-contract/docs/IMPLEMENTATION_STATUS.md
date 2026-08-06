@@ -17,7 +17,7 @@ This file tracks backend availability for the draft v1 OpenAPI contract. It is c
 
 | Bounded context | Contract status | Backend implementation status | Frontend guidance |
 | --- | --- | --- | --- |
-| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role list/detail/create/rename/status/permissions, and account-role assignment endpoints are live scope. |
+| Identity & Access / Current Account | `contracted` | `implemented` for operations marked in OpenAPI | Login, refresh, logout, current actor, password, linked-student context, role administration, account-role assignment, and protected redacted audit-log viewing are live scope. |
 | User Management | `contracted` | `implemented` at `/users` | Admin dashboard and user management page call BFF `/api/admin/users` backed by NestJS `/api/v1/users`. |
 | Student Administration | `contracted` | `implemented` at `/admin/students` | Admin list/detail/mutations and linked-account management are live. |
 | Communication (News, Notifications, Feedback) | `contracted` | News/Notifications and admin Feedback list/detail/status update `implemented`; Feedback submit `partial` | Admin Feedback list/detail/status update is live with DTO validation, read/manage permissions, atomic audit, pagination/filtering, BFF, UI, and tests. Admin create remains planned; app submit remains legacy/partial. |

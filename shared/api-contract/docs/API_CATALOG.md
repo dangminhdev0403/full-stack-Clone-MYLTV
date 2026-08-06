@@ -38,6 +38,7 @@ Authorization is intentionally lean. The contract uses fixed role policy plus st
 | `PATCH /admin/roles/{id}/status` | — | Update active status of custom roles. |
 | `PUT /admin/roles/{id}/permissions` | — | Replace role permissions with critical-permission confirmation gate. |
 | `PUT /admin/accounts/{account_id}/roles` | — | Assign roles to account with super_admin protection rules. |
+| `GET /admin/audit-logs` | — | Search paginated, recursively redacted audit events with exact actor/action/context/resource/date filters. |
 
 ### User Management
 

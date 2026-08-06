@@ -107,6 +107,14 @@ describe("AdminShell", () => {
     expect(content).toHaveClass("md:ml-20", "lg:ml-[260px]");
     expect(studentsLabel).toHaveClass("md:hidden", "lg:inline");
   });
+
+  it("configures navigation links to prevent scroll jump", () => {
+    renderShell(<AdminShell activeHref="/admin/students" title="Học sinh">Nội dung</AdminShell>);
+
+    const navigation = screen.getByRole("navigation", { name: "Điều hướng quản trị" });
+    const overviewLink = within(navigation).getByRole("link", { name: /Tổng quan/ });
+    expect(overviewLink).toBeInTheDocument();
+  });
 });
 
 function renderShell(shell: React.ReactElement) {

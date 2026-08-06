@@ -405,8 +405,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/audit/audit.service.ts": {
-    "mtime": 1785993182.1923268,
-    "ast_hash": "1d1d7e646643bc6879931f30c5d2aaf3",
+    "mtime": 1786005072.9346833,
+    "ast_hash": "a32e05cd5b8cb5221d4761fb820eed1b",
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/auth-token.service.ts": {
@@ -855,8 +855,8 @@
     "semantic_hash": "bc8f67b9ae6bc86b94d078971f7ce64f"
   },
   "front-end/config/share_api.json": {
-    "mtime": 1786002492.1173105,
-    "ast_hash": "0c3cbecc76dc72909062fa43513ee21b",
+    "mtime": 1786006662.517254,
+    "ast_hash": "1d3cb5039c7100d0fcb7352ab97d3760",
     "semantic_hash": ""
   },
   "front-end/eslint.config.mjs": {
@@ -1475,8 +1475,8 @@
     "semantic_hash": "83da51f380c4e1c8c080ab9cf253fe8b"
   },
   "share_api.json": {
-    "mtime": 1786002492.1173105,
-    "ast_hash": "0c3cbecc76dc72909062fa43513ee21b",
+    "mtime": 1786006662.517254,
+    "ast_hash": "1d3cb5039c7100d0fcb7352ab97d3760",
     "semantic_hash": ""
   },
   "shared/api-contract/openapi/v1/auth-service.postman_collection.json": {
@@ -1485,8 +1485,8 @@
     "semantic_hash": "a48ce65b9ecc2be10f4633bd7f31317d"
   },
   "shared/api-contract/openapi/v1/openapi.json": {
-    "mtime": 1786002484.7530923,
-    "ast_hash": "d57578bb14c0b92883871b27ce67b87e",
+    "mtime": 1786006662.5016112,
+    "ast_hash": "6db185afa55f51279df18f1874fe59f0",
     "semantic_hash": ""
   },
   "shared/api-contract/package.json": {
@@ -1660,13 +1660,13 @@
     "semantic_hash": "903124707afc5990d585fe77c668deb2"
   },
   "shared/api-contract/docs/API_CATALOG.md": {
-    "mtime": 1786002504.4839709,
-    "ast_hash": "9ac44de3bc23238b95180977af6b0697",
+    "mtime": 1786006708.6747315,
+    "ast_hash": "db9802960f54b459a70f3b92bcc3ba4a",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/CONTRACT_CHANGES.md": {
-    "mtime": 1786002510.0038517,
-    "ast_hash": "7a4801bebd3be2291a326f02a83dd6a1",
+    "mtime": 1786006685.8138099,
+    "ast_hash": "8f2c57b2e8b44859108d441768b7f9fa",
     "semantic_hash": ""
   },
   "shared/api-contract/docs/FRONTEND_HANDOFF.md": {
@@ -1675,13 +1675,13 @@
     "semantic_hash": "676590a5d1b8011c3dc3d671276545f5"
   },
   "shared/api-contract/docs/IMPLEMENTATION_STATUS.md": {
-    "mtime": 1786002505.9297295,
-    "ast_hash": "52550a0b4a694ec1301c5039e2680d1f",
+    "mtime": 1786006708.6747315,
+    "ast_hash": "3e24c920a45a6cc8e31b440348389787",
     "semantic_hash": ""
   },
   "shared/api-contract/openapi/v1/openapi.yaml": {
-    "mtime": 1786002484.7530923,
-    "ast_hash": "d57578bb14c0b92883871b27ce67b87e",
+    "mtime": 1786006662.502741,
+    "ast_hash": "6db185afa55f51279df18f1874fe59f0",
     "semantic_hash": ""
   },
   "front-end/public/file.svg": {
@@ -1920,8 +1920,8 @@
     "semantic_hash": ""
   },
   "backend/src/modules/identity-access/audit/audit.controller.ts": {
-    "mtime": 1785993282.9117131,
-    "ast_hash": "e2721a9fc651f1dc50336076271a5fbd",
+    "mtime": 1786006057.9716895,
+    "ast_hash": "9f284b063c8b73a26896e1c109d000a6",
     "semantic_hash": ""
   },
   "front-end/app/admin/academic-structure/page.tsx": {
@@ -1935,8 +1935,8 @@
     "semantic_hash": ""
   },
   "front-end/features/system-audit/components/system-audit-page.tsx": {
-    "mtime": 1785993219.0367885,
-    "ast_hash": "24d27a824eb848cef21021f9d488b619",
+    "mtime": 1786006434.981282,
+    "ast_hash": "5b27404a61fcd58c66222e764b60d2e0",
     "semantic_hash": ""
   },
   "front-end/features/system-audit/hooks/use-system-audit.ts": {
@@ -1945,13 +1945,13 @@
     "semantic_hash": ""
   },
   "front-end/features/system-audit/service/system-audit.client.ts": {
-    "mtime": 1785993199.7587023,
-    "ast_hash": "378e89aa64b9e1dffcb7a16e1aadd8ce",
+    "mtime": 1786006378.7264397,
+    "ast_hash": "05508b1034c99d4b7ea3b94b3420f8e8",
     "semantic_hash": ""
   },
   "front-end/features/system-audit/service/system-audit.resource.ts": {
-    "mtime": 1785993202.9372656,
-    "ast_hash": "a094241ea01f035f6d63e2e478cf8633",
+    "mtime": 1786006396.2719686,
+    "ast_hash": "15dce9629aeee8a63ef2d0df5e6e671c",
     "semantic_hash": ""
   },
   "backend/prisma/migrations/20260806160000_add_dynamic_roles/migration.sql": {
@@ -1987,6 +1987,21 @@
   "front-end/features/academic-structure/service/academic-structure.client.test.ts": {
     "mtime": 1786003013.5431263,
     "ast_hash": "fa830eb22a1f2393b35268d6eb73337a",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/audit/audit.controller.spec.ts": {
+    "mtime": 1786005205.6085489,
+    "ast_hash": "a19a23a13a183e3e7f36cf46a47fbe70",
+    "semantic_hash": ""
+  },
+  "backend/src/modules/identity-access/audit/audit.service.spec.ts": {
+    "mtime": 1786005084.2848492,
+    "ast_hash": "d7f111b7e0879b1594bf06abdbaec3b6",
+    "semantic_hash": ""
+  },
+  "front-end/features/system-audit/components/system-audit-page.test.tsx": {
+    "mtime": 1786006580.7264366,
+    "ast_hash": "0de84128f453b10052d342feeaa6b40c",
     "semantic_hash": ""
   }
 }

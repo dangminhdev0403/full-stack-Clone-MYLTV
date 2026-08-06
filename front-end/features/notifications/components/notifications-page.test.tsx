@@ -11,6 +11,13 @@ const queryMock = vi.mocked(useNotificationsQuery);
 const updateMock = vi.mocked(useUpdateNotificationMutation);
 
 describe("NotificationsPage", () => {
+  it("shows publication volume and the current-page category pulse", () => {
+    queryMock.mockReturnValue({ ...queryResult([item(), item({ id: "notification-2", tag: "Hoc tap" })]), data: { items: [item(), item({ id: "notification-2", tag: "Hoc tap" })], page: 1, page_size: 10, total: 24, has_next: true } } as ReturnType<typeof useNotificationsQuery>);
+    render(<NotificationsPage />);
+    expect(screen.getByRole("region", { name: "Nhịp phát hành thông báo" })).toHaveTextContent("24 đã phát hành");
+    expect(screen.getByText("2 nhóm nội dung trên trang")).toBeInTheDocument();
+    expect(screen.getByText("Mới nhất 26/7/2026")).toBeInTheDocument();
+  });
   it("sends search, tag and page filters through the resource hook", () => {
     queryMock.mockReturnValue(queryResult());
     render(<NotificationsPage />);
@@ -34,4 +41,4 @@ describe("NotificationsPage", () => {
 });
 
 function queryResult(items: ReturnType<typeof item>[] = []) { return { data: { items, page: 1, page_size: 10, total: items.length, has_next: false }, isPending: false, isError: false, refetch: vi.fn() } as ReturnType<typeof useNotificationsQuery>; }
-function item() { return { id: "notification-1", title: "Thông báo", sender: "BGH", sent_at: "2026-07-26T00:00:00.000Z", content: "Nội dung", tag: "Quan trong", created_at: "2026-07-26T00:00:00.000Z", updated_at: "2026-07-26T00:00:00.000Z" }; }
+function item(overrides: Record<string, unknown> = {}) { return { id: "notification-1", title: "Thông báo", sender: "BGH", sent_at: "2026-07-26T00:00:00.000Z", content: "Nội dung", tag: "Quan trong", created_at: "2026-07-26T00:00:00.000Z", updated_at: "2026-07-26T00:00:00.000Z", ...overrides }; }

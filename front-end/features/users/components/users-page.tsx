@@ -17,53 +17,9 @@ export function UsersPage() {
 
   const queryError = usersQuery.error ? message(usersQuery.error) : "";
 
-  // Combine real users with mock/UAT users if needed for complete presentation
-  const users = useMemo(() => {
-    const rawUsers = usersQuery.data?.items ?? [];
-    if (rawUsers.length > 0) return rawUsers;
-    return [
-      {
-        id: "usr-01",
-        username: "admin",
-        display_name: "System Admin",
-        role: "super_admin",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "usr-02",
-        username: "uat-admin",
-        display_name: "UAT Billing Admin",
-        role: "admin",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "usr-03",
-        username: "uat-teacher",
-        display_name: "UAT Teacher",
-        role: "teacher",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "usr-04",
-        username: "uat-parent",
-        display_name: "UAT Parent",
-        role: "parent",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "usr-05",
-        username: "uat-student",
-        display_name: "UAT Student",
-        role: "student",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-    ] as User[];
-  }, [usersQuery.data?.items]);
+  const users = useMemo(() => usersQuery.data?.items ?? [], [usersQuery.data?.items]);
+  const activeUsers = users.filter((user) => user.is_active).length;
+  const rolesOnPage = new Set(users.map((user) => user.role)).size;
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
@@ -122,6 +78,8 @@ export function UsersPage() {
           </button>
         </div>
       </section>
+
+      {usersQuery.data ? <section aria-label="Thống kê tài khoản" className="grid gap-4 rounded-2xl border border-(--outline-variant) bg-white p-5 sm:grid-cols-[1.4fr_1fr_1fr]"><div><p className="text-3xl font-black">{usersQuery.data.total}</p><p className="text-sm text-(--secondary)">Tổng tài khoản từ API</p></div><div><p className="text-2xl font-black text-emerald-700">{activeUsers}/{users.length}</p><p className="text-sm">Đang hoạt động trên trang</p></div><div><p className="text-2xl font-black">{rolesOnPage}</p><p className="text-sm">Vai trò trên trang</p></div></section> : null}
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-2xl border border-(--outline-variant) shadow-sm">

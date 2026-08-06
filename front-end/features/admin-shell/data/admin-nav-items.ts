@@ -16,12 +16,13 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
   { label: "Nhà trường", items: [
     { href: "/admin/users", label: "Người dùng", icon: "manage_accounts", permission: "users.manage", readiness: "implemented", description: "Quản lý tài khoản, vai trò và quyền truy cập." },
     { href: "/admin/students", label: "Học sinh", icon: "school", permission: "students.read", readiness: "implemented", description: "Quản lý hồ sơ học sinh và trạng thái học tập." },
+    { href: "/admin/academic-structure", label: "Cấu trúc học tập", icon: "account_tree", permission: "academics.structure.read", readiness: "implemented", description: "Quản lý khối học, lớp học và chuyển lớp / lên lớp." },
   ] },
   { label: "Học tập", items: [
     { href: "/admin/attendance", label: "Điểm danh", icon: "fact_check", permission: "academics.attendance.read", readiness: "implemented", description: "Theo dõi điểm danh học sinh theo lớp và buổi học." },
     { href: "/admin/grades", label: "Điểm số", icon: "grade", readiness: "planned", description: "Quản lý bảng điểm, nhận xét và kết quả học tập." },
     { href: "/admin/homeworks", label: "Bài tập", icon: "assignment", readiness: "planned", description: "Giao, theo dõi và tổng hợp bài tập của học sinh." },
-    { href: "/admin/timetable", label: "Thời khóa biểu", icon: "calendar_month", readiness: "planned", description: "Sắp xếp lịch học, phòng học và phân công giảng dạy." },
+    { href: "/admin/timetable", label: "Thời khóa biểu", icon: "calendar_month", permission: "academics.timetable.read", readiness: "implemented", description: "Sắp xếp lịch học, phòng học và phân công giảng dạy." },
   ] },
   { label: "Dịch vụ", items: [
     { href: "/admin/tuition", label: "Học phí", icon: "payments", readiness: "implemented", permission: "billing.tuition.read", description: "Theo dõi học phí, khoản thu và tình trạng thanh toán." },
@@ -43,7 +44,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
     { href: "/admin/reports", label: "Báo cáo", icon: "analytics", readiness: "planned", description: "Tổng hợp báo cáo vận hành, học tập và dịch vụ." },
   ] },
   { label: "Hệ thống", items: [
-    { href: "/admin/system", label: "Hệ thống", icon: "settings", readiness: "planned", description: "Cấu hình hệ thống, nhật ký và thiết lập quản trị." },
+    { href: "/admin/system", label: "Hệ thống & Nhật ký", icon: "settings", permission: "identity.audit.read", readiness: "implemented", description: "Cấu hình hệ thống, nhật ký và thiết lập quản trị." },
   ] },
 ] as const;
 

@@ -4,13 +4,30 @@ import { RequirePermission } from '../../../common/auth/require-permission.decor
 import { RequireRole } from '../../../common/auth/require-role.decorator';
 import { AuditService } from './audit.service';
 
-const listAuditLogsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional(),
-  action: z.string().trim().min(1).optional(),
-  actor_id: z.string().trim().min(1).optional(),
-  resource_type: z.string().trim().min(1).optional(),
-});
+const listAuditLogsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    actor_id: z.string().trim().min(1).optional(),
+    action: z.string().trim().min(1).optional(),
+    bounded_context: z.string().trim().min(1).optional(),
+    resource_type: z.string().trim().min(1).optional(),
+    resource_id: z.string().trim().min(1).optional(),
+    from: z.string().trim().datetime({ offset: true }).optional(),
+    to: z.string().trim().datetime({ offset: true }).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        return new Date(data.from).getTime() <= new Date(data.to).getTime();
+      }
+      return true;
+    },
+    {
+      message: 'from date must be less than or equal to to date',
+      path: ['from'],
+    },
+  );
 
 export function validateListAuditLogsQuery(payload: unknown) {
   const result = listAuditLogsQuerySchema.safeParse(payload);
@@ -20,7 +37,11 @@ export function validateListAuditLogsQuery(payload: unknown) {
       issues: result.error.issues,
     });
   }
-  return result.data;
+  return {
+    page: result.data.page ?? 1,
+    limit: result.data.limit ?? 20,
+    ...result.data,
+  };
 }
 
 @Controller('api/v1/admin/audit-logs')

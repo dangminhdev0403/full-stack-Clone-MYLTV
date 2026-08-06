@@ -10,11 +10,11 @@ import { getVisibleAdminNavGroups, resolveAdminBreadcrumbs } from "../data/admin
 import { useAcademicContextQuery } from "../hooks/use-academic-context";
 import { getCurrentAcademicContext } from "../service/academic-context.client";
 
-export function Icon({ name, className = "" }: { name: string; className?: string }) {
+export function Icon({ name, className = "" }: Readonly<{ name: string; className?: string }>) {
   return <span aria-hidden="true" className={`material-symbols-outlined leading-none ${className}`}>{name}</span>;
 }
 
-export function AdminShell({ activeHref, title, subtitle, children }: { activeHref: string; title: string; subtitle?: string; children: React.ReactNode }) {
+export function AdminShell({ activeHref, title, subtitle, children }: Readonly<{ activeHref: string; title: string; subtitle?: string; children: React.ReactNode }>) {
   const { data: session } = useSession();
   const { logout, isLoggingOut } = useLogout();
   const pathname = usePathname();
@@ -105,19 +105,33 @@ export function AdminShell({ activeHref, title, subtitle, children }: { activeHr
   </main>;
 }
 
-function Brand({ compact = false }: { compact?: boolean }) {
-  return <Link href="/admin" className="flex min-h-16 items-center gap-3 rounded-lg px-2 text-[var(--primary)]"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-white"><Icon name="school" /></span><span className={`${compact ? "md:hidden lg:block" : "block"} min-w-0`}><strong className="block text-xl font-bold tracking-[-0.02em]">EduManager</strong><span className="block text-xs font-medium text-[var(--secondary)]">Hệ thống Quản lý</span></span></Link>;
+let sidebarScrollTop = 0;
+
+function Brand({ compact = false }: Readonly<{ compact?: boolean }>) {
+  return <Link href="/admin" scroll={false} className="flex min-h-16 items-center gap-3 rounded-lg px-2 text-[var(--primary)]"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-white"><Icon name="school" /></span><span className={`${compact ? "md:hidden lg:block" : "block"} min-w-0`}><strong className="block text-xl font-bold tracking-[-0.02em]">EduManager</strong><span className="block text-xs font-medium text-[var(--secondary)]">Hệ thống Quản lý</span></span></Link>;
 }
 
-function Navigation({ activeHref, groups, compact = false, onNavigate }: { activeHref: string; groups: ReturnType<typeof getVisibleAdminNavGroups>; compact?: boolean; onNavigate?: () => void }) {
-  return <nav aria-label="Điều hướng quản trị" className="mt-5 min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-4">{groups.map((group) => <section key={group.label} aria-label={group.label}><p className={`${compact ? "md:hidden lg:block" : "block"} px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--secondary)]`}>{group.label}</p><div className="space-y-1">{group.items.map((item) => { const active = activeHref === item.href || (item.href !== "/admin" && activeHref.startsWith(`${item.href}/`)); return <Link key={item.href} href={item.href} onClick={onNavigate} aria-current={active ? "page" : undefined} title={compact ? item.label : undefined} className={`flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors ${active ? "bg-[var(--secondary-container)] text-[var(--primary)]" : "text-[var(--secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--foreground)]"}`}><Icon name={item.icon} /><span className={compact ? "md:hidden lg:inline" : "inline"}>{item.label}</span></Link>; })}</div></section>)}</nav>;
+function Navigation({ activeHref, groups, compact = false, onNavigate }: Readonly<{ activeHref: string; groups: ReturnType<typeof getVisibleAdminNavGroups>; compact?: boolean; onNavigate?: () => void }>) {
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (navRef.current && sidebarScrollTop > 0) {
+      navRef.current.scrollTop = sidebarScrollTop;
+    }
+  }, [activeHref]);
+
+  const handleScroll = (event: React.UIEvent<HTMLElement>) => {
+    sidebarScrollTop = event.currentTarget.scrollTop;
+  };
+
+  return <nav ref={navRef} onScroll={handleScroll} aria-label="Điều hướng quản trị" className="mt-5 min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-4">{groups.map((group) => <section key={group.label} aria-label={group.label}><p className={`${compact ? "md:hidden lg:block" : "block"} px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--secondary)]`}>{group.label}</p><div className="space-y-1">{group.items.map((item) => { const active = activeHref === item.href || (item.href !== "/admin" && activeHref.startsWith(`${item.href}/`)); return <Link key={item.href} href={item.href} scroll={false} onClick={onNavigate} aria-current={active ? "page" : undefined} title={compact ? item.label : undefined} className={`flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors ${active ? "bg-[var(--secondary-container)] text-[var(--primary)]" : "text-[var(--secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--foreground)]"}`}><Icon name={item.icon} /><span className={compact ? "md:hidden lg:inline" : "inline"}>{item.label}</span></Link>; })}</div></section>)}</nav>;
 }
 
-function Breadcrumbs({ items }: { items: ReturnType<typeof resolveAdminBreadcrumbs> }) {
-  return <nav aria-label="Đường dẫn trang" className="flex min-w-0 items-center gap-1 overflow-x-auto text-xs text-[var(--secondary)]">{items.map((item, index) => <span key={`${item.label}-${index}`} className="flex shrink-0 items-center gap-1">{index > 0 ? <Icon name="chevron_right" className="text-[16px]" /> : null}{item.href ? <Link href={item.href} className="hover:text-[var(--primary)]">{item.label}</Link> : <span aria-current={index === items.length - 1 ? "page" : undefined}>{item.label}</span>}</span>)}</nav>;
+function Breadcrumbs({ items }: Readonly<{ items: ReturnType<typeof resolveAdminBreadcrumbs> }>) {
+  return <nav aria-label="Đường dẫn trang" className="flex min-w-0 items-center gap-1 overflow-x-auto text-xs text-[var(--secondary)]">{items.map((item, index) => <span key={`${item.label}-${index}`} className="flex shrink-0 items-center gap-1">{index > 0 ? <Icon name="chevron_right" className="text-[16px]" /> : null}{item.href ? <Link href={item.href} scroll={false} className="hover:text-[var(--primary)]">{item.label}</Link> : <span aria-current={index === items.length - 1 ? "page" : undefined}>{item.label}</span>}</span>)}</nav>;
 }
 
-function AcademicContextStatus({ query, canRead }: { query: ReturnType<typeof useAcademicContextQuery>; canRead: boolean }) {
+function AcademicContextStatus({ query, canRead }: Readonly<{ query: ReturnType<typeof useAcademicContextQuery>; canRead: boolean }>) {
   if (!canRead) return <div className="min-w-0"><p className="truncate text-sm font-semibold">Niên khóa</p><p className="truncate text-xs text-[var(--secondary)]">Không có quyền xem</p></div>;
   if (query.isPending) return <div role="status" className="min-w-0"><p className="truncate text-sm font-semibold">Đang tải niên khóa...</p><p className="truncate text-xs text-[var(--secondary)]">Đang đồng bộ ngữ cảnh học tập</p></div>;
   if (query.isError || !query.data) return <div className="min-w-0"><p className="truncate text-sm font-semibold">Chưa có niên khóa</p><p className="truncate text-xs text-[var(--secondary)]">Ngữ cảnh học tập chưa khả dụng</p></div>;
@@ -125,6 +139,6 @@ function AcademicContextStatus({ query, canRead }: { query: ReturnType<typeof us
   return <div className="min-w-0"><p className="truncate text-sm font-semibold">{context.academicYear.displayName}</p><p className="truncate text-xs text-[var(--secondary)]">{context.semester.displayName}</p></div>;
 }
 
-function Actor({ actor, initials, compact = false }: { actor?: Session["user"]; initials: string; compact?: boolean }) {
+function Actor({ actor, initials, compact = false }: Readonly<{ actor?: Session["user"]; initials: string; compact?: boolean }>) {
   return <div className="flex items-center gap-3 border-t border-[var(--outline-variant)] px-2 pt-4"><span className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--primary-fixed)] text-sm font-bold text-[var(--primary)]">{initials}</span><span className={`${compact ? "md:hidden lg:block" : "block"} min-w-0`}><strong className="block truncate text-sm">{actor?.display_name ?? "Đang xác thực..."}</strong><span className="block truncate text-xs text-[var(--secondary)]">{actor?.role ?? "Quản trị viên"}</span></span></div>;
 }

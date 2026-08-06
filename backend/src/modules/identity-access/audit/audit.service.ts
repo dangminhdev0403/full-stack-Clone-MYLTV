@@ -16,8 +16,51 @@ export type ListAuditLogsQueryDto = {
   limit?: number;
   action?: string;
   actor_id?: string;
+  bounded_context?: string;
   resource_type?: string;
+  resource_id?: string;
+  from?: string;
+  to?: string;
 };
+
+const SENSITIVE_KEY_PATTERNS = [
+  'password',
+  'token',
+  'secret',
+  'authorization',
+  'credential',
+  'api_key',
+];
+
+function isSensitiveKey(key: string): boolean {
+  const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return SENSITIVE_KEY_PATTERNS.some((pattern) =>
+    normalizedKey.includes(pattern.replace(/_/g, '')),
+  );
+}
+
+function redactMetadata(val: unknown): unknown {
+  if (val === null || val === undefined || typeof val !== 'object') {
+    return val;
+  }
+
+  if (Array.isArray(val)) {
+    return val.map((item) => redactMetadata(item));
+  }
+
+  const obj = val as Record<string, unknown>;
+  const result: Record<string, unknown> = {};
+
+  for (const [k, v] of Object.entries(obj)) {
+    if (isSensitiveKey(k)) {
+      result[k] = '[REDACTED]';
+    } else {
+      result[k] = redactMetadata(v);
+    }
+  }
+
+  return result;
+}
 
 @Injectable()
 export class AuditService {
@@ -48,7 +91,19 @@ export class AuditService {
     const where: Prisma.AuditEventWhereInput = {
       ...(query.action ? { action: query.action } : {}),
       ...(query.actor_id ? { actorId: query.actor_id } : {}),
+      ...(query.bounded_context
+        ? { boundedContext: query.bounded_context }
+        : {}),
       ...(query.resource_type ? { resourceType: query.resource_type } : {}),
+      ...(query.resource_id ? { resourceId: query.resource_id } : {}),
+      ...(query.from || query.to
+        ? {
+            createdAt: {
+              ...(query.from ? { gte: new Date(query.from) } : {}),
+              ...(query.to ? { lte: new Date(query.to) } : {}),
+            },
+          }
+        : {}),
     };
 
     const [total, items] = await Promise.all([
@@ -57,7 +112,7 @@ export class AuditService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       }),
     ]);
 
@@ -70,14 +125,14 @@ export class AuditService {
           bounded_context: item.boundedContext,
           resource_type: item.resourceType,
           resource_id: item.resourceId,
-          metadata: item.metadata,
+          metadata: redactMetadata(item.metadata),
           created_at: item.createdAt.toISOString(),
         })),
         pagination: {
           page,
           limit,
           total,
-          total_pages: Math.ceil(total / limit),
+          total_pages: total === 0 ? 0 : Math.ceil(total / limit),
         },
       },
     };

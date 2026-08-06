@@ -29,6 +29,14 @@ const publishNewsMock = vi.mocked(publishNews);
 afterEach(() => vi.clearAllMocks());
 
 describe("NewsPage", () => {
+  it("labels workflow counts as the current page while preserving the API total", async () => {
+    useSessionMock.mockReturnValue(session(["communication.news.read"]));
+    listNewsMock.mockResolvedValue({ items: [news(), news({ id: "news-2", status: "published" })], page: 1, page_size: 20, total: 31, has_next: true });
+    renderPage();
+    expect(await screen.findByText("31")).toBeInTheDocument();
+    expect(screen.getByText("Toàn bộ kết quả")).toBeInTheDocument();
+    expect(screen.getByText("Trên trang hiện tại")).toBeInTheDocument();
+  });
   it("shows loading then empty state from the real API boundary", async () => {
     useSessionMock.mockReturnValue(session(["communication.news.read"]));
     listNewsMock.mockResolvedValue({ items: [], page: 1, page_size: 20, total: 0, has_next: false });

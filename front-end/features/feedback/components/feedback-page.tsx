@@ -35,6 +35,11 @@ export function FeedbackPage() {
   });
   const updateMutation = useUpdateFeedbackStatusMutation();
   const items = listQuery.data?.items ?? [];
+  const counts = {
+    new: items.filter((item) => item.status === "new").length,
+    inProgress: items.filter((item) => item.status === "in_progress").length,
+    resolved: items.filter((item) => item.status === "resolved").length,
+  };
 
   const updateStatus = (id: string, nextStatus: FeedbackStatus) => {
     setFeedback("");
@@ -55,6 +60,12 @@ export function FeedbackPage() {
       subtitle="Tiếp nhận và xử lý phản hồi từ phụ huynh, học sinh."
       activeHref="/admin/feedback"
     >
+      {listQuery.data ? (
+        <section aria-label="Thống kê hàng đợi phản hồi" className="grid gap-4 rounded-2xl border border-[var(--outline-variant)] bg-white p-5 md:grid-cols-[1fr_auto] md:items-center">
+          <div><p className="text-3xl font-black text-[var(--foreground)]">{listQuery.data.total} phản hồi</p><p className="text-sm text-[var(--secondary)]">Tổng kết quả theo bộ lọc đang chọn</p></div>
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold"><span>Mới {counts.new}</span><span>Đang xử lý {counts.inProgress}</span><span>Đã xử lý {counts.resolved}</span><span className="font-medium text-[var(--secondary)]">Phân bổ trang hiện tại</span></div>
+        </section>
+      ) : null}
       <form
         className="flex flex-wrap gap-3 rounded-2xl border bg-white p-4"
         onSubmit={(event) => {

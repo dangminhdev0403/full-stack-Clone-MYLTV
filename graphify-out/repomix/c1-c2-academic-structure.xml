@@ -1,0 +1,2081 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: backend/prisma/schema.prisma, backend/prisma/migrations/20260806081500_add_academic_structure/migration.sql, backend/src/prisma/seed.ts, backend/src/modules/academics/{academic-context,academic-structure}/**/*.ts, backend/src/modules/academics/academics.module.ts, backend/src/modules/identity-access/permissions/permission.registry.ts, front-end/app/admin/system/page.tsx, front-end/lib/api/admin-route*.ts, front-end/features/academic-structure/**/*.{ts,tsx}
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  prisma/
+    migrations/
+      20260806081500_add_academic_structure/
+        migration.sql
+    schema.prisma
+  src/
+    modules/
+      academics/
+        academic-context/
+          academic-context.controller.spec.ts
+          academic-context.controller.ts
+          academic-context.service.spec.ts
+          academic-context.service.ts
+          academic-context.validation.ts
+        academic-structure/
+          academic-structure.controller.spec.ts
+          academic-structure.controller.ts
+          academic-structure.service.spec.ts
+          academic-structure.service.ts
+          academic-structure.validation.ts
+        academics.module.ts
+      identity-access/
+        permissions/
+          permission.registry.ts
+    prisma/
+      seed.ts
+front-end/
+  app/
+    admin/
+      system/
+        page.tsx
+  features/
+    academic-structure/
+      components/
+        academic-classes-manager.test.tsx
+        academic-classes-manager.tsx
+        academic-structure-manager.test.tsx
+        academic-structure-manager.tsx
+      hooks/
+        use-academic-structure.ts
+      service/
+        academic-structure.client.ts
+        academic-structure.resource.ts
+  lib/
+    api/
+      admin-route.test.ts
+      admin-route.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/prisma/migrations/20260806081500_add_academic_structure/migration.sql">
+-- CreateTable
+CREATE TABLE "grade_levels" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "display_name" TEXT NOT NULL,
+    "sort_order" INTEGER NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "grade_levels_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "school_classes" (
+    "id" TEXT NOT NULL,
+    "academic_year_id" TEXT NOT NULL,
+    "grade_level_id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "display_name" TEXT NOT NULL,
+    "homeroom_teacher_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "school_classes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "class_enrollments" (
+    "id" TEXT NOT NULL,
+    "student_id" TEXT NOT NULL,
+    "class_id" TEXT NOT NULL,
+    "starts_on" DATE,
+    "ends_on" DATE,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "class_enrollments_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "grade_levels_code_key" ON "grade_levels"("code");
+
+-- CreateIndex
+CREATE INDEX "school_classes_academic_year_id_idx" ON "school_classes"("academic_year_id");
+
+-- CreateIndex
+CREATE INDEX "school_classes_grade_level_id_idx" ON "school_classes"("grade_level_id");
+
+-- CreateIndex
+CREATE INDEX "school_classes_homeroom_teacher_id_idx" ON "school_classes"("homeroom_teacher_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "school_classes_academic_year_id_code_key" ON "school_classes"("academic_year_id", "code");
+
+-- CreateIndex
+CREATE INDEX "class_enrollments_student_id_idx" ON "class_enrollments"("student_id");
+
+-- CreateIndex
+CREATE INDEX "class_enrollments_class_id_idx" ON "class_enrollments"("class_id");
+
+-- CreateIndex
+CREATE INDEX "class_enrollments_is_active_idx" ON "class_enrollments"("is_active");
+
+-- Partial Unique Index: prevent duplicate active enrollment for a student
+CREATE UNIQUE INDEX "class_enrollments_active_student_unique_idx" ON "class_enrollments"("student_id") WHERE ("is_active" = true);
+
+-- AddForeignKey
+ALTER TABLE "school_classes" ADD CONSTRAINT "school_classes_academic_year_id_fkey" FOREIGN KEY ("academic_year_id") REFERENCES "academic_years"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "school_classes" ADD CONSTRAINT "school_classes_grade_level_id_fkey" FOREIGN KEY ("grade_level_id") REFERENCES "grade_levels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "school_classes" ADD CONSTRAINT "school_classes_homeroom_teacher_id_fkey" FOREIGN KEY ("homeroom_teacher_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "class_enrollments" ADD CONSTRAINT "class_enrollments_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "class_enrollments" ADD CONSTRAINT "class_enrollments_class_id_fkey" FOREIGN KEY ("class_id") REFERENCES "school_classes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Data Backfill
+-- 1. Backfill grade levels from student grade field and default grade codes ('6', '7', '8', '9')
+INSERT INTO "grade_levels" ("id", "code", "display_name", "sort_order", "created_at", "updated_at")
+SELECT
+    'grade-level-' || g.grade_code AS "id",
+    g.grade_code AS "code",
+    'Khối ' || g.grade_code AS "display_name",
+    CASE
+        WHEN g.grade_code ~ '^[0-9]+$' THEN g.grade_code::INTEGER
+        ELSE 0
+    END AS "sort_order",
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM (
+    SELECT DISTINCT grade AS grade_code FROM "students" WHERE grade IS NOT NULL AND TRIM(grade) <> ''
+    UNION
+    SELECT unnest(ARRAY['6', '7', '8', '9']) AS grade_code
+) g
+ON CONFLICT ("code") DO NOTHING;
+
+-- 2. Backfill school classes for current academic year from distinct student class_name and grade
+INSERT INTO "school_classes" ("id", "academic_year_id", "grade_level_id", "code", "display_name", "is_active", "created_at", "updated_at")
+SELECT
+    'school-class-' || ay.id || '-' || s.class_name AS "id",
+    ay.id AS "academic_year_id",
+    gl.id AS "grade_level_id",
+    s.class_name AS "code",
+    'Lớp ' || s.class_name AS "display_name",
+    true AS "is_active",
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM (
+    SELECT DISTINCT
+        class_name,
+        COALESCE(
+            NULLIF(TRIM(grade), ''),
+            SUBSTRING(class_name FROM '^[0-9]+')
+        ) AS derived_grade
+    FROM "students"
+    WHERE class_name IS NOT NULL AND TRIM(class_name) <> ''
+) s
+JOIN "academic_years" ay ON ay.is_current = true
+JOIN "grade_levels" gl ON gl.code = s.derived_grade
+ON CONFLICT ("academic_year_id", "code") DO NOTHING;
+
+-- 3. Backfill class enrollments for existing active students in current academic year
+INSERT INTO "class_enrollments" ("id", "student_id", "class_id", "starts_on", "is_active", "created_at", "updated_at")
+SELECT
+    'enrollment-' || st.id || '-' || sc.id AS "id",
+    st.id AS "student_id",
+    sc.id AS "class_id",
+    ay.starts_on AS "starts_on",
+    st.is_active AS "is_active",
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM "students" st
+JOIN "academic_years" ay ON ay.is_current = true
+JOIN "school_classes" sc ON sc.academic_year_id = ay.id AND sc.code = st.class_name
+ON CONFLICT ("id") DO NOTHING;
+</file>
+
+<file path="backend/src/modules/academics/academic-context/academic-context.validation.ts">
+import { BadRequestException } from '@nestjs/common';
+import { z, ZodError, type ZodType } from 'zod';
+⋮----
+export type CreateAcademicYearDto = z.infer<typeof createAcademicYearSchema>;
+export type UpdateAcademicYearDto = z.infer<typeof updateAcademicYearSchema>;
+export type CreateSemesterDto = z.infer<typeof createSemesterSchema>;
+export type UpdateSemesterDto = z.infer<typeof updateSemesterSchema>;
+⋮----
+export function validateCreateAcademicYear(
+  payload: unknown,
+): CreateAcademicYearDto
+⋮----
+export function validateUpdateAcademicYear(
+  payload: unknown,
+): UpdateAcademicYearDto
+⋮----
+export function validateCreateSemester(payload: unknown): CreateSemesterDto
+⋮----
+export function validateUpdateSemester(payload: unknown): UpdateSemesterDto
+⋮----
+function parseRequest<T>(
+  schema: ZodType<T>,
+  value: unknown,
+  source: string,
+): T
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.controller.spec.ts">
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import {
+  REQUIRED_PERMISSIONS_KEY,
+  REQUIRED_ROLES_KEY,
+} from '../../../common/auth/auth.constants';
+import { JwtAuthenticationGuard } from '../../../common/auth/jwt-authentication.guard';
+import { PermissionGuard } from '../../../common/auth/permission.guard';
+import type { PermissionService } from '../../identity-access/permissions/permission.service';
+import { AcademicStructureController } from './academic-structure.controller';
+import type { AcademicStructureService } from './academic-structure.service';
+import {
+  validateAssignStudentEnrollment,
+  validateCreateGradeLevel,
+  validateCreateSchoolClass,
+  validateListClassesQuery,
+  validateUpdateGradeLevel,
+  validateUpdateSchoolClass,
+} from './academic-structure.validation';
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { AcademicStructureService } from './academic-structure.service';
+import {
+  validateAssignStudentEnrollment,
+  validateCreateGradeLevel,
+  validateCreateSchoolClass,
+  validateListClassesQuery,
+  validateUpdateGradeLevel,
+  validateUpdateSchoolClass,
+} from './academic-structure.validation';
+⋮----
+export class AcademicStructureController
+⋮----
+constructor(private readonly academicStructure: AcademicStructureService)
+⋮----
+listGradeLevels()
+⋮----
+createGradeLevel(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateGradeLevel(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+listClasses(
+    @Query('academic_year_id') academicYearId?: string,
+    @Query('grade_level_id') gradeLevelId?: string,
+    @Query('is_active') isActive?: string,
+)
+⋮----
+createClass(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateClass(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+getClassRoster(
+    @Param('id') id: string,
+    @Query('is_active') isActive?: string,
+)
+⋮----
+assignStudentEnrollment(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+deactivateStudentEnrollment(
+    @Param('id') id: string,
+    @Param('student_id') studentId: string,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.service.spec.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import type { AuditService } from '../../identity-access/audit/audit.service';
+import { AcademicStructureService } from './academic-structure.service';
+⋮----
+type MockFn = jest.Mock;
+⋮----
+interface MockGradeLevelDelegate {
+  findMany: MockFn;
+  findUnique: MockFn;
+  create: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockSchoolClassDelegate {
+  findMany: MockFn;
+  findUnique: MockFn;
+  create: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockClassEnrollmentDelegate {
+  findMany: MockFn;
+  findFirst: MockFn;
+  create: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockAcademicYearDelegate {
+  findUnique: MockFn;
+}
+⋮----
+interface MockStudentDelegate {
+  findUnique: MockFn;
+  update: MockFn;
+}
+⋮----
+interface MockAccountDelegate {
+  findUnique: MockFn;
+}
+⋮----
+interface MockPrismaClient {
+  gradeLevel: MockGradeLevelDelegate;
+  schoolClass: MockSchoolClassDelegate;
+  classEnrollment: MockClassEnrollmentDelegate;
+  academicYear: MockAcademicYearDelegate;
+  student: MockStudentDelegate;
+  account: MockAccountDelegate;
+  $transaction: jest.Mock;
+}
+⋮----
+interface MockAuditService {
+  record: MockFn;
+}
+⋮----
+// Verify deactivation of prior enrollment
+⋮----
+// Verify creation of new enrollment
+⋮----
+// Verify atomic update of legacy Student fields
+⋮----
+// Verify audit log
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.service.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { ok } from '../../../common/http/api-response';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { AuditService } from '../../identity-access/audit/audit.service';
+import type {
+  AssignStudentEnrollmentDto,
+  CreateGradeLevelDto,
+  CreateSchoolClassDto,
+  ListClassesQueryDto,
+  UpdateGradeLevelDto,
+  UpdateSchoolClassDto,
+} from './academic-structure.validation';
+⋮----
+type SchoolClassPayload = {
+  id: string;
+  academicYearId: string;
+  gradeLevelId: string;
+  code: string;
+  displayName: string;
+  homeroomTeacherId: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  academicYear?: {
+    id: string;
+    code: string;
+    displayName: string;
+    startsOn: Date;
+    endsOn: Date;
+    isCurrent: boolean;
+  } | null;
+  gradeLevel?: {
+    id: string;
+    code: string;
+    displayName: string;
+    sortOrder: number;
+  } | null;
+  homeroomTeacher?: {
+    id: string;
+    username: string;
+    displayName: string;
+    role: string;
+    isActive: boolean;
+  } | null;
+};
+⋮----
+type ClassEnrollmentPayload = {
+  id: string;
+  studentId: string;
+  classId: string;
+  startsOn: Date | null;
+  endsOn: Date | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  student?: {
+    id: string;
+    code: string;
+    fullName: string;
+    grade: string | null;
+    className: string;
+    isActive: boolean;
+  } | null;
+  class?: SchoolClassPayload | null;
+};
+⋮----
+export class AcademicStructureService
+⋮----
+constructor(
+⋮----
+// ---------------------------------------------------------------------------
+// Grade Level Domain Operations
+// ---------------------------------------------------------------------------
+⋮----
+async listGradeLevels()
+⋮----
+async createGradeLevel(dto: CreateGradeLevelDto, actor?: AuthenticatedUser)
+⋮----
+async updateGradeLevel(
+    id: string,
+    dto: UpdateGradeLevelDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// School Class Domain Operations
+// ---------------------------------------------------------------------------
+⋮----
+async listClasses(query: ListClassesQueryDto)
+⋮----
+async createClass(dto: CreateSchoolClassDto, actor?: AuthenticatedUser)
+⋮----
+async updateClass(
+    id: string,
+    dto: UpdateSchoolClassDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// Roster & Enrollment Operations
+// ---------------------------------------------------------------------------
+⋮----
+async getClassRoster(classId: string, isActiveFilter?: boolean)
+⋮----
+async assignStudentEnrollment(
+    classId: string,
+    dto: AssignStudentEnrollmentDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// 1. Deactivate prior active enrollment(s) with endsOn date
+⋮----
+// 2. Create new active enrollment record
+⋮----
+// 3. Atomically update legacy Student compatibility fields
+⋮----
+// 4. Record audit event in same transaction
+⋮----
+async deactivateStudentEnrollment(
+    classId: string,
+    studentId: string,
+    actor?: AuthenticatedUser,
+)
+⋮----
+// ---------------------------------------------------------------------------
+// Helper methods & Serializers
+// ---------------------------------------------------------------------------
+⋮----
+private async verifyHomeroomTeacher(teacherId: string): Promise<void>
+⋮----
+private serializeGradeLevel(g: Prisma.GradeLevelGetPayload<object>)
+⋮----
+private serializeClass(c: SchoolClassPayload)
+⋮----
+private serializeEnrollment(e: ClassEnrollmentPayload)
+⋮----
+private requireActorId(actor?: AuthenticatedUser): string
+⋮----
+private parseDate(value: string): Date
+⋮----
+private toDate(value: Date): string
+</file>
+
+<file path="backend/src/modules/academics/academic-structure/academic-structure.validation.ts">
+import { BadRequestException } from '@nestjs/common';
+import { z, ZodError, type ZodType } from 'zod';
+⋮----
+export type CreateGradeLevelDto = z.infer<typeof createGradeLevelSchema>;
+export type UpdateGradeLevelDto = z.infer<typeof updateGradeLevelSchema>;
+export type ListClassesQueryDto = z.infer<typeof listClassesQuerySchema>;
+export type CreateSchoolClassDto = z.infer<typeof createSchoolClassSchema>;
+export type UpdateSchoolClassDto = z.infer<typeof updateSchoolClassSchema>;
+export type AssignStudentEnrollmentDto = z.infer<
+  typeof assignStudentEnrollmentSchema
+>;
+⋮----
+export function validateCreateGradeLevel(
+  payload: unknown,
+): CreateGradeLevelDto
+⋮----
+export function validateUpdateGradeLevel(
+  payload: unknown,
+): UpdateGradeLevelDto
+⋮----
+export function validateListClassesQuery(
+  payload: unknown,
+): ListClassesQueryDto
+⋮----
+export function validateCreateSchoolClass(
+  payload: unknown,
+): CreateSchoolClassDto
+⋮----
+export function validateUpdateSchoolClass(
+  payload: unknown,
+): UpdateSchoolClassDto
+⋮----
+export function validateAssignStudentEnrollment(
+  payload: unknown,
+): AssignStudentEnrollmentDto
+⋮----
+function parseRequest<T>(
+  schema: ZodType<T>,
+  value: unknown,
+  source: string,
+): T
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-classes-manager.test.tsx">
+// @vitest-environment jsdom
+⋮----
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSession } from "next-auth/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AcademicClassesManager } from "./academic-classes-manager";
+import {
+  assignStudentEnrollment,
+  createGradeLevel,
+  createSchoolClass,
+  getClassRoster,
+  listAcademicYears,
+  listClasses,
+  listGradeLevels,
+} from "../service/academic-structure.client";
+⋮----
+function renderComponent()
+⋮----
+function session(permissions: string[], role = "admin")
+⋮----
+// Switch to Classes tab
+⋮----
+// Switch to Roster tab
+⋮----
+// Select class
+⋮----
+// Assign student
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-classes-manager.tsx">
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell, Icon } from "@/features/admin-shell";
+import {
+  useAcademicYearsQuery,
+  useAssignEnrollmentMutation,
+  useClassesQuery,
+  useClassRosterQuery,
+  useCreateClassMutation,
+  useCreateGradeLevelMutation,
+  useDeactivateEnrollmentMutation,
+  useGradeLevelsQuery,
+  useUpdateClassMutation,
+  useUpdateGradeLevelMutation,
+} from "../hooks/use-academic-structure";
+import type { GradeLevel, SchoolClass } from "../service/academic-structure.client";
+⋮----
+function translateErrorMessage(error: unknown): string
+⋮----
+// Class filters
+⋮----
+// Roster selected class
+⋮----
+// Modals
+⋮----
+// Alerts
+⋮----
+// Queries
+⋮----
+// Mutations
+⋮----
+const handleSaveGrade = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleSaveClass = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleAssignStudent = async (e: React.FormEvent<HTMLFormElement>) =>
+⋮----
+const handleDeactivateEnrollment = async (studentId: string) =>
+⋮----
+{/* Navigation Tabs */}
+⋮----
+setActiveTab("grades");
+setInlineError("");
+setSuccessMessage("");
+⋮----
+{/* Global Feedback Banners */}
+⋮----
+{/* Tab 1: Grade Levels */}
+⋮----
+setEditingGrade(null);
+setGradeModalOpen(true);
+⋮----
+setEditingGrade(g);
+⋮----
+{/* Tab 2: School Classes */}
+⋮----
+setEditingClass(null);
+setClassModalOpen(true);
+⋮----
+{/* Filter Bar */}
+⋮----
+setEditingClass(c);
+⋮----
+{/* Tab 3: Roster & Student Enrollment */}
+⋮----
+{/* Modal: Create/Edit Grade Level */}
+⋮----
+setGradeModalOpen(false);
+⋮----
+{/* Modal: Create/Edit School Class */}
+⋮----
+setClassModalOpen(false);
+⋮----
+{/* Modal: Assign Student Enrollment */}
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-structure-manager.test.tsx">
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSession } from "next-auth/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AcademicStructureManager } from "./academic-structure-manager";
+import {
+  createAcademicYear,
+  getCurrentAcademicContext,
+  listAcademicYears,
+  listSemesters,
+  setSemesterCurrent,
+} from "../service/academic-structure.client";
+⋮----
+function renderComponent()
+⋮----
+function session(permissions: string[], role = "admin")
+⋮----
+// Wait for creation success banner
+⋮----
+// Switch to Semesters tab
+</file>
+
+<file path="front-end/features/academic-structure/components/academic-structure-manager.tsx">
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell, Icon } from "@/features/admin-shell";
+import {
+  useAcademicYearsQuery,
+  useCreateAcademicYearMutation,
+  useCreateSemesterMutation,
+  useCurrentAcademicContextQuery,
+  useSemestersQuery,
+  useSetAcademicYearCurrentMutation,
+  useSetSemesterCurrentMutation,
+  useUpdateAcademicYearMutation,
+  useUpdateSemesterMutation,
+} from "../hooks/use-academic-structure";
+import type {
+  AcademicYear,
+  CreateAcademicYearPayload,
+  CreateSemesterPayload,
+  Semester,
+  UpdateAcademicYearPayload,
+  UpdateSemesterPayload,
+} from "../service/academic-structure.client";
+⋮----
+function formatVietnameseMutationError(error: unknown): string
+⋮----
+// Form modal states
+⋮----
+// Queries (only enabled when user canRead)
+⋮----
+// Mutations
+⋮----
+// Year Form initial state
+⋮----
+// Semester Form initial state
+⋮----
+const openCreateYearModal = () =>
+⋮----
+const openEditYearModal = (year: AcademicYear) =>
+⋮----
+const openCreateSemesterModal = () =>
+⋮----
+const openEditSemesterModal = (semester: Semester) =>
+⋮----
+const handleYearSubmit = async (e: React.FormEvent) =>
+⋮----
+const handleSemesterSubmit = async (e: React.FormEvent) =>
+⋮----
+const handleSetYearCurrent = async (id: string) =>
+⋮----
+const handleSetSemesterCurrent = async (id: string) =>
+⋮----
+{/* Header Summary & Current Context Status */}
+⋮----
+{/* Current Context Pill */}
+⋮----
+{/* System Messages Banner */}
+⋮----
+onClick=
+⋮----
+{/* Tab Navigation & Action Bar */}
+⋮----
+onChange=
+⋮----
+{/* Tab 1: Academic Years List */}
+⋮----
+{/* Tab 2: Semesters List */}
+⋮----
+{/* Modal Year Create/Edit Form */}
+⋮----
+{/* Modal Semester Create/Edit Form */}
+</file>
+
+<file path="front-end/features/academic-structure/hooks/use-academic-structure.ts">
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { academicStructureResource } from "../service/academic-structure.resource";
+⋮----
+export function useCurrentAcademicContextQuery(options?:
+⋮----
+export function useAcademicYearsQuery(options?:
+⋮----
+export function useSemestersQuery(academicYearId?: string, options?:
+⋮----
+export function useCreateAcademicYearMutation()
+⋮----
+export function useUpdateAcademicYearMutation()
+⋮----
+export function useSetAcademicYearCurrentMutation()
+⋮----
+export function useCreateSemesterMutation()
+⋮----
+export function useUpdateSemesterMutation()
+⋮----
+export function useSetSemesterCurrentMutation()
+⋮----
+export function useGradeLevelsQuery(options?:
+⋮----
+export function useClassesQuery(query?: Parameters<typeof boundResource.queries.classes.options>[0], options?:
+⋮----
+export function useClassRosterQuery(input:
+⋮----
+export function useCreateGradeLevelMutation()
+⋮----
+export function useUpdateGradeLevelMutation()
+⋮----
+export function useCreateClassMutation()
+⋮----
+export function useUpdateClassMutation()
+⋮----
+export function useAssignEnrollmentMutation()
+⋮----
+export function useDeactivateEnrollmentMutation()
+</file>
+
+<file path="front-end/features/academic-structure/service/academic-structure.client.ts">
+import { z } from "zod";
+import { parseApiResponse, successSchema } from "@/lib/api/schemas";
+⋮----
+export type AcademicYear = z.infer<typeof academicYearSchema>;
+export type Semester = z.infer<typeof semesterSchema>;
+⋮----
+export type CreateAcademicYearPayload = {
+  id: string;
+  code: string;
+  display_name: string;
+  starts_on: string;
+  ends_on: string;
+};
+⋮----
+export type UpdateAcademicYearPayload = Partial<Omit<CreateAcademicYearPayload, "id">>;
+⋮----
+export type CreateSemesterPayload = {
+  id: string;
+  academic_year_id: string;
+  code: string;
+  display_name: string;
+  starts_on: string;
+  ends_on: string;
+  sort_order: number;
+};
+⋮----
+export type UpdateSemesterPayload = Partial<Omit<CreateSemesterPayload, "id" | "academic_year_id">>;
+⋮----
+export async function getCurrentAcademicContext()
+⋮----
+export async function listAcademicYears(): Promise<AcademicYear[]>
+⋮----
+export async function createAcademicYear(payload: CreateAcademicYearPayload): Promise<AcademicYear>
+⋮----
+export async function updateAcademicYear(id: string, payload: UpdateAcademicYearPayload): Promise<AcademicYear>
+⋮----
+export async function setAcademicYearCurrent(id: string): Promise<AcademicYear>
+⋮----
+export async function listSemesters(academicYearId?: string): Promise<Semester[]>
+⋮----
+export async function createSemester(payload: CreateSemesterPayload): Promise<Semester>
+⋮----
+export async function updateSemester(id: string, payload: UpdateSemesterPayload): Promise<Semester>
+⋮----
+export async function setSemesterCurrent(id: string): Promise<Semester>
+⋮----
+export type GradeLevel = z.infer<typeof gradeLevelSchema>;
+export type SchoolClass = z.infer<typeof schoolClassSchema>;
+export type ClassEnrollment = z.infer<typeof classEnrollmentSchema>;
+⋮----
+export type CreateGradeLevelPayload = {
+  id?: string;
+  code: string;
+  display_name: string;
+  sort_order?: number;
+};
+⋮----
+export type UpdateGradeLevelPayload = Partial<Omit<CreateGradeLevelPayload, "id">>;
+⋮----
+export type ListClassesQuery = {
+  academic_year_id?: string;
+  grade_level_id?: string;
+  is_active?: boolean;
+};
+⋮----
+export type CreateSchoolClassPayload = {
+  id?: string;
+  academic_year_id: string;
+  grade_level_id: string;
+  code: string;
+  display_name: string;
+  homeroom_teacher_id?: string | null;
+  is_active?: boolean;
+};
+⋮----
+export type UpdateSchoolClassPayload = Partial<Omit<CreateSchoolClassPayload, "id">>;
+⋮----
+export type AssignStudentEnrollmentPayload = {
+  student_id: string;
+  starts_on?: string;
+};
+⋮----
+export async function listGradeLevels(): Promise<GradeLevel[]>
+⋮----
+export async function createGradeLevel(payload: CreateGradeLevelPayload): Promise<GradeLevel>
+⋮----
+export async function updateGradeLevel(id: string, payload: UpdateGradeLevelPayload): Promise<GradeLevel>
+⋮----
+export async function listClasses(query?: ListClassesQuery): Promise<SchoolClass[]>
+⋮----
+export async function createSchoolClass(payload: CreateSchoolClassPayload): Promise<SchoolClass>
+⋮----
+export async function updateSchoolClass(id: string, payload: UpdateSchoolClassPayload): Promise<SchoolClass>
+⋮----
+export async function getClassRoster(
+  classId: string,
+  isActive?: boolean
+): Promise<
+⋮----
+export async function assignStudentEnrollment(
+  classId: string,
+  payload: AssignStudentEnrollmentPayload
+): Promise<ClassEnrollment>
+⋮----
+export async function deactivateStudentEnrollment(classId: string, studentId: string): Promise<ClassEnrollment>
+</file>
+
+<file path="front-end/features/academic-structure/service/academic-structure.resource.ts">
+import {
+  createResource,
+  defineMutation,
+  defineQuery,
+} from "@dangminhdev04032005/query-resource";
+import {
+  assignStudentEnrollment,
+  createAcademicYear,
+  createGradeLevel,
+  createSchoolClass,
+  createSemester,
+  deactivateStudentEnrollment,
+  getClassRoster,
+  getCurrentAcademicContext,
+  listAcademicYears,
+  listClasses,
+  listGradeLevels,
+  listSemesters,
+  setAcademicYearCurrent,
+  setSemesterCurrent,
+  updateAcademicYear,
+  updateGradeLevel,
+  updateSchoolClass,
+  updateSemester,
+  type AssignStudentEnrollmentPayload,
+  type CreateAcademicYearPayload,
+  type CreateGradeLevelPayload,
+  type CreateSchoolClassPayload,
+  type CreateSemesterPayload,
+  type ListClassesQuery,
+  type UpdateAcademicYearPayload,
+  type UpdateGradeLevelPayload,
+  type UpdateSchoolClassPayload,
+  type UpdateSemesterPayload,
+} from "./academic-structure.client";
+</file>
+
+<file path="backend/src/modules/academics/academic-context/academic-context.controller.spec.ts">
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import {
+  REQUIRED_PERMISSIONS_KEY,
+  REQUIRED_ROLES_KEY,
+} from '../../../common/auth/auth.constants';
+import { JwtAuthenticationGuard } from '../../../common/auth/jwt-authentication.guard';
+import { PermissionGuard } from '../../../common/auth/permission.guard';
+import type { PermissionService } from '../../identity-access/permissions/permission.service';
+import { AcademicContextController } from './academic-context.controller';
+import type { AcademicContextService } from './academic-context.service';
+import {
+  validateCreateAcademicYear,
+  validateCreateSemester,
+  validateUpdateAcademicYear,
+  validateUpdateSemester,
+} from './academic-context.validation';
+</file>
+
+<file path="backend/src/modules/academics/academic-context/academic-context.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import { AcademicContextService } from './academic-context.service';
+import {
+  validateCreateAcademicYear,
+  validateCreateSemester,
+  validateUpdateAcademicYear,
+  validateUpdateSemester,
+} from './academic-context.validation';
+⋮----
+export class AcademicContextController
+⋮----
+constructor(private readonly academicContext: AcademicContextService)
+⋮----
+getCurrent()
+⋮----
+listYears()
+⋮----
+createYear(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateYear(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+setYearCurrent(
+    @Param('id') id: string,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+listSemesters(@Query('academic_year_id') academicYearId?: string)
+⋮----
+createSemester(
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+updateSemester(
+    @Param('id') id: string,
+    @Body() payload: unknown,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+setSemesterCurrent(
+    @Param('id') id: string,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+</file>
+
+<file path="backend/src/modules/academics/academic-context/academic-context.service.spec.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import type { AuditService } from '../../identity-access/audit/audit.service';
+import { AcademicContextService } from './academic-context.service';
+⋮----
+type MockFn = jest.Mock;
+⋮----
+interface MockAcademicYearDelegate {
+  findMany: MockFn;
+  findFirst: MockFn;
+  findUnique: MockFn;
+  findUniqueOrThrow: MockFn;
+  create: MockFn;
+  update: MockFn;
+  updateMany: MockFn;
+}
+⋮----
+interface MockSemesterDelegate {
+  findMany: MockFn;
+  findFirst: MockFn;
+  findUnique: MockFn;
+  create: MockFn;
+  update: MockFn;
+  updateMany: MockFn;
+}
+⋮----
+interface MockPrismaClient {
+  academicYear: MockAcademicYearDelegate;
+  semester: MockSemesterDelegate;
+  $transaction: jest.Mock;
+}
+⋮----
+interface MockAuditService {
+  record: MockFn;
+}
+⋮----
+function currentAcademicYear(overrides: Record<string, unknown> =
+⋮----
+function currentSemester(overrides: Record<string, unknown> =
+</file>
+
+<file path="backend/src/modules/academics/academic-context/academic-context.service.ts">
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { ok } from '../../../common/http/api-response';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { AuditService } from '../../identity-access/audit/audit.service';
+import type {
+  CreateAcademicYearDto,
+  CreateSemesterDto,
+  UpdateAcademicYearDto,
+  UpdateSemesterDto,
+} from './academic-context.validation';
+⋮----
+type CurrentSemesterRecord = {
+  id: string;
+  code: string;
+  displayName: string;
+  startsOn: Date;
+  endsOn: Date;
+  sortOrder: number;
+  isCurrent: boolean;
+};
+⋮----
+type CurrentAcademicYearRecord = {
+  id: string;
+  code: string;
+  displayName: string;
+  startsOn: Date;
+  endsOn: Date;
+  isCurrent: boolean;
+  semesters: CurrentSemesterRecord[];
+};
+⋮----
+export class AcademicContextService
+⋮----
+constructor(
+⋮----
+async getCurrentContext()
+⋮----
+async listYears()
+⋮----
+async createYear(dto: CreateAcademicYearDto, actor?: AuthenticatedUser)
+⋮----
+async updateYear(
+    id: string,
+    dto: UpdateAcademicYearDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+async setYearCurrent(id: string, actor?: AuthenticatedUser)
+⋮----
+async listSemesters(academicYearId?: string)
+⋮----
+async createSemester(dto: CreateSemesterDto, actor?: AuthenticatedUser)
+⋮----
+async updateSemester(
+    id: string,
+    dto: UpdateSemesterDto,
+    actor?: AuthenticatedUser,
+)
+⋮----
+async setSemesterCurrent(id: string, actor?: AuthenticatedUser)
+⋮----
+private serializeYear(
+    year: Prisma.AcademicYearGetPayload<{
+      include: { semesters: true };
+    }>,
+)
+⋮----
+private serializeSemester(semester: Prisma.SemesterGetPayload<object>)
+⋮----
+private requireActorId(actor?: AuthenticatedUser): string
+⋮----
+private parseDate(value: string): Date
+⋮----
+private toDate(value: Date): string
+</file>
+
+<file path="front-end/app/admin/system/page.tsx">
+import { AcademicStructureManager } from "@/features/academic-structure/components/academic-structure-manager";
+import { AcademicClassesManager } from "@/features/academic-structure/components/academic-classes-manager";
+⋮----
+export default function SystemAdminPage()
+</file>
+
+<file path="backend/src/modules/academics/academics.module.ts">
+import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
+import { AcademicContextController } from './academic-context/academic-context.controller';
+import { AcademicContextService } from './academic-context/academic-context.service';
+import { AcademicStructureController } from './academic-structure/academic-structure.controller';
+import { AcademicStructureService } from './academic-structure/academic-structure.service';
+import {
+  AppAttendanceController,
+  AttendanceController,
+  StudentAttendanceController,
+} from './attendance/attendance.controller';
+import { AttendanceService } from './attendance/attendance.service';
+import { AcademicContextSeedService } from './bootstrap/academic-context-seed.service';
+import {
+  AdminScoresController,
+  AppScoresController,
+} from './scores/scores.controller';
+import { ScoresService } from './scores/scores.service';
+import {
+  AdminTimetableHomeworkController,
+  AppTimetableHomeworkController,
+} from './timetable-homework/timetable-homework.controller';
+import { TimetableHomeworkService } from './timetable-homework/timetable-homework.service';
+⋮----
+export class AcademicsModule
+</file>
+
+<file path="backend/prisma/schema.prisma">
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountRole {
+  parent
+  student
+  teacher
+  admin
+  super_admin
+}
+
+enum PermissionRisk {
+  low
+  medium
+  high
+  critical
+}
+
+enum StudentAccountRelationship {
+  guardian
+  student
+  teacher
+}
+
+enum StudentGender {
+  male
+  female
+  other
+}
+
+enum StudentGuardianRelationship {
+  father
+  mother
+  grandfather
+  grandmother
+  guardian
+  other
+}
+
+enum AttendancePeriod {
+  morning
+  afternoon
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+enum TuitionChargeStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
+enum NewsPublicationStatus {
+  draft
+  published
+  hidden
+}
+
+enum NewsAudienceType {
+  all
+  grade
+  class
+  student
+}
+
+model Account {
+  id                 String               @id @default(uuid())
+  username           String               @unique
+  passwordHash       String               @map("password_hash")
+  displayName        String               @map("display_name")
+  role               AccountRole          @default(admin)
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  permissions        AccountPermission[]
+  refreshSessions    RefreshSession[]
+  studentLinks       StudentAccountLink[]
+  createdNews        NewsItem[]
+  auditEvents        AuditEvent[]
+  attendanceSessions AttendanceSession[]  @relation("AttendanceSessionCreator")
+  attendanceRecords  AttendanceRecord[]   @relation("AttendanceRecordMarker")
+  tuitionCharges     TuitionCharge[]      @relation("TuitionChargeCreator")
+  homeroomClasses    SchoolClass[]        @relation("ClassHomeroomTeacher")
+
+  @@map("accounts")
+}
+
+model Permission {
+  id             String              @id @default(uuid())
+  key            String              @unique
+  label          String
+  description    String
+  boundedContext String              @map("bounded_context")
+  risk           PermissionRisk      @default(low)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  accounts       AccountPermission[]
+
+  @@map("permissions")
+}
+
+model AccountPermission {
+  accountId     String     @map("account_id")
+  permissionKey String     @map("permission_key")
+  assignedAt    DateTime   @default(now()) @map("assigned_at")
+  account       Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([accountId, permissionKey])
+  @@map("account_permissions")
+}
+
+model RefreshSession {
+  id        String    @id @default(uuid())
+  accountId String    @map("account_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@map("refresh_sessions")
+}
+
+model AuditEvent {
+  id             String   @id @default(uuid())
+  actorId        String   @map("actor_id")
+  action         String
+  boundedContext String   @map("bounded_context")
+  resourceType   String   @map("resource_type")
+  resourceId     String   @map("resource_id")
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  actor          Account  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId, createdAt])
+  @@index([boundedContext, resourceType, resourceId])
+  @@map("audit_events")
+}
+
+model Student {
+  id                String                   @id @default(uuid())
+  code              String                   @unique
+  fullName          String                   @map("full_name")
+  avatarUrl         String?                  @map("avatar_url")
+  grade             String?
+  className         String                   @map("class_name")
+  schoolName        String                   @default("Sổ Liên Lạc Điện Tử") @map("school_name")
+  isActive          Boolean                  @default(true) @map("is_active")
+  dateOfBirth       DateTime?                @map("date_of_birth") @db.Date
+  gender            StudentGender?
+  ethnicity         String?
+  birthPlace        String?                  @map("birth_place")
+  permanentAddress  String?                  @map("permanent_address")
+  cohortStartYear   Int?                     @map("cohort_start_year")
+  cohortEndYear     Int?                     @map("cohort_end_year")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  accountLinks      StudentAccountLink[]
+  guardianContacts  StudentGuardianContact[]
+  attendanceRecords AttendanceRecord[]
+  tuitionCharges    TuitionCharge[]
+  enrollments       ClassEnrollment[]
+
+  @@index([className])
+  @@index([grade])
+  @@index([isActive])
+  @@map("students")
+}
+
+model StudentGuardianContact {
+  id                 String                      @id @default(uuid())
+  studentId          String                      @map("student_id")
+  relationship       StudentGuardianRelationship
+  relationshipLabel  String?                     @map("relationship_label")
+  fullName           String                      @map("full_name")
+  phone              String
+  isEmergencyContact Boolean                     @default(false) @map("is_emergency_contact")
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @updatedAt @map("updated_at")
+  student            Student                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([studentId, isEmergencyContact])
+  @@map("student_guardian_contacts")
+}
+
+model StudentAccountLink {
+  studentId    String                     @map("student_id")
+  accountId    String                     @map("account_id")
+  relationship StudentAccountRelationship @default(guardian)
+  isActive     Boolean                    @default(true) @map("is_active")
+  createdAt    DateTime                   @default(now()) @map("created_at")
+  student      Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  account      Account                    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, accountId, relationship])
+  @@index([accountId])
+  @@index([studentId])
+  @@map("student_account_links")
+}
+
+model NewsItem {
+  id          String                @id @default(uuid())
+  title       String
+  summary     String
+  content     String
+  imageUrl    String?               @map("image_url")
+  category    String
+  status      NewsPublicationStatus @default(draft)
+  isPinned    Boolean               @default(false) @map("is_pinned")
+  sortOrder   Int                   @default(0) @map("sort_order")
+  publishedAt DateTime?             @map("published_at")
+  createdById String                @map("created_by_id")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  createdBy   Account               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  audiences   NewsAudience[]
+
+  @@index([status, isPinned, sortOrder, publishedAt])
+  @@index([createdById])
+  @@map("news_items")
+}
+
+model NewsAudience {
+  id     String           @id @default(uuid())
+  newsId String           @map("news_id")
+  type   NewsAudienceType
+  value  String?
+  news   NewsItem         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, type, value])
+  @@index([type, value])
+  @@map("news_audiences")
+}
+
+model AcademicYear {
+  id          String        @id
+  code        String        @unique
+  displayName String        @map("display_name")
+  startsOn    DateTime      @map("starts_on") @db.Date
+  endsOn      DateTime      @map("ends_on") @db.Date
+  isCurrent   Boolean       @default(false) @map("is_current")
+  semesters   Semester[]
+  classes     SchoolClass[]
+
+  @@map("academic_years")
+}
+
+model Semester {
+  id                 String              @id
+  academicYearId     String              @map("academic_year_id")
+  code               String
+  displayName        String              @map("display_name")
+  startsOn           DateTime            @map("starts_on") @db.Date
+  endsOn             DateTime            @map("ends_on") @db.Date
+  sortOrder          Int                 @map("sort_order")
+  isCurrent          Boolean             @default(false) @map("is_current")
+  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  attendanceSessions AttendanceSession[]
+  tuitionCharges     TuitionCharge[]
+
+  @@unique([academicYearId, code])
+  @@unique([academicYearId, sortOrder])
+  @@index([academicYearId])
+  @@map("semesters")
+}
+
+model GradeLevel {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  displayName String        @map("display_name")
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  classes     SchoolClass[]
+
+  @@map("grade_levels")
+}
+
+model SchoolClass {
+  id                String            @id @default(uuid())
+  academicYearId    String            @map("academic_year_id")
+  gradeLevelId      String            @map("grade_level_id")
+  code              String
+  displayName       String            @map("display_name")
+  homeroomTeacherId String?           @map("homeroom_teacher_id")
+  isActive          Boolean           @default(true) @map("is_active")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  academicYear      AcademicYear      @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  gradeLevel        GradeLevel        @relation(fields: [gradeLevelId], references: [id], onDelete: Restrict)
+  homeroomTeacher   Account?          @relation("ClassHomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: Restrict)
+  enrollments       ClassEnrollment[]
+
+  @@unique([academicYearId, code])
+  @@index([academicYearId])
+  @@index([gradeLevelId])
+  @@index([homeroomTeacherId])
+  @@map("school_classes")
+}
+
+model ClassEnrollment {
+  id        String      @id @default(uuid())
+  studentId String      @map("student_id")
+  classId   String      @map("class_id")
+  startsOn  DateTime?   @map("starts_on") @db.Date
+  endsOn    DateTime?   @map("ends_on") @db.Date
+  isActive  Boolean     @default(true) @map("is_active")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  student   Student     @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([classId])
+  @@index([isActive])
+  @@map("class_enrollments")
+}
+
+model AttendanceSession {
+  id             String             @id @default(uuid())
+  semesterId     String             @map("semester_id")
+  attendanceDate DateTime           @map("attendance_date") @db.Date
+  period         AttendancePeriod
+  className      String             @map("class_name")
+  createdById    String             @map("created_by_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  semester       Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy      Account            @relation("AttendanceSessionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  records        AttendanceRecord[]
+
+  @@unique([semesterId, attendanceDate, period, className])
+  @@index([attendanceDate, className])
+  @@index([createdById])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id         String            @id @default(uuid())
+  sessionId  String            @map("session_id")
+  studentId  String            @map("student_id")
+  status     AttendanceStatus
+  note       String?
+  markedById String            @map("marked_by_id")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  session    AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  markedBy   Account           @relation("AttendanceRecordMarker", fields: [markedById], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, studentId])
+  @@index([studentId, createdAt])
+  @@index([markedById])
+  @@map("attendance_records")
+}
+
+model TuitionCharge {
+  id          String              @id @default(uuid())
+  studentId   String              @map("student_id")
+  semesterId  String              @map("semester_id")
+  title       String
+  amountDue   Int                 @map("amount_due")
+  amountPaid  Int                 @default(0) @map("amount_paid")
+  status      TuitionChargeStatus @default(unpaid)
+  dueDate     DateTime?           @map("due_date") @db.Date
+  note        String?
+  isWaived    Boolean             @default(false) @map("is_waived")
+  createdById String              @map("created_by_id")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  semester    Semester            @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  createdBy   Account             @relation("TuitionChargeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([studentId, semesterId, title])
+  @@index([semesterId, status])
+  @@index([studentId, status])
+  @@index([dueDate])
+  @@index([createdById])
+  @@map("tuition_charges")
+}
+
+model Notification {
+  id          String             @id @default(uuid())
+  title       String
+  sender      String
+  sentAt      DateTime           @default(now()) @map("sent_at")
+  content     String
+  tag         String             @default("Quan trong")
+  createdById String?            @map("created_by_id")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  reads       NotificationRead[]
+
+  @@index([sentAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             String       @id @default(uuid())
+  notificationId String       @map("notification_id")
+  studentId      String?      @map("student_id")
+  accountId      String?      @map("account_id")
+  readAt         DateTime     @default(now()) @map("read_at")
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId, accountId])
+  @@map("notification_reads")
+}
+
+model FeedbackItem {
+  id              String   @id @default(uuid())
+  studentId       String?  @map("student_id")
+  accountId       String?  @map("account_id")
+  title           String
+  content         String
+  category        String   @default("khac")
+  status          String   @default("new")
+  attachmentsJson Json?    @map("attachments_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("feedback_items")
+}
+
+model StudentScoreRecord {
+  id                   String   @id @default(uuid())
+  studentId            String   @map("student_id")
+  semesterId           String   @map("semester_id")
+  schoolYear           String   @default("2026-2027") @map("school_year")
+  semesterCode         String   @default("1") @map("semester_code")
+  subjectId            String   @map("subject_id")
+  subjectName          String   @map("subject_name")
+  oralScoresJson       Json?    @map("oral_scores_json")
+  fifteenMinScoresJson Json?    @map("fifteen_min_scores_json")
+  midtermScore         Float?   @map("midterm_score")
+  finalScore           Float?   @map("final_score")
+  averageScore         Float?   @map("average_score")
+  teacherComment       String?  @map("teacher_comment")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, semesterId, subjectId])
+  @@map("student_score_records")
+}
+
+model RewardDisciplineRecord {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  semesterId String?  @map("semester_id")
+  schoolYear String?  @map("school_year")
+  type       String   @default("reward")
+  title      String
+  content    String
+  date       DateTime @db.Date
+  issuer     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, type])
+  @@map("reward_discipline_records")
+}
+
+model TimetableSchedule {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  weekStart DateTime @map("week_start") @db.Date
+  daysJson  Json     @map("days_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, weekStart])
+  @@map("timetable_schedules")
+}
+
+model HomeworkAssignment {
+  id          String               @id @default(uuid())
+  studentId   String               @map("student_id")
+  subjectId   String?              @map("subject_id")
+  subject     String
+  title       String
+  content     String
+  teacher     String
+  assignedAt  DateTime             @default(now()) @map("assigned_at")
+  deadline    DateTime
+  status      String               @default("pending")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  submissions HomeworkSubmission[]
+
+  @@index([studentId, status])
+  @@map("homework_assignments")
+}
+
+model HomeworkSubmission {
+  id              String             @id @default(uuid())
+  homeworkId      String             @map("homework_id")
+  content         String?
+  attachmentsJson Json?              @map("attachments_json")
+  submittedAt     DateTime           @default(now()) @map("submitted_at")
+  status          String             @default("submitted")
+  homework        HomeworkAssignment @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@map("homework_submissions")
+}
+
+model OnlineStudySession {
+  id         String   @id @default(uuid())
+  studentId  String   @map("student_id")
+  title      String
+  subject    String
+  teacher    String
+  startAt    DateTime @map("start_at")
+  endAt      DateTime @map("end_at")
+  meetingUrl String   @map("meeting_url")
+  status     String   @default("upcoming")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, status])
+  @@map("online_study_sessions")
+}
+
+model MealRegistration {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  date      DateTime @db.Date
+  breakfast String?
+  lunch     String?
+  snack     String?
+  status    String   @default("registered")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, date])
+  @@map("meal_registrations")
+}
+
+model CoinFundTransaction {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  type        String   @default("deposit")
+  amount      Int      @default(0)
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([studentId, createdAt])
+  @@map("coin_fund_transactions")
+}
+
+model SchoolEvent {
+  id                   String              @id @default(uuid())
+  title                String
+  description          String
+  startAt              DateTime            @map("start_at")
+  endAt                DateTime            @map("end_at")
+  location             String?
+  registrationDeadline DateTime?           @map("registration_deadline")
+  status               String              @default("open")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  registrations        EventRegistration[]
+
+  @@map("school_events")
+}
+
+model EventRegistration {
+  id           String      @id @default(uuid())
+  eventId      String      @map("event_id")
+  studentId    String      @map("student_id")
+  note         String?
+  registeredAt DateTime    @default(now()) @map("registered_at")
+  event        SchoolEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, studentId])
+  @@map("event_registrations")
+}
+
+model SurveyForm {
+  id          String             @id @default(uuid())
+  title       String
+  description String
+  deadline    DateTime
+  status      String             @default("pending")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  questions   SurveyQuestion[]
+  submissions SurveySubmission[]
+
+  @@map("survey_forms")
+}
+
+model SurveyQuestion {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  type        String     @default("text")
+  content     String
+  optionsJson Json?      @map("options_json")
+  required    Boolean    @default(true)
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_questions")
+}
+
+model SurveySubmission {
+  id          String     @id @default(uuid())
+  surveyId    String     @map("survey_id")
+  studentId   String     @map("student_id")
+  answersJson Json       @map("answers_json")
+  submittedAt DateTime   @default(now()) @map("submitted_at")
+  survey      SurveyForm @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@unique([surveyId, studentId])
+  @@map("survey_submissions")
+}
+
+model SchoolClub {
+  id            String             @id @default(uuid())
+  name          String
+  description   String
+  teacher       String?
+  schedule      String?
+  location      String?
+  fee           Int                @default(0)
+  status        String             @default("open")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  registrations ClubRegistration[]
+
+  @@map("school_clubs")
+}
+
+model ClubRegistration {
+  id           String     @id @default(uuid())
+  clubId       String     @map("club_id")
+  studentId    String     @map("student_id")
+  note         String?
+  registeredAt DateTime   @default(now()) @map("registered_at")
+  club         SchoolClub @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, studentId])
+  @@map("club_registrations")
+}
+
+model BusRouteInfo {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  routeId       String   @map("route_id")
+  routeName     String   @map("route_name")
+  pickupPoint   String?  @map("pickup_point")
+  dropoffPoint  String?  @map("dropoff_point")
+  pickupTime    String?  @map("pickup_time")
+  dropoffTime   String?  @map("dropoff_time")
+  driverName    String?  @map("driver_name")
+  driverPhone   String?  @map("driver_phone")
+  busPlate      String?  @map("bus_plate")
+  currentLat    Float?   @map("current_lat")
+  currentLng    Float?   @map("current_lng")
+  nextStop      String?  @map("next_stop")
+  estimatedTime String?  @map("estimated_time")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, routeId])
+  @@map("bus_route_infos")
+}
+
+model UniformProduct {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  price     Int      @default(0)
+  sizesJson Json     @map("sizes_json")
+  imageUrl  String?  @map("image_url")
+  stock     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_products")
+}
+
+model UniformOrder {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  itemsJson   Json     @map("items_json")
+  totalAmount Int      @map("total_amount")
+  status      String   @default("pending")
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("uniform_orders")
+}
+
+model AttachmentFile {
+  id        String   @id @default(uuid())
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  mimeType  String   @map("mime_type")
+  size      Int      @default(0)
+  folder    String   @default("attachment")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("attachment_files")
+}
+</file>
+
+<file path="backend/src/modules/identity-access/permissions/permission.registry.ts">
+export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
+⋮----
+export function isPermissionKey(value: string): value is PermissionKey
+</file>
+
+<file path="front-end/lib/api/admin-route.test.ts">
+import { describe, expect, it } from "vitest";
+import { resolveAdminEndpoint } from "./admin-route";
+</file>
+
+<file path="front-end/lib/api/admin-route.ts">
+export function resolveAdminEndpoint(resource: string, segments: string[], method: string): string
+</file>
+
+<file path="backend/src/prisma/seed.ts">
+import { AttendanceStatus, PrismaClient } from '@prisma/client';
+import { seedIdentityAccess } from '../modules/identity-access/bootstrap/seed-identity-access';
+import { seedAcademicContext } from '../modules/academics/bootstrap/seed-academic-context';
+import { seedUatAccounts } from '../modules/identity-access/bootstrap/seed-uat-accounts';
+import { createPrismaClientOptions } from './prisma-client-options';
+⋮----
+async function main()
+⋮----
+async function seedUatStudents(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedAcademicStructure(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedUatAttendance(
+  prisma: PrismaClient,
+  username: string,
+): Promise<void>
+⋮----
+async function seedUatTuition(prisma: PrismaClient): Promise<void>
+⋮----
+function tuitionSeedData(createdById: string, index: number)
+⋮----
+async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void>
+⋮----
+// News 1: Event Announcement
+⋮----
+// News 2: Academic Timetable Announcement
+⋮----
+// News 3: Extracurricular & Sports Announcement
+⋮----
+// News 4: Draft Announcement
+⋮----
+// Notification
+⋮----
+// FeedbackItem
+⋮----
+async function seedStudentServices(prisma: PrismaClient): Promise<void>
+⋮----
+// MealRegistration
+⋮----
+// SchoolEvent
+⋮----
+// SchoolClub
+⋮----
+// BusRouteInfo (UAT-HS-001 stable assigned bus route, no fake GPS)
+⋮----
+// UniformProduct
+⋮----
+// TimetableSchedule
+⋮----
+// HomeworkAssignment
+⋮----
+// StudentScoreRecord
+⋮----
+// RewardDisciplineRecord
+⋮----
+// CoinFundTransaction
+</file>
+
+</files>

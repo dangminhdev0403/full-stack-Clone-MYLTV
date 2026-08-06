@@ -45,6 +45,8 @@ export function StudentsPage() {
   }
 
   return <AdminShell activeHref="/admin/students" title="Quản lý học sinh" subtitle="Tra cứu hồ sơ và trạng thái học sinh từ Student Administration API.">
+    {studentsQuery.data ? <StudentStats total={studentsQuery.data.total} items={students} /> : null}
+
     <form onSubmit={applyFilters} aria-label="Bộ lọc học sinh" className="rounded-xl border border-[var(--outline-variant)] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(240px,2fr)_1fr_1fr_1fr_auto] xl:items-end">
         <label className="grid gap-1.5 text-xs font-semibold text-[var(--secondary)] sm:col-span-2 xl:col-span-1">Tìm kiếm
@@ -100,3 +102,51 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 function buildQuery(filters: Filters, page: number) { const params = new URLSearchParams(); if (filters.q) params.set("q", filters.q); if (filters.grade) params.set("grade", filters.grade); if (filters.className) params.set("class_name", filters.className); if (filters.active) params.set("is_active", filters.active); params.set("page", String(page)); params.set("page_size", String(PAGE_SIZE)); return `?${params.toString()}`; }
 function initials(name: string) { return name.trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase(); }
 function errorMessage(error: unknown) { if (!error) return ""; if (error instanceof ApiClientError) return error.status === 403 ? "Bạn không có quyền xem danh sách học sinh." : `${error.message}${error.requestId ? ` (${error.requestId})` : ""}`; return "Không thể kết nối dịch vụ học sinh."; }
+
+function StudentStats({ total, items }: Readonly<{ total: number; items: Student[] }>) {
+  const activeCount = items.filter((item) => item.is_active).length;
+  const inactiveCount = items.filter((item) => !item.is_active).length;
+  const sampleCount = items.length;
+  const activePercent = sampleCount > 0 ? Math.round((activeCount / sampleCount) * 100) : 0;
+
+  return (
+    <section aria-label="Thống kê học sinh" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex items-center gap-4 rounded-xl border border-[var(--outline-variant)] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-[var(--primary)]">
+          <Icon name="groups" className="text-[24px]" />
+        </span>
+        <div>
+          <p className="text-xs font-semibold text-[var(--secondary)]">Tổng học sinh</p>
+          <p className="mt-0.5 text-2xl font-bold tracking-tight text-[var(--foreground)]">{total}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-4 rounded-xl border border-[var(--outline-variant)] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
+          <Icon name="person_check" className="text-[24px]" />
+        </span>
+        <div>
+          <p className="text-xs font-semibold text-[var(--secondary)]">Đang học trên trang</p>
+          <p className="mt-0.5 text-2xl font-bold tracking-tight text-emerald-700">{activeCount}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-4 rounded-xl border border-[var(--outline-variant)] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600">
+          <Icon name="person_off" className="text-[24px]" />
+        </span>
+        <div>
+          <p className="text-xs font-semibold text-[var(--secondary)]">Ngừng học trên trang</p>
+          <p className="mt-0.5 text-2xl font-bold tracking-tight text-slate-700">{inactiveCount}</p>
+        </div>
+      </div>
+      <div className="flex flex-col justify-between rounded-xl border border-[var(--outline-variant)] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+        <div className="flex items-center justify-between text-xs font-semibold text-[var(--secondary)]">
+          <span>Tỷ lệ trên trang hiện tại</span>
+          <span className="font-bold text-[var(--primary)]">{activePercent}%</span>
+        </div>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="h-full rounded-full bg-[var(--primary)] transition-all duration-500" style={{ width: `${activePercent}%` }} />
+        </div>
+      </div>
+    </section>
+  );
+}

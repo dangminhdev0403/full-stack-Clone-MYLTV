@@ -1,0 +1,367 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: backend/src/modules/academics/attendance/attendance.controller.ts, backend/src/modules/academics/attendance/attendance.controller.spec.ts, backend/src/prisma/seed.ts, front-end/lib/api/admin-route.ts, front-end/lib/api/admin-route.test.ts, front-end/lib/api/schemas.ts, front-end/features/attendance/service/attendance.client.ts, front-end/features/attendance/service/attendance.client.test.ts, front-end/features/attendance/service/attendance.resource.ts, front-end/features/attendance/hooks/use-attendance.ts, front-end/features/students/components/student-attendance-panel.tsx, front-end/features/students/components/student-attendance-panel.test.tsx, front-end/features/students/components/student-detail-page.tsx, front-end/features/students/components/student-detail-page.test.tsx
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  src/
+    modules/
+      academics/
+        attendance/
+          attendance.controller.spec.ts
+          attendance.controller.ts
+    prisma/
+      seed.ts
+front-end/
+  features/
+    attendance/
+      hooks/
+        use-attendance.ts
+      service/
+        attendance.client.test.ts
+        attendance.client.ts
+        attendance.resource.ts
+    students/
+      components/
+        student-attendance-panel.test.tsx
+        student-attendance-panel.tsx
+        student-detail-page.test.tsx
+        student-detail-page.tsx
+  lib/
+    api/
+      admin-route.test.ts
+      admin-route.ts
+      schemas.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="front-end/features/students/components/student-attendance-panel.test.tsx">
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { getStudentAttendance } from "@/features/attendance/service/attendance.client";
+import { StudentAttendancePanel } from "./student-attendance-panel";
+⋮----
+function renderPanel(canRead: boolean)
+</file>
+
+<file path="front-end/features/students/components/student-attendance-panel.tsx">
+import { useStudentAttendanceQuery } from "@/features/attendance/hooks/use-attendance";
+⋮----
+export function StudentAttendancePanel(
+</file>
+
+<file path="backend/src/modules/academics/attendance/attendance.controller.spec.ts">
+import {
+  REQUIRED_PERMISSIONS_KEY,
+  REQUIRED_ROLES_KEY,
+} from '../../../common/auth/auth.constants';
+import { AttendanceController } from './attendance.controller';
+import type { AttendanceService } from './attendance.service';
+</file>
+
+<file path="front-end/features/attendance/hooks/use-attendance.ts">
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { attendanceResource } from "../service/attendance.resource";
+⋮----
+export function useAttendanceQuery(query = "")
+⋮----
+export function useStudentAttendanceQuery(studentId: string, enabled = true)
+⋮----
+export function useCreateAttendanceMutation()
+⋮----
+export function useUpdateAttendanceMutation()
+</file>
+
+<file path="front-end/features/attendance/service/attendance.client.test.ts">
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  createAttendanceSession,
+  getStudentAttendance,
+  listAttendanceSessions,
+  updateAttendanceSession,
+} from "./attendance.client";
+⋮----
+function response(body: unknown)
+function listData()
+</file>
+
+<file path="front-end/features/attendance/service/attendance.client.ts">
+import { z } from "zod";
+import {
+  attendanceSessionSchema,
+  parseApiResponse,
+  studentAttendanceHistorySchema,
+  successSchema,
+} from "@/lib/api/schemas";
+⋮----
+export type AttendanceSession = z.infer<typeof attendanceSessionSchema>;
+export type AttendanceStatus = AttendanceSession["records"][number]["status"];
+export type StudentAttendanceHistory = z.infer<typeof studentAttendanceHistorySchema>;
+export type AttendanceWritePayload = {
+  date?: string;
+  class_name?: string;
+  period?: AttendanceSession["period"];
+  records: Array<{
+    student_id: string;
+    status: AttendanceStatus;
+    note: string | null;
+  }>;
+};
+⋮----
+export async function listAttendanceSessions(query = "")
+export async function getStudentAttendance(studentId: string): Promise<StudentAttendanceHistory>
+export async function createAttendanceSession(payload: AttendanceWritePayload)
+export async function updateAttendanceSession(
+  id: string,
+  payload: AttendanceWritePayload,
+)
+async function mutate(
+  path: string,
+  method: "POST" | "PATCH",
+  payload: AttendanceWritePayload,
+)
+</file>
+
+<file path="front-end/features/attendance/service/attendance.resource.ts">
+import {
+  createResource,
+  defineMutation,
+  defineQuery,
+} from "@dangminhdev04032005/query-resource";
+import {
+  createAttendanceSession,
+  getStudentAttendance,
+  listAttendanceSessions,
+  updateAttendanceSession,
+  type AttendanceWritePayload,
+} from "./attendance.client";
+</file>
+
+<file path="front-end/features/students/components/student-detail-page.test.tsx">
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiClientError } from "@/lib/api/schemas";
+import { StudentDetailPage } from "./student-detail-page";
+import { getStudent, updateStudent } from "../service/students.client";
+import { listTuitionCharges } from "@/features/tuition/service/tuition.client";
+import { getStudentAttendance } from "@/features/attendance/service/attendance.client";
+⋮----
+function student()
+⋮----
+function renderPage()
+</file>
+
+<file path="front-end/features/students/components/student-detail-page.tsx">
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { AdminShell, Icon } from "@/features/admin-shell";
+import { StudentTuitionPanel } from "@/features/tuition/components/student-tuition-panel";
+import { ApiClientError } from "@/lib/api/schemas";
+import {
+  type StudentDetail,
+  type StudentWritePayload,
+} from "../service/students.client";
+import {
+  useStudentDetailQuery,
+  useUpdateStudentMutation,
+} from "../hooks/use-students";
+import {
+  StudentDetailTabs,
+  type StudentDetailTab,
+} from "./student-detail-tabs";
+import { StudentPlannedTabPanel } from "./student-planned-tab-panel";
+import { StudentProfileHeader } from "./student-profile-header";
+import { StudentProfilePanel } from "./student-profile-panel";
+import { StudentAttendancePanel } from "./student-attendance-panel";
+⋮----
+const popState = ()
+⋮----
+function selectTab(tab: StudentDetailTab)
+⋮----
+message=
+⋮----
+confirm=
+⋮----
+event.preventDefault();
+close();
+</file>
+
+<file path="front-end/lib/api/schemas.ts">
+import { z } from "zod";
+⋮----
+export function successSchema<T extends z.ZodType>(data: T)
+⋮----
+export class ApiClientError extends Error {
+⋮----
+constructor(public readonly code: string, message: string, public readonly details?: unknown, public readonly requestId?: string, public readonly status = 500)
+⋮----
+export async function parseApiResponse<T>(response: Response, schema: z.ZodType<T>): Promise<T>
+</file>
+
+<file path="backend/src/modules/academics/attendance/attendance.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import type { AuthenticatedUser } from '../../../common/auth/authenticated-user';
+import { CurrentUser } from '../../../common/auth/current-user.decorator';
+import { RequirePermission } from '../../../common/auth/require-permission.decorator';
+import { RequireRole } from '../../../common/auth/require-role.decorator';
+import type {
+  AttendanceListQueryDto,
+  AttendanceSessionWriteDto,
+} from './dto/attendance.dto';
+import { AttendanceService } from './attendance.service';
+import {
+  validateAttendanceCreate,
+  validateAttendanceList,
+  validateAttendanceUpdate,
+} from './attendance.validation';
+⋮----
+export class AttendanceController
+⋮----
+constructor(private readonly attendance: AttendanceService)
+⋮----
+list(@Query() query: AttendanceListQueryDto)
+⋮----
+create(
+    @Body() payload: AttendanceSessionWriteDto,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+get(@Param('id') id: string)
+⋮----
+update(
+    @Param('id') id: string,
+    @Body() payload: AttendanceSessionWriteDto,
+    @CurrentUser() actor: AuthenticatedUser | undefined,
+)
+⋮----
+getStudentAttendance(@Param('student_id') studentId: string)
+⋮----
+import { SkipAuthorization } from '../../../common/auth/skip-authorization.decorator';
+⋮----
+export class AppAttendanceController
+⋮----
+getToday(@CurrentUser() actor: AuthenticatedUser | undefined)
+⋮----
+export class StudentAttendanceController
+⋮----
+getHistory(@Param('id') studentId: string)
+</file>
+
+<file path="front-end/lib/api/admin-route.test.ts">
+import { describe, expect, it } from "vitest";
+import { resolveAdminEndpoint } from "./admin-route";
+</file>
+
+<file path="front-end/lib/api/admin-route.ts">
+export function resolveAdminEndpoint(resource: string, segments: string[], method: string): string
+</file>
+
+<file path="backend/src/prisma/seed.ts">
+import { AttendanceStatus, PrismaClient } from '@prisma/client';
+import { seedIdentityAccess } from '../modules/identity-access/bootstrap/seed-identity-access';
+import { seedAcademicContext } from '../modules/academics/bootstrap/seed-academic-context';
+import { seedUatAccounts } from '../modules/identity-access/bootstrap/seed-uat-accounts';
+import { createPrismaClientOptions } from './prisma-client-options';
+⋮----
+async function main()
+⋮----
+async function seedUatStudents(prisma: PrismaClient): Promise<void>
+⋮----
+async function seedUatAttendance(
+  prisma: PrismaClient,
+  username: string,
+): Promise<void>
+⋮----
+async function seedUatTuition(prisma: PrismaClient): Promise<void>
+⋮----
+function tuitionSeedData(createdById: string, index: number)
+⋮----
+async function seedNewsAndNotifications(prisma: PrismaClient): Promise<void>
+⋮----
+// News 1: Event Announcement
+⋮----
+// News 2: Academic Timetable Announcement
+⋮----
+// News 3: Extracurricular & Sports Announcement
+⋮----
+// News 4: Draft Announcement
+⋮----
+// Notification
+⋮----
+// FeedbackItem
+⋮----
+async function seedStudentServices(prisma: PrismaClient): Promise<void>
+⋮----
+// MealRegistration
+⋮----
+// SchoolEvent
+⋮----
+// SchoolClub
+⋮----
+// BusRouteInfo
+⋮----
+// UniformProduct
+⋮----
+// TimetableSchedule
+⋮----
+// HomeworkAssignment
+⋮----
+// StudentScoreRecord
+⋮----
+// CoinFundTransaction
+</file>
+
+</files>

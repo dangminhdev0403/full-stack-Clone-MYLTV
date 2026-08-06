@@ -1,5 +1,5 @@
-import { AcademicStructureManager } from "@/features/academic-structure/components/academic-structure-manager";
+import { SystemAuditPage } from "@/features/system-audit/components/system-audit-page";
 
-export default function SystemAdminPage() {
-  return <AcademicStructureManager />;
+export default function SystemAdminRoute() {
+  return <SystemAuditPage />;
 }
