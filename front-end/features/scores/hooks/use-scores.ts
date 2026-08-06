@@ -1,11 +1,19 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { scoresResource } from "../service/scores.resource";
+import type { ScoreFilters } from "../service/scores.client";
 
 const scores = scoresResource.bind();
 
+export function useScoresQuery(filters?: ScoreFilters, options?: { enabled?: boolean }) {
+  return useQuery({
+    ...scores.queries.scoresList.options(filters),
+    enabled: options?.enabled ?? true,
+  });
+}
+
 export function useStudentScoresQuery(studentId: string, options?: { enabled?: boolean }) {
   return useQuery({
-    ...scores.queries.scoresList.options(studentId),
+    ...scores.queries.studentScoresList.options(studentId),
     enabled: options?.enabled ?? Boolean(studentId),
   });
 }

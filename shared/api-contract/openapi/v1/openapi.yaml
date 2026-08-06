@@ -3572,30 +3572,60 @@
         "tags": [
           "Academics"
         ],
-        "operationId": "adminListScores",
-        "summary": "List scores",
         "security": [
           {
             "bearerAuth": []
           }
         ],
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "operationId": "adminListScores",
+        "summary": "List and filter score records",
         "parameters": [
           {
-            "name": "page",
+            "name": "student_id",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "integer",
-              "default": 1
+              "type": "string"
             }
           },
           {
-            "name": "page_size",
+            "name": "class_name",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "integer",
-              "default": 20
+              "type": "string"
+            }
+          },
+          {
+            "name": "school_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "semester_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -3607,17 +3637,26 @@
             }
           },
           {
-            "name": "student_id",
+            "name": "page",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
             }
           }
         ],
+        "x-required-permission": "academics.scores.read",
         "responses": {
           "200": {
-            "description": "Success envelope",
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
@@ -3629,25 +3668,34 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/PaginatedResponse"
+                          "type": "object",
+                          "required": [
+                            "items",
+                            "page",
+                            "page_size",
+                            "total",
+                            "has_next"
+                          ],
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/AdminScoreRecord"
+                              }
                             },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "items": {
-                                  "type": "array",
-                                  "items": {
-                                    "$ref": "#/components/schemas/ScoreBook"
-                                  }
-                                }
-                              },
-                              "required": [
-                                "items"
-                              ]
+                            "page": {
+                              "type": "integer"
+                            },
+                            "page_size": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            },
+                            "has_next": {
+                              "type": "boolean"
                             }
-                          ]
+                          }
                         }
                       },
                       "required": [
@@ -3674,42 +3722,42 @@
           "500": {
             "$ref": "#/components/responses/ServerError"
           }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "class_or_student_scope",
-        "x-implementation-status": "planned"
+        }
       },
       "post": {
         "tags": [
           "Academics"
         ],
-        "operationId": "adminCreateScores",
-        "summary": "Create scores",
         "security": [
           {
             "bearerAuth": []
           }
         ],
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "operationId": "adminSaveScore",
+        "summary": "Create or update a score record",
         "parameters": [],
+        "x-required-permission": "academics.scores.manage",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScoreBook"
+                "$ref": "#/components/schemas/AdminScoreWriteRequest"
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Success envelope",
+          "200": {
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
@@ -3721,7 +3769,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/ScoreBook"
+                          "$ref": "#/components/schemas/AdminScoreRecord"
                         }
                       },
                       "required": [
@@ -3748,16 +3796,7 @@
           "500": {
             "$ref": "#/components/responses/ServerError"
           }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        }
       }
     },
     "/admin/scores/{id}": {
@@ -4395,27 +4434,36 @@
         "tags": [
           "Academics"
         ],
-        "operationId": "adminCreateRewardDiscipline",
-        "summary": "Create reward-discipline",
         "security": [
           {
             "bearerAuth": []
           }
         ],
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "operationId": "adminCreateRewardDiscipline",
+        "summary": "Create reward or discipline record",
         "parameters": [],
+        "x-required-permission": "academics.scores.manage",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ServiceItem"
+                "$ref": "#/components/schemas/AdminRewardDisciplineWriteRequest"
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Success envelope",
+          "200": {
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
@@ -4427,7 +4475,7 @@
                       "type": "object",
                       "properties": {
                         "data": {
-                          "$ref": "#/components/schemas/ServiceItem"
+                          "$ref": "#/components/schemas/AdminRewardDisciplineRecord"
                         }
                       },
                       "required": [
@@ -4454,16 +4502,7 @@
           "500": {
             "$ref": "#/components/responses/ServerError"
           }
-        },
-        "x-bounded-context": "Academics",
-        "x-consumer": "management-ui",
-        "x-allowed-roles": [
-          "teacher",
-          "admin",
-          "super_admin"
-        ],
-        "x-scope": "fixed_role_policy",
-        "x-implementation-status": "planned"
+        }
       }
     },
     "/admin/reward-discipline/{id}": {
@@ -16481,6 +16520,289 @@
           },
           "is_active": {
             "type": "boolean"
+          }
+        }
+      },
+      "AdminScoreRecord": {
+        "type": "object",
+        "required": [
+          "student_id",
+          "semester_id",
+          "school_year",
+          "semester_code",
+          "subject_id",
+          "subject_name",
+          "oral_scores",
+          "fifteen_minute_scores"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string"
+          },
+          "student_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "student_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "class_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "semester_id": {
+            "type": "string"
+          },
+          "school_year": {
+            "type": "string"
+          },
+          "semester_code": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "subject_name": {
+            "type": "string"
+          },
+          "oral_scores": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          },
+          "fifteen_minute_scores": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          },
+          "midterm_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "final_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "average_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "teacher_comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "AdminScoreWriteRequest": {
+        "type": "object",
+        "required": [
+          "student_id",
+          "subject_id",
+          "subject_name"
+        ],
+        "properties": {
+          "student_id": {
+            "type": "string"
+          },
+          "semester_id": {
+            "type": "string"
+          },
+          "school_year": {
+            "type": "string"
+          },
+          "semester_code": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "subject_name": {
+            "type": "string"
+          },
+          "oral_scores": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          },
+          "fifteen_minute_scores": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          },
+          "midterm_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "final_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "average_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          },
+          "teacher_comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "AdminRewardDisciplineWriteRequest": {
+        "type": "object",
+        "required": [
+          "student_id",
+          "type",
+          "title",
+          "content",
+          "date"
+        ],
+        "properties": {
+          "student_id": {
+            "type": "string"
+          },
+          "semester_id": {
+            "type": "string"
+          },
+          "school_year": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "reward",
+              "discipline"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "issuer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "AdminRewardDisciplineRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "student_id",
+          "type",
+          "title",
+          "content",
+          "recorded_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string"
+          },
+          "semester_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "school_year": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "reward",
+              "discipline"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "recorded_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "points": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
           }
         }
       }

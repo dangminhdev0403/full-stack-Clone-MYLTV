@@ -51,6 +51,7 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("feedback", [], "GET")).toBe("/api/v1/admin/feedback");
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "GET")).toBe("/api/v1/admin/feedback/feedback-1");
     expect(resolveAdminEndpoint("feedback", ["feedback-1"], "PATCH")).toBe("/api/v1/admin/feedback/feedback-1");
+    expect(resolveAdminEndpoint("scores", [], "GET")).toBe("/api/v1/admin/scores");
   });
 
   it("rejects unsupported feedback methods and nested segments", () => {

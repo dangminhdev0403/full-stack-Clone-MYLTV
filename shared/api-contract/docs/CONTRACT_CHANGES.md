@@ -2,6 +2,8 @@
 
 ## Unreleased - 2026-07-26
 
+- Completed validated and audited admin score list/filter/upsert plus reward/discipline creation with dedicated permissions and real `/admin/grades` UI.
+
 - Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
 - Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.
 - Added protected academic year/semester list, create, update, and set-current operations with coherent transactional current context and audited mutations.

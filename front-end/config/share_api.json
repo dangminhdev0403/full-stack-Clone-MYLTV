@@ -426,24 +426,6 @@
     },
     {
       "group": "academics",
-      "name": "List scores",
-      "method": "GET",
-      "path": "/admin/scores",
-      "bounded_context": "Academics",
-      "auth_required": true,
-      "implementation_status": "planned"
-    },
-    {
-      "group": "academics",
-      "name": "Create scores",
-      "method": "POST",
-      "path": "/admin/scores",
-      "bounded_context": "Academics",
-      "auth_required": true,
-      "implementation_status": "planned"
-    },
-    {
-      "group": "academics",
       "name": "Get scores",
       "method": "GET",
       "path": "/admin/scores/{id}",
@@ -492,24 +474,6 @@
       "name": "Update homework",
       "method": "PATCH",
       "path": "/admin/homework/{id}",
-      "bounded_context": "Academics",
-      "auth_required": true,
-      "implementation_status": "planned"
-    },
-    {
-      "group": "academics",
-      "name": "List reward-discipline",
-      "method": "GET",
-      "path": "/admin/reward-discipline",
-      "bounded_context": "Academics",
-      "auth_required": true,
-      "implementation_status": "planned"
-    },
-    {
-      "group": "academics",
-      "name": "Create reward-discipline",
-      "method": "POST",
-      "path": "/admin/reward-discipline",
       "bounded_context": "Academics",
       "auth_required": true,
       "implementation_status": "planned"
@@ -1386,6 +1350,33 @@
       "name": "POST /admin/academic-structure/classes/{id}/enrollments/{student_id}/deactivate",
       "method": "POST",
       "path": "/admin/academic-structure/classes/{id}/enrollments/{student_id}/deactivate",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/scores",
+      "method": "GET",
+      "path": "/admin/scores",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/scores",
+      "method": "POST",
+      "path": "/admin/scores",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/reward-discipline",
+      "method": "POST",
+      "path": "/admin/reward-discipline",
       "bounded_context": "Academics",
       "auth_required": true,
       "implementation_status": "implemented"
