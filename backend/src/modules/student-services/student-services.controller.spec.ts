@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { ok } from '../../common/http/api-response';
 import {
   REQUIRED_PERMISSIONS_KEY,
   REQUIRED_ROLES_KEY,
@@ -14,15 +15,17 @@ describe('StudentServicesController - Bus Route Seam', () => {
 
   beforeEach(() => {
     service = {
-      getBusRoute: jest.fn().mockResolvedValue({
-        route_id: 'route-01',
-        route_name: 'Tuyến Bus 01',
-        vehicle_plate: '29B-12345',
-        driver_name: 'Bác Bùi Văn Thắng',
-        driver_phone: '0987654321',
-        student_stop_id: 'stop_2',
-        stops: [],
-      }),
+      getBusRoute: jest.fn().mockResolvedValue(
+        ok({
+          route_id: 'route-01',
+          route_name: 'Tuyến Bus 01',
+          vehicle_plate: '29B-12345',
+          driver_name: 'Bác Bùi Văn Thắng',
+          driver_phone: '0987654321',
+          student_stop_id: 'stop_2',
+          stops: [],
+        }),
+      ) as any,
     };
     controller = new StudentServicesController(
       service as unknown as StudentServicesService,
@@ -38,9 +41,9 @@ describe('StudentServicesController - Bus Route Seam', () => {
 
   describe('App bus route endpoint', () => {
     it('delegates to getBusRoute and has SkipAuthorization metadata', async () => {
-      const res = await controller.getBusRoute('student-1');
+      const res = (await controller.getBusRoute('student-1')) as any;
       expect(service.getBusRoute).toHaveBeenCalledWith('student-1');
-      expect(res.route_id).toBe('route-01');
+      expect(res.data.route_id).toBe('route-01');
 
       const handler = Object.getOwnPropertyDescriptor(
         StudentServicesController.prototype,
@@ -65,15 +68,17 @@ describe('StudentServicesController - Bus Route Seam', () => {
         }
       ).getAdminBusRoute('student-1');
       expect(service.getBusRoute).toHaveBeenCalledWith('student-1');
-      expect(res).toEqual({
-        route_id: 'route-01',
-        route_name: 'Tuyến Bus 01',
-        vehicle_plate: '29B-12345',
-        driver_name: 'Bác Bùi Văn Thắng',
-        driver_phone: '0987654321',
-        student_stop_id: 'stop_2',
-        stops: [],
-      });
+      expect(res).toEqual(
+        ok({
+          route_id: 'route-01',
+          route_name: 'Tuyến Bus 01',
+          vehicle_plate: '29B-12345',
+          driver_name: 'Bác Bùi Văn Thắng',
+          driver_phone: '0987654321',
+          student_stop_id: 'stop_2',
+          stops: [],
+        }),
+      );
 
       expect(Reflect.getMetadata(REQUIRED_ROLES_KEY, adminHandler!)).toEqual([
         'admin',

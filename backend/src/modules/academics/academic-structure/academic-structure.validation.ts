@@ -23,12 +23,13 @@ const nonNegativeInt = z.coerce
 const booleanCoerce = z
   .union([z.boolean(), z.string()])
   .transform((val) => {
+    if (val === undefined || val === null || val === '') return undefined;
     if (typeof val === 'boolean') return val;
-    if (val.toLowerCase() === 'true') return true;
-    if (val.toLowerCase() === 'false') return false;
+    const str = String(val).toLowerCase();
+    if (str === 'true') return true;
+    if (str === 'false') return false;
     return undefined;
-  })
-  .pipe(z.boolean().optional());
+  });
 
 const createGradeLevelSchema = z.object({
   id: nonEmptyString.optional(),
@@ -48,10 +49,16 @@ const updateGradeLevelSchema = z
     path: ['body'],
   });
 
+const optionalQueryString = z
+  .string()
+  .trim()
+  .optional()
+  .transform((val) => (val && val.length > 0 ? val : undefined));
+
 const listClassesQuerySchema = z.object({
-  academic_year_id: nonEmptyString.optional(),
-  grade_level_id: nonEmptyString.optional(),
-  is_active: booleanCoerce,
+  academic_year_id: optionalQueryString,
+  grade_level_id: optionalQueryString,
+  is_active: booleanCoerce.optional(),
 });
 
 const createSchoolClassSchema = z.object({

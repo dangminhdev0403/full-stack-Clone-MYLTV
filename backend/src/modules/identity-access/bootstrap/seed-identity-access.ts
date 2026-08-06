@@ -39,6 +39,13 @@ export async function seedIdentityAccess(
   }
 
   if (existing) {
+    await prisma.account.update({
+      where: { id: existing.id },
+      data: {
+        passwordHash: await hash(options.password, 12),
+      },
+    });
+
     for (const permission of PERMISSIONS) {
       await prisma.accountPermission.upsert({
         where: {

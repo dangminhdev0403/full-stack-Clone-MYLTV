@@ -12,7 +12,7 @@ import {
 
 const expectedIa = [
   { label: "Tổng quan", items: ["Tổng quan"] },
-  { label: "Nhà trường", items: ["Người dùng", "Học sinh"] },
+  { label: "Nhà trường", items: ["Người dùng", "Học sinh", "Cấu trúc học tập"] },
   {
     label: "Học tập",
     items: ["Điểm danh", "Điểm số", "Bài tập", "Thời khóa biểu"],
@@ -32,23 +32,25 @@ const expectedIa = [
   { label: "Truyền thông", items: ["Tin tức", "Thông báo"] },
   { label: "Phản hồi", items: ["Phản hồi"] },
   { label: "Báo cáo", items: ["Báo cáo"] },
-  { label: "Hệ thống", items: ["Hệ thống"] },
+  { label: "Hệ thống", items: ["Hệ thống & Nhật ký"] },
 ];
 
 const expectedImplemented = [
   "/admin",
   "/admin/users",
   "/admin/students",
+  "/admin/academic-structure",
   "/admin/attendance",
+  "/admin/timetable",
   "/admin/tuition",
   "/admin/news",
   "/admin/notifications",
   "/admin/feedback",
+  "/admin/system",
 ];
 const expectedUnavailable = [
   "/admin/grades",
   "/admin/homeworks",
-  "/admin/timetable",
   "/admin/services/meals",
   "/admin/services/events",
   "/admin/services/surveys",
@@ -56,7 +58,6 @@ const expectedUnavailable = [
   "/admin/services/bus",
   "/admin/services/uniforms",
   "/admin/reports",
-  "/admin/system",
 ];
 
 describe("admin shell navigation metadata", () => {
@@ -100,7 +101,6 @@ describe("admin shell navigation metadata", () => {
       "Học sinh",
       "Điểm số",
       "Bài tập",
-      "Thời khóa biểu",
       "Bữa ăn",
       "Sự kiện",
       "Khảo sát",
@@ -108,7 +108,6 @@ describe("admin shell navigation metadata", () => {
       "Xe buýt",
       "Đồng phục",
       "Báo cáo",
-      "Hệ thống",
     ]);
     expect(
       getVisibleAdminNavGroups(
@@ -128,7 +127,7 @@ describe("admin shell navigation metadata", () => {
     ).toBe(true);
     expect(
       getVisibleAdminNavGroups([], "super_admin").flatMap(({ items }) => items),
-    ).toHaveLength(19);
+    ).toHaveLength(20);
   });
 
   it("builds breadcrumbs from exact, dynamic and nested planned admin routes", () => {

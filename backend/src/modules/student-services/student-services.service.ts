@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ok } from '../../common/http/api-response';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface RegisterMealsDto {
@@ -36,7 +37,7 @@ export class StudentServicesService {
       },
       orderBy: { date: 'asc' },
     });
-    return {
+    return ok({
       package: {
         id: 'meal_pkg_1',
         name: 'Gói bán trú tháng 07',
@@ -55,7 +56,7 @@ export class StudentServicesService {
         dessert: r.snack || 'Trái cây',
         registration_status: r.status,
       })),
-    };
+    });
   }
 
   async registerMeals(body: RegisterMealsDto) {
@@ -79,7 +80,7 @@ export class StudentServicesService {
         });
       }
     }
-    return { updated: true };
+    return ok({ updated: true });
   }
 
   // Coin Fund
@@ -91,7 +92,7 @@ export class StudentServicesService {
       take: 20,
     });
     const balance = transactions.reduce((acc, t) => acc + t.amount, 0);
-    return {
+    return ok({
       student_id: targetStudentId,
       balance,
       total_deposit: balance > 0 ? balance : 0,
@@ -105,15 +106,15 @@ export class StudentServicesService {
         status: 'approved',
         occurred_at: t.createdAt.toISOString(),
       })),
-    };
+    });
   }
 
   // Events
-  async getEvents(studentId?: string) {
+  async getEvents(_studentId?: string) {
     const items = await this.prisma.schoolEvent.findMany({
       orderBy: { startAt: 'desc' },
     });
-    return {
+    return ok({
       items: items.map((e) => ({
         id: e.id,
         title: e.title,
@@ -130,7 +131,7 @@ export class StudentServicesService {
         student_registration_status: 'not_registered',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
-    };
+    });
   }
 
   async registerEvent(
@@ -142,16 +143,16 @@ export class StudentServicesService {
       create: { eventId, studentId: body.student_id, note: body.note },
       update: { note: body.note },
     });
-    return { registered: true };
+    return ok({ registered: true });
   }
 
   // Surveys
-  async getSurveys(studentId?: string) {
+  async getSurveys(_studentId?: string) {
     const items = await this.prisma.surveyForm.findMany({
       include: { questions: true },
       orderBy: { createdAt: 'desc' },
     });
-    return {
+    return ok({
       items: items.map((s) => ({
         id: s.id,
         title: s.title,
@@ -162,7 +163,7 @@ export class StudentServicesService {
         submission_status: 'not_submitted',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
-    };
+    });
   }
 
   async submitSurvey(
@@ -178,15 +179,15 @@ export class StudentServicesService {
       },
       update: { answersJson: body.answers as any },
     });
-    return { submitted: true };
+    return ok({ submitted: true });
   }
 
   // Clubs
-  async getClubs(studentId?: string) {
+  async getClubs(_studentId?: string) {
     const items = await this.prisma.schoolClub.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    return {
+    return ok({
       items: items.map((c) => ({
         id: c.id,
         name: c.name,
@@ -200,7 +201,7 @@ export class StudentServicesService {
         student_registration_status: 'not_registered',
       })),
       pagination: { page: 1, limit: 20, total: items.length },
-    };
+    });
   }
 
   async registerClub(
@@ -212,7 +213,7 @@ export class StudentServicesService {
       create: { clubId, studentId: body.student_id, note: body.note },
       update: { note: body.note },
     });
-    return { registered: true };
+    return ok({ registered: true });
   }
 
   // Bus Route & Tracking
@@ -220,7 +221,7 @@ export class StudentServicesService {
     const info = await this.prisma.busRouteInfo.findFirst({
       where: { studentId },
     });
-    return {
+    return ok({
       route_id: info?.routeId || 'route_03',
       route_name: info?.routeName || 'Xe tuyến 03',
       vehicle_plate: info?.busPlate || '29B-123.45',
@@ -235,7 +236,7 @@ export class StudentServicesService {
           pickup_time: '06:25',
         },
       ],
-    };
+    });
   }
 
   async getBusTracking(studentId?: string, routeId?: string) {
@@ -249,7 +250,7 @@ export class StudentServicesService {
     const info = await this.prisma.busRouteInfo.findFirst({
       where: whereClause,
     });
-    return {
+    return ok({
       route_id: info?.routeId || 'route_03',
       route_name: info?.routeName || 'Xe tuyến 03',
       vehicle_plate: info?.busPlate || '29B-123.45',
@@ -277,13 +278,13 @@ export class StudentServicesService {
           longitude: 105.8,
         },
       ],
-    };
+    });
   }
 
   // Uniforms
   async getUniforms() {
     const items = await this.prisma.uniformProduct.findMany();
-    return {
+    return ok({
       products: items.map((u) => ({
         id: u.id,
         name: u.name,
@@ -298,7 +299,7 @@ export class StudentServicesService {
         ],
       })),
       latest_order: null,
-    };
+    });
   }
 
   async orderUniforms(body: OrderUniformsDto) {
@@ -315,11 +316,11 @@ export class StudentServicesService {
         status: 'pending',
       },
     });
-    return {
+    return ok({
       order_id: order.id,
       total_amount: order.totalAmount,
       status: order.status,
-    };
+    });
   }
 
   // Uploads
@@ -338,13 +339,13 @@ export class StudentServicesService {
         folder: fileInfo.folder || 'attachment',
       },
     });
-    return {
+    return ok({
       file_id: file.id,
       file_name: file.fileName,
       file_url: file.fileUrl,
       mime_type: file.mimeType,
       size: file.size,
-    };
+    });
   }
 
   // Feedback
@@ -360,11 +361,11 @@ export class StudentServicesService {
         status: 'new',
       },
     });
-    return {
+    return ok({
       id: item.id,
       status: item.status,
       created_at: item.createdAt.toISOString(),
-    };
+    });
   }
 
   async listAdminEvents(page = 1, pageSize = 20) {
@@ -379,7 +380,7 @@ export class StudentServicesService {
       this.prisma.schoolEvent.count(),
     ]);
 
-    return {
+    return ok({
       items: items.map((e) => ({
         id: e.id,
         title: e.title,
@@ -396,7 +397,7 @@ export class StudentServicesService {
       page_size: pageSize,
       total,
       has_next: skip + items.length < total,
-    };
+    });
   }
 
   async createAdminEvent(body: {
@@ -422,7 +423,7 @@ export class StudentServicesService {
       },
     });
 
-    return {
+    return ok({
       id: event.id,
       title: event.title,
       description: event.description,
@@ -432,7 +433,7 @@ export class StudentServicesService {
       registration_deadline: event.registrationDeadline?.toISOString() || null,
       status: event.status,
       created_at: event.createdAt.toISOString(),
-    };
+    });
   }
 
   async getAdminEventDetail(id: string) {
@@ -444,7 +445,7 @@ export class StudentServicesService {
     });
     if (!event) throw new Error('Event not found');
 
-    return {
+    return ok({
       id: event.id,
       title: event.title,
       description: event.description,
@@ -460,7 +461,7 @@ export class StudentServicesService {
         registered_at: r.registeredAt.toISOString(),
       })),
       created_at: event.createdAt.toISOString(),
-    };
+    });
   }
 
   async updateAdminEvent(
@@ -492,7 +493,7 @@ export class StudentServicesService {
       },
     });
 
-    return {
+    return ok({
       id: updated.id,
       title: updated.title,
       description: updated.description,
@@ -502,11 +503,11 @@ export class StudentServicesService {
       registration_deadline:
         updated.registrationDeadline?.toISOString() || null,
       status: updated.status,
-    };
+    });
   }
 
   async deleteAdminEvent(id: string) {
     await this.prisma.schoolEvent.delete({ where: { id } });
-    return { deleted: true };
+    return ok({ deleted: true });
   }
 }

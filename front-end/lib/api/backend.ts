@@ -8,10 +8,23 @@ export function jsonHeaders(extra?: HeadersInit): Record<string, string> {
   return { Accept: "application/json", "Content-Type": "application/json", ...Object.fromEntries(new Headers(extra).entries()) };
 }
 
-export function backendFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  return fetch(backendUrl(path), {
-    ...init,
-    headers: jsonHeaders(init.headers),
-    cache: "no-store",
-  });
+export async function backendFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const url = backendUrl(path);
+  const method = init.method ?? "GET";
+  const start = Date.now();
+  console.log(`[BFF -> Backend Request] ${method} ${url}`);
+  try {
+    const res = await fetch(url, {
+      ...init,
+      headers: jsonHeaders(init.headers),
+      cache: "no-store",
+    });
+    const duration = Date.now() - start;
+    console.log(`[Backend -> BFF Response] ${method} ${url} -> ${res.status} (${duration}ms)`);
+    return res;
+  } catch (err) {
+    const duration = Date.now() - start;
+    console.error(`[BFF Fetch Error] ${method} ${url} failed after ${duration}ms:`, err);
+    throw err;
+  }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import type { PermissionKey } from './permission.registry';
+import { PERMISSIONS, type PermissionKey } from './permission.registry';
 
 @Injectable()
 export class PermissionService {
@@ -10,6 +10,14 @@ export class PermissionService {
     accountId: string,
     permissionKey: PermissionKey,
   ): Promise<boolean> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return true;
+    }
+
     const [directPermission, roleAssignment] = await Promise.all([
       this.prisma.accountPermission.findUnique({
         where: {
@@ -44,6 +52,14 @@ export class PermissionService {
   }
 
   async getAccountPermissions(accountId: string): Promise<string[]> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    if (account?.role === 'super_admin') {
+      return PERMISSIONS.map((p) => p.key).sort();
+    }
+
     const [directPermissions, roleAssignments] = await Promise.all([
       this.prisma.accountPermission.findMany({
         where: { accountId },

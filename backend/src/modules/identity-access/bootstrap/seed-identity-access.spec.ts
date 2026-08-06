@@ -22,8 +22,9 @@ describe('seedIdentityAccess', () => {
     expect(accountPermissionUpsert).not.toHaveBeenCalled();
   });
 
-  it('grants newly registered permissions to an existing super administrator', async () => {
+  it('grants newly registered permissions and updates password to an existing super administrator', async () => {
     const accountPermissionUpsert = jest.fn();
+    const accountUpdate = jest.fn().mockResolvedValue(undefined);
     const prisma = {
       permission: { upsert: jest.fn().mockResolvedValue(undefined) },
       account: {
@@ -31,6 +32,7 @@ describe('seedIdentityAccess', () => {
           .fn()
           .mockResolvedValue({ id: 'admin-1', role: 'super_admin' }),
         create: jest.fn(),
+        update: accountUpdate,
       },
       accountPermission: { upsert: accountPermissionUpsert },
     };
@@ -39,6 +41,12 @@ describe('seedIdentityAccess', () => {
       username: 'admin',
       password: 'bootstrap-password',
     });
+
+    expect(accountUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'admin-1' },
+      }),
+    );
 
     expect(accountPermissionUpsert).toHaveBeenCalledWith(
       expect.objectContaining({

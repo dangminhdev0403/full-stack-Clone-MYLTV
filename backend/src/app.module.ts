@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GlobalExceptionFilter } from './common/http/global-exception.filter';
+import { HttpLoggerMiddleware } from './common/http/http-logger.middleware';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
 import { StudentAdministrationModule } from './modules/student-administration/student-administration.module';
 import { UserManagementModule } from './modules/user-management/user-management.module';
@@ -31,4 +32,8 @@ import { StudentServicesModule } from './modules/student-services/student-servic
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}

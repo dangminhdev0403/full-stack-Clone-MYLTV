@@ -212,7 +212,23 @@ export class ApiClientError extends Error {
 export async function parseApiResponse<T>(response: Response, schema: z.ZodType<T>): Promise<T> {
   const body: unknown = await response.json().catch(() => null);
   const error = apiErrorSchema.safeParse(body);
-  if (error.success) throw new ApiClientError(error.data.error.code, error.data.error.message, error.data.error.details, error.data.request_id, response.status);
-  if (!response.ok) throw new ApiClientError("UPSTREAM_ERROR", "Backend request failed", undefined, undefined, response.status);
-  return schema.parse(body);
+  if (error.success) {
+    console.error(`[API Error Response] ${response.url} (${response.status}):`, error.data.error);
+    throw new ApiClientError(error.data.error.code, error.data.error.message, error.data.error.details, error.data.request_id, response.status);
+  }
+  if (!response.ok) {
+    console.error(`[API Upstream Error] ${response.url} (${response.status}):`, body);
+    throw new ApiClientError("UPSTREAM_ERROR", "Backend request failed", undefined, undefined, response.status);
+  }
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    console.error(
+      `[API Schema Mismatch Error] ${response.url} schema parse failed:\n` +
+      `Issues: ${JSON.stringify(parsed.error.issues, null, 2)}\n` +
+      `Received Body: ${JSON.stringify(body, null, 2)}`
+    );
+    throw parsed.error;
+  }
+  console.log(`[API Client Success] ${response.url} parsed successfully`);
+  return parsed.data;
 }

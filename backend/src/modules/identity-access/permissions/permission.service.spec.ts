@@ -54,6 +54,9 @@ describe('PermissionService', () => {
 
   it('returns union of direct and active dynamic role permissions for getAccountPermissions', async () => {
     const prisma = {
+      account: {
+        findUnique: jest.fn().mockResolvedValue({ role: 'admin' }),
+      },
       accountPermission: {
         findMany: jest
           .fn()
@@ -92,6 +95,9 @@ function prismaWithDirectPermission(permission: { accountId: string } | null) {
   const findFirst = jest.fn().mockResolvedValue(null);
 
   const prisma = {
+    account: {
+      findUnique: jest.fn().mockResolvedValue({ role: 'admin' }),
+    },
     accountPermission: {
       findUnique,
     },
@@ -110,6 +116,9 @@ function prismaWithRolePermission(hasRole: boolean) {
     .mockResolvedValue(hasRole ? { accountId: 'account-1' } : null);
 
   const prisma = {
+    account: {
+      findUnique: jest.fn().mockResolvedValue({ role: 'admin' }),
+    },
     accountPermission: {
       findUnique,
     },
@@ -126,6 +135,9 @@ function prismaWithNoPermission() {
   const findFirst = jest.fn().mockResolvedValue(null);
 
   const prisma = {
+    account: {
+      findUnique: jest.fn().mockResolvedValue({ role: 'admin' }),
+    },
     accountPermission: {
       findUnique,
     },

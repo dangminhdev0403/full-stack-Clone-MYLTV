@@ -6,16 +6,17 @@ const nonEmptyString = z.string().trim().min(1, 'Field cannot be empty');
 const booleanCoerce = z
   .union([z.boolean(), z.string()])
   .transform((val) => {
+    if (val === undefined || val === null || val === '') return undefined;
     if (typeof val === 'boolean') return val;
-    if (val.toLowerCase() === 'true') return true;
-    if (val.toLowerCase() === 'false') return false;
+    const str = String(val).toLowerCase();
+    if (str === 'true') return true;
+    if (str === 'false') return false;
     return undefined;
-  })
-  .pipe(z.boolean().optional());
+  });
 
 const listRolesQuerySchema = z.object({
   search: z.string().trim().optional(),
-  is_active: booleanCoerce,
+  is_active: booleanCoerce.optional(),
 });
 
 const uniquePermissionKeys = z

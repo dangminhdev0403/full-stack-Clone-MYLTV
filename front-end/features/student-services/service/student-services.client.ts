@@ -22,8 +22,8 @@ export const mealPackageSchema = z.object({
 
 export const mealsResponseSchema = successSchema(
   z.object({
-    package: mealPackageSchema.optional(),
-    menus: z.array(mealMenuSchema),
+    package: mealPackageSchema.nullable().optional(),
+    menus: z.array(mealMenuSchema).default([]),
   })
 );
 
@@ -36,42 +36,50 @@ export const busTrackingSchema = successSchema(
       name: z.string(),
       phone: z.string(),
     }),
-    tracking: z.object({
-      latitude: z.number(),
-      longitude: z.number(),
-      speed_kph: z.number(),
-      heading: z.number(),
-      location_text: z.string(),
-      recorded_at: z.string(),
-      status: z.string(),
-    }),
-    stops: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        sequence: z.number(),
-        estimated_at: z.string(),
-        status: z.string(),
+    tracking: z
+      .object({
         latitude: z.number(),
         longitude: z.number(),
+        speed_kph: z.number(),
+        heading: z.number(),
+        location_text: z.string(),
+        recorded_at: z.string(),
+        status: z.string(),
       })
-    ),
+      .optional(),
+    stops: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          sequence: z.number(),
+          estimated_at: z.string().optional(),
+          pickup_time: z.string().optional(),
+          status: z.string().optional().default("normal"),
+          latitude: z.number().optional(),
+          longitude: z.number().optional(),
+        })
+      )
+      .default([]),
   })
 );
 
 export const clubSchema = z.object({
   id: z.string(),
   name: z.string(),
-  category: z.string(),
-  schedule: z.string(),
-  fee: z.number(),
-  status: z.string(),
+  category: z.string().optional().default("Ngoại khóa"),
+  schedule: z.string().optional().default("Hàng tuần"),
+  schedule_text: z.string().optional(),
+  fee: z.number().optional().default(0),
+  status: z.string().optional().default("open"),
+  registration_status: z.string().optional(),
   is_registered: z.boolean().optional(),
 });
 
 export const clubsResponseSchema = successSchema(
   z.object({
-    clubs: z.array(clubSchema),
+    items: z.array(clubSchema).optional(),
+    clubs: z.array(clubSchema).optional(),
   })
 );
 
@@ -85,27 +93,30 @@ export const surveySchema = z.object({
 
 export const surveysResponseSchema = successSchema(
   z.object({
-    surveys: z.array(surveySchema),
+    items: z.array(surveySchema).optional(),
+    surveys: z.array(surveySchema).optional(),
   })
 );
 
 export const uniformProductSchema = z.object({
   id: z.string(),
   name: z.string(),
-  image_url: z.string().optional(),
-  variants: z.array(
-    z.object({
-      sku: z.string(),
-      size: z.string(),
-      price: z.number(),
-      stock_status: z.string(),
-    })
-  ),
+  image_url: z.string().nullable().optional(),
+  variants: z
+    .array(
+      z.object({
+        sku: z.string(),
+        size: z.string(),
+        price: z.number(),
+        stock_status: z.string(),
+      })
+    )
+    .default([]),
 });
 
 export const uniformsResponseSchema = successSchema(
   z.object({
-    products: z.array(uniformProductSchema),
+    products: z.array(uniformProductSchema).default([]),
     latest_order: z.any().nullable().optional(),
   })
 );
@@ -122,12 +133,21 @@ export async function fetchBusTracking() {
 
 export async function fetchClubs() {
   const response = await fetch("/api/admin/services/clubs", { cache: "no-store" });
-  return (await parseApiResponse(response, clubsResponseSchema)).data;
+  const data = (await parseApiResponse(response, clubsResponseSchema)).data;
+  const rawList = data.clubs ?? data.items ?? [];
+  const list = rawList.map((c) => ({
+    ...c,
+    category: c.category || "Ngoại khóa",
+    schedule: c.schedule || c.schedule_text || "Hàng tuần",
+    status: c.status === "open" ? "Đang mở" : c.status || "Đang mở",
+  }));
+  return { clubs: list };
 }
 
 export async function fetchSurveys() {
   const response = await fetch("/api/admin/services/surveys", { cache: "no-store" });
-  return (await parseApiResponse(response, surveysResponseSchema)).data;
+  const data = (await parseApiResponse(response, surveysResponseSchema)).data;
+  return { surveys: data.surveys ?? data.items ?? [] };
 }
 
 export async function fetchUniforms() {
