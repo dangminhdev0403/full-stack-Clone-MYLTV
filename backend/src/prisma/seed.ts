@@ -15,6 +15,7 @@ async function main() {
     console.log('🌱 Starting database seeding...');
     await seedIdentityAccess(prisma, { username, password });
     await seedAcademicContext(prisma);
+    await seedAcademicStructure(prisma);
     await seedUatStudents(prisma);
     const accountPassword =
       process.env.UAT_ACCOUNT_PASSWORD ?? 'password123456';
@@ -107,6 +108,142 @@ async function seedUatStudents(prisma: PrismaClient): Promise<void> {
         fullName: `Người giám hộ ${fullName}`,
         phone: '0900000000',
         isEmergencyContact: true,
+      },
+    });
+
+    const currentAcademicYear = await prisma.academicYear.findFirst({
+      where: { isCurrent: true },
+      select: { id: true, startsOn: true },
+    });
+
+    if (currentAcademicYear) {
+      const targetClass = await prisma.schoolClass.findUnique({
+        where: {
+          academicYearId_code: {
+            academicYearId: currentAcademicYear.id,
+            code: className,
+          },
+        },
+        select: { id: true },
+      });
+
+      if (targetClass) {
+        const existingActiveEnrollment = await prisma.classEnrollment.findFirst(
+          {
+            where: {
+              studentId: student.id,
+              isActive: true,
+            },
+            select: { id: true, classId: true },
+          },
+        );
+
+        if (existingActiveEnrollment) {
+          if (existingActiveEnrollment.classId !== targetClass.id) {
+            await prisma.classEnrollment.update({
+              where: { id: existingActiveEnrollment.id },
+              data: { isActive: false, endsOn: new Date() },
+            });
+            await prisma.classEnrollment.create({
+              data: {
+                id: `enrollment-${student.id}-${targetClass.id}`,
+                studentId: student.id,
+                classId: targetClass.id,
+                startsOn: currentAcademicYear.startsOn,
+                isActive,
+              },
+            });
+          }
+        } else {
+          const enrollmentId = `enrollment-${student.id}-${targetClass.id}`;
+          await prisma.classEnrollment.upsert({
+            where: { id: enrollmentId },
+            update: {
+              isActive,
+              startsOn: currentAcademicYear.startsOn,
+            },
+            create: {
+              id: enrollmentId,
+              studentId: student.id,
+              classId: targetClass.id,
+              startsOn: currentAcademicYear.startsOn,
+              isActive,
+            },
+          });
+        }
+      }
+    }
+  }
+}
+
+async function seedAcademicStructure(prisma: PrismaClient): Promise<void> {
+  const gradeLevelsData = [
+    { id: 'grade-level-6', code: '6', displayName: 'Khối 6', sortOrder: 6 },
+    { id: 'grade-level-7', code: '7', displayName: 'Khối 7', sortOrder: 7 },
+    { id: 'grade-level-8', code: '8', displayName: 'Khối 8', sortOrder: 8 },
+    { id: 'grade-level-9', code: '9', displayName: 'Khối 9', sortOrder: 9 },
+  ];
+
+  for (const level of gradeLevelsData) {
+    await prisma.gradeLevel.upsert({
+      where: { code: level.code },
+      update: {
+        displayName: level.displayName,
+        sortOrder: level.sortOrder,
+      },
+      create: {
+        id: level.id,
+        code: level.code,
+        displayName: level.displayName,
+        sortOrder: level.sortOrder,
+      },
+    });
+  }
+
+  const currentAcademicYear = await prisma.academicYear.findFirst({
+    where: { isCurrent: true },
+    select: { id: true, startsOn: true },
+  });
+
+  if (!currentAcademicYear) return;
+
+  const classesData = [
+    { code: '6A1', gradeCode: '6', displayName: 'Lớp 6A1' },
+    { code: '6A2', gradeCode: '6', displayName: 'Lớp 6A2' },
+    { code: '7A1', gradeCode: '7', displayName: 'Lớp 7A1' },
+    { code: '7A2', gradeCode: '7', displayName: 'Lớp 7A2' },
+    { code: '8A1', gradeCode: '8', displayName: 'Lớp 8A1' },
+    { code: '8A2', gradeCode: '8', displayName: 'Lớp 8A2' },
+    { code: '9A1', gradeCode: '9', displayName: 'Lớp 9A1' },
+    { code: '9A2', gradeCode: '9', displayName: 'Lớp 9A2' },
+  ];
+
+  for (const cls of classesData) {
+    const gradeLevel = await prisma.gradeLevel.findUnique({
+      where: { code: cls.gradeCode },
+      select: { id: true },
+    });
+    if (!gradeLevel) continue;
+
+    await prisma.schoolClass.upsert({
+      where: {
+        academicYearId_code: {
+          academicYearId: currentAcademicYear.id,
+          code: cls.code,
+        },
+      },
+      update: {
+        gradeLevelId: gradeLevel.id,
+        displayName: cls.displayName,
+        isActive: true,
+      },
+      create: {
+        id: `school-class-${currentAcademicYear.id}-${cls.code}`,
+        academicYearId: currentAcademicYear.id,
+        gradeLevelId: gradeLevel.id,
+        code: cls.code,
+        displayName: cls.displayName,
+        isActive: true,
       },
     });
   }

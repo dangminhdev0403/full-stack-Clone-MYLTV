@@ -74,5 +74,28 @@ export function resolveAdminEndpoint(resource: string, segments: string[], metho
       return `/api/v1/admin/academic-context/semesters/${segments[1]}/set-current`;
     }
   }
+  if (resource === "academic-structure") {
+    if (segments.length === 1 && segments[0] === "grade-levels" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-structure/grade-levels";
+    }
+    if (segments.length === 2 && segments[0] === "grade-levels" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-structure/grade-levels/${segments[1]}`;
+    }
+    if (segments.length === 1 && segments[0] === "classes" && ["GET", "POST"].includes(method)) {
+      return "/api/v1/admin/academic-structure/classes";
+    }
+    if (segments.length === 2 && segments[0] === "classes" && ["PUT", "PATCH"].includes(method)) {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}`;
+    }
+    if (segments.length === 3 && segments[0] === "classes" && segments[2] === "roster" && method === "GET") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/roster`;
+    }
+    if (segments.length === 3 && segments[0] === "classes" && segments[2] === "enrollments" && method === "POST") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/enrollments`;
+    }
+    if (segments.length === 5 && segments[0] === "classes" && segments[2] === "enrollments" && segments[4] === "deactivate" && method === "POST") {
+      return `/api/v1/admin/academic-structure/classes/${segments[1]}/enrollments/${segments[3]}/deactivate`;
+    }
+  }
   throw new Error("Unsupported admin endpoint");
 }

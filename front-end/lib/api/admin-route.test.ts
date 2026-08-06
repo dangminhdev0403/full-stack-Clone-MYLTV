@@ -22,6 +22,15 @@ describe("admin BFF allowlist", () => {
     expect(resolveAdminEndpoint("academic-context", ["semesters", "2024-2025-sem1", "set-current"], "POST")).toBe("/api/v1/admin/academic-context/semesters/2024-2025-sem1/set-current");
     expect(resolveAdminEndpoint("notifications", ["notification-1"], "GET")).toBe("/api/v1/admin/notifications/notification-1");
     expect(resolveAdminEndpoint("notifications", ["notification-1"], "PATCH")).toBe("/api/v1/admin/notifications/notification-1");
+    expect(resolveAdminEndpoint("academic-structure", ["grade-levels"], "GET")).toBe("/api/v1/admin/academic-structure/grade-levels");
+    expect(resolveAdminEndpoint("academic-structure", ["grade-levels"], "POST")).toBe("/api/v1/admin/academic-structure/grade-levels");
+    expect(resolveAdminEndpoint("academic-structure", ["grade-levels", "grade-1"], "PATCH")).toBe("/api/v1/admin/academic-structure/grade-levels/grade-1");
+    expect(resolveAdminEndpoint("academic-structure", ["classes"], "GET")).toBe("/api/v1/admin/academic-structure/classes");
+    expect(resolveAdminEndpoint("academic-structure", ["classes"], "POST")).toBe("/api/v1/admin/academic-structure/classes");
+    expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1"], "PATCH")).toBe("/api/v1/admin/academic-structure/classes/class-1");
+    expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "roster"], "GET")).toBe("/api/v1/admin/academic-structure/classes/class-1/roster");
+    expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "enrollments"], "POST")).toBe("/api/v1/admin/academic-structure/classes/class-1/enrollments");
+    expect(resolveAdminEndpoint("academic-structure", ["classes", "class-1", "enrollments", "student-1", "deactivate"], "POST")).toBe("/api/v1/admin/academic-structure/classes/class-1/enrollments/student-1/deactivate");
   });
 
   it("allows attendance, tuition and feedback domain routes", () => {

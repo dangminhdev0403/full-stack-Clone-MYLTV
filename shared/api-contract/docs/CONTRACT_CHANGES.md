@@ -5,6 +5,7 @@
 - Added protected `GET /admin/students/{student_id}/attendance` using `academics.attendance.read`, Next.js BFF allowlisting, lazy student-profile rendering, and deterministic idempotent UAT attendance fixtures.
 - Added protected student score, reward/discipline, and bus-route reads with dedicated permissions, lazy profile tabs, and idempotent UAT fixtures; removed the obsolete planned student-tab panel.
 - Added protected academic year/semester list, create, update, and set-current operations with coherent transactional current context and audited mutations.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.
 - Completed Feedback admin list/detail/status update with validated DTOs, dedicated read/manage permissions, atomic status-update audit, search/status filtering, pagination, BFF routes, permission-aware management UI, and backend/frontend tests. Admin create is explicitly planned; app submit remains legacy/partial.
 - Added dedicated `AdminFeedbackItem`, `AdminFeedbackList`, and `AdminFeedbackStatusUpdate` schemas; removed the untrusted `student_id` admin-list query, normalized legacy `received`/`closed` data to `new`/`resolved`, and synchronized canonical JSON/YAML plus root/frontend mirrors.
 - Completed Notifications admin list/detail/create/update with validated DTOs, dedicated read/manage permissions, audit events, bounded filtering/pagination, BFF detail/PATCH routes, management UI, and backend/frontend tests.
@@ -63,3 +64,4 @@
 - Initialized shared API contract package.
 - Added OpenAPI export pipeline from `services/auth-service`.
 - Added verification and SDK preparation scripts.
+- Added additive grade-level, school-class, roster, and enrollment-history contracts; class assignment preserves legacy student grade/class compatibility fields transactionally.

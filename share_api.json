@@ -1308,6 +1308,87 @@
       "bounded_context": "Academics",
       "auth_required": true,
       "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/academic-structure/grade-levels",
+      "method": "GET",
+      "path": "/admin/academic-structure/grade-levels",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/grade-levels",
+      "method": "POST",
+      "path": "/admin/academic-structure/grade-levels",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "PATCH /admin/academic-structure/grade-levels/{id}",
+      "method": "PATCH",
+      "path": "/admin/academic-structure/grade-levels/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/academic-structure/classes",
+      "method": "GET",
+      "path": "/admin/academic-structure/classes",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/classes",
+      "method": "POST",
+      "path": "/admin/academic-structure/classes",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "PATCH /admin/academic-structure/classes/{id}",
+      "method": "PATCH",
+      "path": "/admin/academic-structure/classes/{id}",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "GET /admin/academic-structure/classes/{id}/roster",
+      "method": "GET",
+      "path": "/admin/academic-structure/classes/{id}/roster",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/classes/{id}/enrollments",
+      "method": "POST",
+      "path": "/admin/academic-structure/classes/{id}/enrollments",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
+    },
+    {
+      "group": "academics",
+      "name": "POST /admin/academic-structure/classes/{id}/enrollments/{student_id}/deactivate",
+      "method": "POST",
+      "path": "/admin/academic-structure/classes/{id}/enrollments/{student_id}/deactivate",
+      "bounded_context": "Academics",
+      "auth_required": true,
+      "implementation_status": "implemented"
     }
   ],
   "common_error_response": {

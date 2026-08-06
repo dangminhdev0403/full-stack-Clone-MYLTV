@@ -12673,6 +12673,918 @@
         "x-scope": "fixed_role_policy",
         "x-implementation-status": "implemented"
       }
+    },
+    "/admin/academic-structure/grade-levels": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminListGradeLevels",
+        "summary": "List grade levels",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "grade_levels": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/GradeLevelAdmin"
+                              }
+                            }
+                          },
+                          "required": [
+                            "grade_levels"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      },
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminCreateGradeLevel",
+        "summary": "Create grade level",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/GradeLevelAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "display_name",
+                  "sort_order"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "sort_order": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-structure/grade-levels/{id}": {
+      "patch": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminUpdateGradeLevel",
+        "summary": "Update grade level",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/GradeLevelAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1,
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "sort_order": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-structure/classes": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminListSchoolClasses",
+        "summary": "List school classes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "academic_year_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "grade_level_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "classes": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/SchoolClassAdmin"
+                              }
+                            }
+                          },
+                          "required": [
+                            "classes"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      },
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminCreateSchoolClass",
+        "summary": "Create school class",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SchoolClassAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "academic_year_id",
+                  "grade_level_id",
+                  "code",
+                  "display_name"
+                ],
+                "properties": {
+                  "academic_year_id": {
+                    "type": "string"
+                  },
+                  "grade_level_id": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "homeroom_teacher_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-structure/classes/{id}": {
+      "patch": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminUpdateSchoolClass",
+        "summary": "Update school class",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/SchoolClassAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "minProperties": 1,
+                "properties": {
+                  "grade_level_id": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "homeroom_teacher_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-structure/classes/{id}/roster": {
+      "get": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminGetClassRoster",
+        "summary": "Get class roster",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ClassEnrollmentAdmin"
+                              }
+                            }
+                          },
+                          "required": [
+                            "items"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.read",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
+    },
+    "/admin/academic-structure/classes/{id}/enrollments": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminAssignClassEnrollment",
+        "summary": "Assign or transfer student",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ClassEnrollmentAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "student_id"
+                ],
+                "properties": {
+                  "student_id": {
+                    "type": "string"
+                  },
+                  "starts_on": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/academic-structure/classes/{id}/enrollments/{student_id}/deactivate": {
+      "post": {
+        "tags": [
+          "Academics"
+        ],
+        "operationId": "adminDeactivateClassEnrollment",
+        "summary": "Deactivate student enrollment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ClassEnrollmentAdmin"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-bounded-context": "Academics",
+        "x-consumer": "management-ui",
+        "x-allowed-roles": [
+          "admin",
+          "super_admin"
+        ],
+        "x-required-permission": "academics.structure.manage",
+        "x-scope": "fixed_role_policy",
+        "x-implementation-status": "implemented"
+      }
     }
   },
   "components": {
@@ -15472,6 +16384,103 @@
           "sort_order": {
             "type": "integer",
             "minimum": 1
+          }
+        }
+      },
+      "GradeLevelAdmin": {
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "display_name",
+          "sort_order"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer"
+          }
+        }
+      },
+      "SchoolClassAdmin": {
+        "type": "object",
+        "required": [
+          "id",
+          "academic_year_id",
+          "grade_level_id",
+          "code",
+          "display_name",
+          "is_active"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "academic_year_id": {
+            "type": "string"
+          },
+          "grade_level_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "homeroom_teacher_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClassEnrollmentAdmin": {
+        "type": "object",
+        "required": [
+          "id",
+          "student_id",
+          "class_id",
+          "is_active"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string"
+          },
+          "class_id": {
+            "type": "string"
+          },
+          "starts_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "ends_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "is_active": {
+            "type": "boolean"
           }
         }
       }

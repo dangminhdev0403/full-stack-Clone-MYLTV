@@ -90,6 +90,21 @@ export const PERMISSIONS = [
     risk: 'high',
   },
   {
+    key: 'academics.structure.read',
+    label: 'Read academic structure',
+    description: 'Read grade levels, school classes, and roster enrollments.',
+    boundedContext: 'Academics',
+    risk: 'low',
+  },
+  {
+    key: 'academics.structure.manage',
+    label: 'Manage academic structure',
+    description:
+      'Create and update grade levels, school classes, and student enrollments.',
+    boundedContext: 'Academics',
+    risk: 'high',
+  },
+  {
     key: 'academics.attendance.read',
     label: 'Read attendance',
     description:
